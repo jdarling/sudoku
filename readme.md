@@ -4,6 +4,8 @@
 
 A lightweight browser-based Sudoku game with clean separation of concerns, pure function architecture, and community-contributed puzzles.
 
+**🎮 [Play online](https://jdarling.github.io/sudoku/) (hosted on GitHub Pages)**
+
 ## Quick Start
 
 ### Run Locally (No Server)
