@@ -8,7 +8,7 @@
 
 body {
   font-family: Georgia, "Times New Roman", serif;
-  background: #ffffff;
+  background: #f5f0e8;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -38,12 +38,12 @@ h1 {
 }
 
 #status.win {
-  color: #0a6e3f;
+  color: #007a57;
   font-weight: 600;
 }
 
 #status.error {
-  color: #b03a2e;
+  color: #c0502a;
 }
 
 table {
@@ -84,24 +84,28 @@ input.cell {
 
 input.cell.given {
   font-weight: 700;
-  background: #e8e8e8;
+  background: #dcdcdc;
 }
 
 input.cell.selected {
-  background: #d6e8f7;
+  background: #5b9bd5;
 }
 
 input.cell.related {
-  background: #f7e99d;
+  background: #deeaf6;
+}
+
+input.cell.related-line {
+  background: #b8d4ed;
 }
 
 input.cell.same-num {
-  background: #cdecd9;
+  background: #f5c842;
 }
 
 input.cell.wrong {
-  background: #fbe0dc;
-  color: #b03a2e;
+  background: #f5d5c0;
+  color: #c0502a;
 }
 
 #controls {
@@ -162,10 +166,10 @@ input.cell.wrong {
 }
 
 #check-btn {
-  border-color: #5b8fc9;
+  border-color: #5b9bd5;
   color: #1a5a9a;
 }
 
 #check-btn:hover {
-  background: #eaf2fb;
+  background: #deeaf6;
 }

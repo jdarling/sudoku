@@ -20,10 +20,17 @@ const getCellHighlight = (
   if (selectedNum && selectedNum === board[cellIndex]) {
     return "same-num";
   }
-  if (relatedCells.has(cellIndex)) {
-    return "related";
+  if (!relatedCells.has(cellIndex)) {
+    return null;
   }
-  return null;
+  const selRow = Math.floor(selected / GRID_SIZE);
+  const selCol = selected % GRID_SIZE;
+  const cellRow = Math.floor(cellIndex / GRID_SIZE);
+  const cellCol = cellIndex % GRID_SIZE;
+  if (cellRow === selRow || cellCol === selCol) {
+    return "related-line";
+  }
+  return "related";
 };
 
 /**
