@@ -71,7 +71,6 @@ const solveBoard = (state) => {
   const solvedState = {
     ...state,
     board: solution,
-    given: solution.map(() => true),
     selected: -1,
     status: "Puzzle solved!",
     statusType: "win",
