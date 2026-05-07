@@ -8,7 +8,7 @@
 
 body {
   font-family: Georgia, "Times New Roman", serif;
-  background: #f5f0e8;
+  background: #ffffff;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -84,6 +84,7 @@ input.cell {
 
 input.cell.given {
   font-weight: 700;
+  background: #e8e8e8;
 }
 
 input.cell.selected {
@@ -91,7 +92,7 @@ input.cell.selected {
 }
 
 input.cell.related {
-  background: #efefef;
+  background: #f7e99d;
 }
 
 input.cell.same-num {
