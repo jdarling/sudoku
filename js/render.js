@@ -145,9 +145,12 @@ const setStatus = (msg, type) => {
 
 /**
  * Focuses the cell input at the given index.
- * @param {number} cellIndex - Cell position (0-80)
+ * @param {number} cellIndex - Cell position (0-80), or -1 to clear focus
  */
 const focusCell = (cellIndex) => {
+  if (cellIndex < 0 || cellIndex >= TOTAL_CELLS) {
+    return;
+  }
   const inputs = document.querySelectorAll(".cell");
   if (inputs[cellIndex]) {
     inputs[cellIndex].focus();

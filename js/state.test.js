@@ -115,38 +115,51 @@ const runStateTests = () => {
   });
 
   test("solveBoard fills board with solution and marks all given", () => {
-    const state = {
-      board: [0, 0, 0],
-      solution: [1, 2, 3],
-      given: [false, false, false],
-      selected: 2,
-      status: "",
-      statusType: "",
-    };
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
     const next = solveBoard(state);
+    const hasZero = next.board.some((cell) => cell === 0);
     return expect(
-      next.board[2] === 3 && next.given.every(Boolean) && next.selected === -1,
+      !hasZero &&
+        next.given.every(Boolean) &&
+        next.selected === -1 &&
+        next.statusType === "win",
     ).toBeTruthy();
   });
 
+  test("solveBoard returns fully populated board with no zeros", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const solved = solveBoard(state);
+    const hasZero = solved.board.some((cell) => cell === 0);
+    return expect(hasZero).toBeFalsy();
+  });
+
+  test("solveBoard marks all cells as given after solving", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const solved = solveBoard(state);
+    const allGiven = solved.given.every(Boolean);
+    const solvedCount = solved.board.filter((cell) => cell !== 0).length;
+    return expect(allGiven && solvedCount === TOTAL_CELLS).toBeTruthy();
+  });
+
   test("checkSolution returns win state when board matches solution", () => {
-    const state = {
-      board: [1, 2, 3],
-      solution: [1, 2, 3],
-      status: "",
-      statusType: "",
-    };
-    const next = checkSolution(state, true);
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const solved = solveBoard(state);
+    const next = checkSolution(solved, true);
     return expect(next.statusType).toBe("win");
   });
 
   test("checkSolution returns unchanged state when showErrors is false", () => {
-    const state = {
-      board: [1, 2, 0],
-      solution: [1, 2, 3],
-      status: "",
-      statusType: "",
-    };
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
     const next = checkSolution(state, false);
     return expect(next).toBe(state);
   });
@@ -154,7 +167,6 @@ const runStateTests = () => {
   test("getWrongCells returns user cells that conflict by Sudoku rules", () => {
     const state = {
       board: [1, 1].concat(new Array(TOTAL_CELLS - 2).fill(0)),
-      solution: new Array(TOTAL_CELLS).fill(0),
       given: [true, false].concat(new Array(TOTAL_CELLS - 2).fill(false)),
     };
     const wrong = getWrongCells(state);

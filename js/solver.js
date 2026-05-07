@@ -39,27 +39,29 @@ const isValid = (boardState, pos, num) => {
 
 /**
  * Recursively solves the sudoku puzzle using backtracking.
- * @param {number[]} boardState - Current board state (mutated in place)
- * @returns {boolean} True if puzzle is solved
+ * Returns new solved board or null if unsolveable (immutable).
+ * @param {number[]} boardState - Board state to solve (not mutated)
+ * @returns {number[]|null} Solved board if solveable, null if unsolveable
  */
 const solve = (boardState) => {
   const emptyCell = boardState.indexOf(0);
   if (emptyCell === -1) {
-    return true;
+    return boardState;
   }
 
   for (let num = 1; num <= GRID_SIZE; num++) {
     if (!isValid(boardState, emptyCell, num)) {
       continue;
     }
-    boardState[emptyCell] = num;
-    if (solve(boardState)) {
-      return true;
+    const newBoard = [...boardState];
+    newBoard[emptyCell] = num;
+    const result = solve(newBoard);
+    if (result !== null) {
+      return result;
     }
-    boardState[emptyCell] = 0;
   }
 
-  return false;
+  return null;
 };
 
 /**

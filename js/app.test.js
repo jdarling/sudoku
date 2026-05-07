@@ -61,7 +61,6 @@ const runAppTests = () => {
       puzzle: new Array(81).fill(0),
       board: new Array(81).fill(0),
       given: new Array(81).fill(false),
-      solution: new Array(81).fill(0),
       selected: -1,
       status: "",
       statusType: "",
@@ -140,15 +139,10 @@ const runAppTests = () => {
   });
 
   test("updateHash writes encoded board to hash", () => {
-    let replacedUrl = "";
     __setCurrentState({ board: [1, 2, 3] });
-    context.window.location.pathname = "/index.html";
-    context.window.location.search = "?puzzle=001";
-    context.window.history.replaceState = (_a, _b, url) => {
-      replacedUrl = url;
-    };
+    context.window.location.hash = "";
     updateHash();
-    return expect(replacedUrl).toBe("/index.html?puzzle=001#board=123");
+    return expect(context.window.location.hash).toBe("board=123");
   });
 
   test("handleArrowKey returns null when out of bounds", () => {
@@ -201,7 +195,6 @@ const runAppTests = () => {
       puzzle: [4].concat(new Array(80).fill(0)),
       board: new Array(81).fill(0),
       given: [true].concat(new Array(80).fill(false)),
-      solution: new Array(81).fill(0),
       selected: -1,
       status: "",
       statusType: "",
@@ -226,7 +219,6 @@ const runAppTests = () => {
       puzzle: new Array(81).fill(0),
       board: new Array(81).fill(0),
       given: new Array(81).fill(false),
-      solution: new Array(81).fill(0),
       selected: -1,
       status: "",
       statusType: "",

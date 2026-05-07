@@ -6,13 +6,10 @@
 const createStateFromPuzzle = (puzzleStr) => {
   const board = puzzleStr.split("").map(Number);
   const given = board.map((digit) => digit !== 0);
-  const solution = [...board];
-  solve(solution);
   return {
     puzzle: [...board],
     board,
     given,
-    solution,
     selected: -1,
     status: "",
     statusType: "",
@@ -55,30 +52,51 @@ const placeNumber = (state, cellIndex, num) => {
 
 /**
  * Creates a new state with board solved.
+ * Solves the puzzle fresh from state.puzzle (immutably).
  * @param {Object} state - Current state
- * @returns {Object} New state with board set to solution
+ * @returns {Object} New state with board filled with solution, or unsolveable status
  */
 const solveBoard = (state) => {
-  return {
+  const solution = solve([...state.puzzle]);
+
+  if (!solution) {
+    return {
+      ...state,
+      selected: -1,
+      status: "Puzzle is unsolveable",
+      statusType: "error",
+    };
+  }
+
+  const solvedState = {
     ...state,
-    board: [...state.solution],
-    given: state.solution.map(() => true),
+    board: solution,
+    given: solution.map(() => true),
     selected: -1,
     status: "Puzzle solved!",
     statusType: "win",
   };
+  console.log("Board solved:", solvedState);
+  return solvedState;
 };
 
 /**
  * Checks if board is completely solved and returns state with status.
+ * Solves the puzzle fresh from state.puzzle (immutably) to compare.
  * @param {Object} state - Current state
  * @param {boolean} showErrors - If true, mark incorrect cells
  * @returns {Object} New state with win status or error status
  */
 const checkSolution = (state, showErrors) => {
-  const allCorrect = state.board.every(
-    (digit, i) => digit === state.solution[i],
-  );
+  const solution = solve([...state.puzzle]);
+  if (!solution) {
+    return {
+      ...state,
+      status: "Puzzle is unsolveable",
+      statusType: "error",
+    };
+  }
+  const allCorrect = state.board.every((digit, i) => digit === solution[i]);
 
   if (allCorrect) {
     return {

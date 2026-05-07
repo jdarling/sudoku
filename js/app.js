@@ -6,15 +6,11 @@ let currentState = null;
 
 /**
  * Updates the URL hash with the current board state.
- * Preserves the puzzle query parameter if present.
+ * Triggers hashchange listener for board reload and link sharing.
  */
 const updateHash = () => {
   const encoded = encodeBoard(currentState.board);
-  window.history.replaceState(
-    null,
-    "",
-    `${window.location.pathname}${window.location.search}#board=${encoded}`,
-  );
+  window.location.hash = `board=${encoded}`;
 };
 
 /**
@@ -26,8 +22,10 @@ const updateState = (newState) => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   setStatus(currentState.status, currentState.statusType);
-  focusCell(currentState.selected);
   updateHash();
+  if (currentState.selected >= 0) {
+    focusCell(currentState.selected);
+  }
 };
 
 /**
@@ -36,6 +34,9 @@ const updateState = (newState) => {
  */
 const onCellFocus = (event) => {
   const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (cellIndex === currentState.selected) {
+    return;
+  }
   updateState(selectCell(currentState, cellIndex));
 };
 
@@ -292,6 +293,9 @@ const init = async () => {
   });
 
   window.addEventListener("hashchange", () => {
+    if (currentState && currentState.statusType === "win") {
+      return;
+    }
     const boardHash = getBoardFromHash();
     if (boardHash && currentState) {
       const decodedBoard = decodeBoard(
