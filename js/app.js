@@ -260,6 +260,7 @@ const loadRandomPuzzle = async () => {
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(currentState.status, currentState.statusType);
+    updateHash();
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");
   }
