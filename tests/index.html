@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Tests</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: monospace;
+        padding: 20px;
+        background: #f5f5f5;
+        margin: 0;
+      }
+
+      h1 {
+        color: #333;
+        margin: 0 0 20px 0;
+      }
+
+      .test-results {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      /* File level (solver.js, etc) */
+      .file-section {
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .file-section:last-child {
+        border-bottom: none;
+      }
+
+      details.file-section > summary {
+        padding: 12px 16px;
+        background: #f9f9f9;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        border-left: 4px solid #2196f3;
+      }
+
+      details.file-section > summary:hover {
+        background: #f0f0f0;
+      }
+
+      details.file-section[open] > summary {
+        background: #e3f2fd;
+      }
+
+      .file-name {
+        flex: 1;
+      }
+
+      .file-stats {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        font-weight: normal;
+      }
+
+      .stat-pass {
+        color: #2e7d32;
+      }
+
+      .stat-fail {
+        color: #c62828;
+      }
+
+      /* Function level (idx(), isValid(), etc) */
+      .function-section {
+        padding: 0;
+      }
+
+      details.function-section > summary {
+        padding: 10px 16px 10px 32px;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafafa;
+        border-left: 3px solid #fff;
+        font-size: 13px;
+      }
+
+      details.function-section > summary:hover {
+        background: #f5f5f5;
+      }
+
+      details.function-section[open] > summary {
+        background: #f0f8ff;
+        border-left-color: #2196f3;
+      }
+
+      .function-name {
+        flex: 1;
+      }
+
+      .function-stats {
+        display: flex;
+        gap: 12px;
+        font-size: 11px;
+      }
+
+      /* Test results (individual tests) */
+      .test-list {
+        padding: 0;
+        margin: 0;
+      }
+
+      .test-item {
+        padding: 6px 16px 6px 48px;
+        border-left: 2px solid #ddd;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .test-item.pass {
+        background: #fafafa;
+        border-left-color: #4caf50;
+        color: #2e7d32;
+      }
+
+      .test-item.fail {
+        background: #fffbfb;
+        border-left-color: #f44336;
+        color: #c62828;
+      }
+
+      /* Summary at bottom */
+      .test-summary {
+        padding: 16px;
+        background: #f9f9f9;
+        border-top: 2px solid #e0e0e0;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .test-summary.all-pass {
+        background: #c8e6c9;
+        color: #1b5e20;
+        border-top-color: #4caf50;
+      }
+
+      .test-summary.has-fail {
+        background: #ffcdd2;
+        color: #b71c1c;
+        border-top-color: #f44336;
+      }
+
+      .summary-text {
+        flex: 1;
+      }
+
+      .summary-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        padding: 6px 12px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        font-family: monospace;
+      }
+
+      button:hover {
+        background: #1976d2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sudoku Tests</h1>
+    <div id="test-results"></div>
+
+    <script src="../js/constants.js"></script>
+    <script src="../js/solver.js"></script>
+    <script src="../js/state.js"></script>
+    <script src="../js/puzzles.js"></script>
+    <script src="./testharness.js"></script>
+
+    <script>
+      /**
+       * Load all test files sequentially and run tests once all are loaded.
+       */
+      const loadTestFiles = () => {
+        const testFiles = [
+          "./testharness.test.js",
+          "../js/solver.test.js",
+          "../js/state.test.js",
+          "../js/puzzles.test.js",
+          "../js/app.test.js",
+        ];
+        let filesLoaded = 0;
+
+        const loadNextFile = () => {
+          if (filesLoaded >= testFiles.length) {
+            setTimeout(runAllTests, 0);
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = testFiles[filesLoaded];
+          script.onload = () => {
+            filesLoaded += 1;
+            loadNextFile();
+          };
+          script.onerror = () => {
+            console.error(
+              `Failed to load test file: ${testFiles[filesLoaded]}`,
+            );
+            filesLoaded += 1;
+            loadNextFile();
+          };
+          document.head.appendChild(script);
+        };
+
+        loadNextFile();
+      };
+
+      /**
+       * Render test results as nested collapsible sections.
+       * @param {Object} summary - Test summary from runAllRegisteredTests
+       */
+      const renderCollapsibleResults = (summary) => {
+        const container = document.getElementById("test-results");
+        if (!container) return;
+
+        const resultsDiv = document.createElement("div");
+        resultsDiv.className = "test-results";
+
+        // File sections - each file in the registry
+        summary.files.forEach((file) => {
+          const fileSection = document.createElement("details");
+          fileSection.className = "file-section";
+          fileSection.open = false; // Collapsed by default
+
+          const fileSummary = document.createElement("summary");
+          fileSummary.innerHTML = `
+            <span class="file-name">${file.fileName}</span>
+            <span class="file-stats">
+              <span class="stat-pass">${file.passed} passed</span>
+              <span class="stat-fail">${file.failed} failed</span>
+            </span>
+          `;
+          fileSection.appendChild(fileSummary);
+
+          // Tests directly under file (no function/suite grouping)
+          const testList = document.createElement("div");
+          testList.className = "test-list";
+
+          if (file.tests && Array.isArray(file.tests)) {
+            file.tests.forEach((test) => {
+              const testItem = document.createElement("div");
+              testItem.className = `test-item ${test.pass ? "pass" : "fail"}`;
+              testItem.textContent = test.message;
+              testList.appendChild(testItem);
+            });
+          }
+
+          fileSection.appendChild(testList);
+          resultsDiv.appendChild(fileSection);
+        });
+
+        container.appendChild(resultsDiv);
+
+        // Summary at bottom
+        const summaryDiv = document.createElement("div");
+        summaryDiv.className = `test-summary ${summary.totalFailed === 0 ? "all-pass" : "has-fail"}`;
+        summaryDiv.innerHTML = `
+          <span class="summary-text">${summary.totalPassed}/${summary.total} tests passed${summary.totalFailed > 0 ? ` (${summary.totalFailed} failed)` : ""}</span>
+          <span class="summary-actions">
+            <button onclick="expandAll()">Expand All</button>
+            <button onclick="collapseAll()">Collapse All</button>
+          </span>
+        `;
+        container.appendChild(summaryDiv);
+      };
+      /**
+       * Expand all collapsible sections.
+       */
+      const expandAll = () => {
+        document.querySelectorAll("details").forEach((detail) => {
+          detail.open = true;
+        });
+      };
+
+      /**
+       * Collapse all collapsible sections.
+       */
+      const collapseAll = () => {
+        document.querySelectorAll("details").forEach((detail) => {
+          detail.open = false;
+        });
+      };
+
+      /**
+       * Run all registered tests and display results.
+       */
+      const runAllTests = async () => {
+        const summary = await runAllRegisteredTests();
+        renderCollapsibleResults(summary);
+      };
+
+      // Start loading all test files
+      loadTestFiles();
+    </script>
+  </body>
+</html>

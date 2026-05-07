@@ -13,7 +13,7 @@ A lightweight browser-based Sudoku game with clean separation of concerns, pure 
 1. Clone or download this repository
 2. Open `index.html` in your browser
 
-That's it. No build, no install, no dependencies.
+That's it. If your browser blocks fetech then you can always Run with Docker...
 
 ### Run with Docker (Recommended for Development)
 
@@ -112,8 +112,8 @@ author: Your Name
 difficulty: easy
 puzzle:
   rows:
-    - '530070000'
-    - '600195000'
+    - "530070000"
+    - "600195000"
     - ...
 ```
 

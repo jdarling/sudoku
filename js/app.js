@@ -5,6 +5,19 @@
 let currentState = null;
 
 /**
+ * Updates the URL hash with the current board state.
+ * Preserves the puzzle query parameter if present.
+ */
+const updateHash = () => {
+  const encoded = encodeBoard(currentState.board);
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}#board=${encoded}`,
+  );
+};
+
+/**
  * Updates current state and orchestrates rendering and side effects.
  * @param {Object} newState - New state to apply
  */
@@ -14,6 +27,7 @@ const updateState = (newState) => {
   markWrongCells(currentState);
   setStatus(currentState.status, currentState.statusType);
   focusCell(currentState.selected);
+  updateHash();
 };
 
 /**
@@ -71,7 +85,7 @@ const onCellKeydown = (event) => {
     return;
   }
 
-  if (event.key >= '1' && event.key <= '9') {
+  if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
     const newState = handleNumberKey(parseInt(event.key, 10));
     updateState(newState);
@@ -79,9 +93,9 @@ const onCellKeydown = (event) => {
   }
 
   if (
-    event.key === 'Backspace' ||
-    event.key === 'Delete' ||
-    event.key === '0'
+    event.key === "Backspace" ||
+    event.key === "Delete" ||
+    event.key === "0"
   ) {
     event.preventDefault();
     const newState = handleDeleteKey();
@@ -110,7 +124,7 @@ const onCellInput = (event) => {
     return;
   }
   const numValue =
-    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ''), 10) || 0;
+    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
   updateState(placeNumber(currentState, cellIndex, numValue));
 };
 
@@ -138,32 +152,48 @@ const onNumberButtonClick = (event) => {
  */
 const getPuzzleFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
-  const puzzle = params.get('puzzle');
+  const puzzle = params.get("puzzle");
   if (!puzzle) {
     return null;
   }
-  if (!puzzle.includes('/')) {
+  if (!puzzle.includes("/")) {
     return `puzzles/${puzzle}.yaml`;
   }
-  if (!puzzle.includes('.yaml')) {
+  if (!puzzle.includes(".yaml")) {
     return `${puzzle}.yaml`;
   }
   return puzzle;
 };
-
+/**
+ * Extracts board state from URL hash.
+ * @returns {string|null} Encoded board string from hash or null if not present
+ */
+const getBoardFromHash = () => {
+  const hash = window.location.hash;
+  if (!hash.includes("board=")) {
+    return null;
+  }
+  const encoded = hash.split("board=")[1];
+  return encoded && encoded.length === TOTAL_CELLS ? encoded : null;
+};
 /**
  * Updates URL query parameter with current puzzle filename.
  * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
  */
 const updateQuery = (filename) => {
   const params = new URLSearchParams(window.location.search);
-  const shortName = filename.replace(/\.yaml$/, '').replace(/^puzzles\//, '');
-  params.set('puzzle', shortName);
-  window.history.replaceState(null, '', `?${params.toString()}`);
+  const shortName = filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
+  params.set("puzzle", shortName);
+  window.history.replaceState(
+    null,
+    "",
+    `?${params.toString()}${window.location.hash}`,
+  );
 };
 
 /**
  * Loads a puzzle by filename and initializes game state.
+ * If a board hash exists in the URL, restores that board state after loading the puzzle.
  * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml")
  * @returns {Promise<void>}
  */
@@ -172,17 +202,33 @@ const loadPuzzleByFilename = async (filename) => {
     const puzzle = await getPuzzle(filename);
     currentState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(filename);
+
+    const boardHash = getBoardFromHash();
+    if (boardHash) {
+      const decodedBoard = decodeBoard(
+        boardHash,
+        currentState.given,
+        currentState.puzzle,
+      );
+      if (decodedBoard) {
+        currentState = {
+          ...currentState,
+          board: decodedBoard,
+        };
+      }
+    }
+
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(currentState.status, currentState.statusType);
   } catch (error) {
-    setStatus(`Failed to load puzzle: ${error.message}`, 'error');
+    setStatus(`Failed to load puzzle: ${error.message}`, "error");
   }
 };
 
 /**
  * Loads a new puzzle and initializes game state.
- * Checks URL query parameter first; if present, loads that puzzle.
+ * Checks URL query parameter first; if present, loads that puzzle and restores board from hash if present.
  * Otherwise loads a random puzzle and updates the URL.
  * @returns {Promise<void>}
  */
@@ -203,8 +249,7 @@ const loadNewGame = async () => {
 
 /**
  * Loads a random puzzle and updates the URL.
- * Used by the "New Puzzle" button to always get a different puzzle.
- * @returns {Promise<void>}
+ * Used by the "New Puzzle" button to always get a different puzzle. * Clears any board hash to start fresh. * @returns {Promise<void>}
  */
 const loadRandomPuzzle = async () => {
   try {
@@ -215,7 +260,7 @@ const loadRandomPuzzle = async () => {
     markWrongCells(currentState);
     setStatus(currentState.status, currentState.statusType);
   } catch (error) {
-    setStatus(`Failed to load puzzle: ${error.message}`, 'error');
+    setStatus(`Failed to load puzzle: ${error.message}`, "error");
   }
 };
 
@@ -226,27 +271,46 @@ const loadRandomPuzzle = async () => {
 const init = async () => {
   await loadNewGame();
 
-  document.getElementById('new-btn').addEventListener('click', () => {
+  document.getElementById("new-btn").addEventListener("click", () => {
     loadRandomPuzzle();
   });
 
-  document.getElementById('check-btn').addEventListener('click', () => {
+  document.getElementById("check-btn").addEventListener("click", () => {
     updateState(checkSolution(currentState, true));
   });
 
-  document.getElementById('solve-btn').addEventListener('click', () => {
+  document.getElementById("solve-btn").addEventListener("click", () => {
     updateState(solveBoard(currentState));
   });
 
-  document.querySelectorAll('.num-btn').forEach((btn) => {
-    btn.addEventListener('click', onNumberButtonClick);
+  document.querySelectorAll(".num-btn").forEach((btn) => {
+    btn.addEventListener("click", onNumberButtonClick);
   });
 
-  window.addEventListener('popstate', () => {
+  window.addEventListener("popstate", () => {
     loadNewGame();
+  });
+
+  window.addEventListener("hashchange", () => {
+    const boardHash = getBoardFromHash();
+    if (boardHash && currentState) {
+      const decodedBoard = decodeBoard(
+        boardHash,
+        currentState.given,
+        currentState.puzzle,
+      );
+      if (decodedBoard) {
+        currentState = {
+          ...currentState,
+          board: decodedBoard,
+        };
+        renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+        markWrongCells(currentState);
+      }
+    }
   });
 };
 
 init().catch((error) => {
-  console.error('Failed to initialize game:', error);
+  console.error("Failed to initialize game:", error);
 });

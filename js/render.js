@@ -15,13 +15,13 @@ const getCellHighlight = (
   board,
 ) => {
   if (cellIndex === selected) {
-    return 'selected';
+    return "selected";
   }
   if (selectedNum && selectedNum === board[cellIndex]) {
-    return 'same-num';
+    return "same-num";
   }
   if (relatedCells.has(cellIndex)) {
-    return 'related';
+    return "related";
   }
   return null;
 };
@@ -45,16 +45,16 @@ const createCell = (
   const row = Math.floor(cellIndex / GRID_SIZE);
   const col = cellIndex % GRID_SIZE;
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'cell';
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "cell";
   input.maxLength = 1;
-  input.value = state.board[cellIndex] || '';
+  input.value = state.board[cellIndex] || "";
   input.dataset.cellIndex = cellIndex;
-  input.setAttribute('aria-label', `Row ${row + 1}, column ${col + 1}`);
+  input.setAttribute("aria-label", `Row ${row + 1}, column ${col + 1}`);
 
   if (state.given[cellIndex]) {
-    input.classList.add('given');
+    input.classList.add("given");
   }
 
   const relatedCells =
@@ -71,11 +71,11 @@ const createCell = (
     input.classList.add(highlight);
   }
 
-  input.addEventListener('focus', onCellFocus);
-  input.addEventListener('keydown', onCellKeydown);
-  input.addEventListener('input', onCellInput);
+  input.addEventListener("focus", onCellFocus);
+  input.addEventListener("keydown", onCellKeydown);
+  input.addEventListener("input", onCellInput);
 
-  const td = document.createElement('td');
+  const td = document.createElement("td");
   td.appendChild(input);
   return td;
 };
@@ -90,7 +90,7 @@ const createCell = (
  * @returns {HTMLTableRowElement} Configured tr element
  */
 const createRow = (state, row, onCellFocus, onCellKeydown, onCellInput) => {
-  const tr = document.createElement('tr');
+  const tr = document.createElement("tr");
   for (let col = 0; col < GRID_SIZE; col++) {
     tr.appendChild(
       createCell(state, idx(row, col), onCellFocus, onCellKeydown, onCellInput),
@@ -107,8 +107,8 @@ const createRow = (state, row, onCellFocus, onCellKeydown, onCellInput) => {
  * @param {Function} onCellInput - Input handler
  */
 const renderGrid = (state, onCellFocus, onCellKeydown, onCellInput) => {
-  const gridEl = document.getElementById('grid');
-  gridEl.innerHTML = '';
+  const gridEl = document.getElementById("grid");
+  gridEl.innerHTML = "";
 
   for (let row = 0; row < GRID_SIZE; row++) {
     gridEl.appendChild(
@@ -122,10 +122,13 @@ const renderGrid = (state, onCellFocus, onCellKeydown, onCellInput) => {
  * @param {Object} state - Current state
  */
 const markWrongCells = (state) => {
+  const inputs = document.querySelectorAll(".cell");
+  inputs.forEach((input) => {
+    input.classList.remove("wrong");
+  });
   const wrongCells = getWrongCells(state);
-  const inputs = document.querySelectorAll('.cell');
   wrongCells.forEach((i) => {
-    inputs[i].classList.add('wrong');
+    inputs[i].classList.add("wrong");
   });
 };
 
@@ -135,9 +138,9 @@ const markWrongCells = (state) => {
  * @param {string} type - Status type (e.g., 'win', 'error')
  */
 const setStatus = (msg, type) => {
-  const statusEl = document.getElementById('status');
+  const statusEl = document.getElementById("status");
   statusEl.textContent = msg;
-  statusEl.className = type || '';
+  statusEl.className = type || "";
 };
 
 /**
@@ -145,7 +148,7 @@ const setStatus = (msg, type) => {
  * @param {number} cellIndex - Cell position (0-80)
  */
 const focusCell = (cellIndex) => {
-  const inputs = document.querySelectorAll('.cell');
+  const inputs = document.querySelectorAll(".cell");
   if (inputs[cellIndex]) {
     inputs[cellIndex].focus();
   }

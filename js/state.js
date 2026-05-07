@@ -4,17 +4,18 @@
  * @returns {Object} Initial state object
  */
 const createStateFromPuzzle = (puzzleStr) => {
-  const board = puzzleStr.split('').map(Number);
+  const board = puzzleStr.split("").map(Number);
   const given = board.map((digit) => digit !== 0);
   const solution = [...board];
   solve(solution);
   return {
+    puzzle: [...board],
     board,
     given,
     solution,
     selected: -1,
-    status: '',
-    statusType: '',
+    status: "",
+    statusType: "",
   };
 };
 
@@ -47,8 +48,8 @@ const placeNumber = (state, cellIndex, num) => {
   return {
     ...state,
     board: newBoard,
-    status: '',
-    statusType: '',
+    status: "",
+    statusType: "",
   };
 };
 
@@ -63,8 +64,8 @@ const solveBoard = (state) => {
     board: [...state.solution],
     given: state.solution.map(() => true),
     selected: -1,
-    status: 'Puzzle solved!',
-    statusType: 'win',
+    status: "Puzzle solved!",
+    statusType: "win",
   };
 };
 
@@ -82,8 +83,8 @@ const checkSolution = (state, showErrors) => {
   if (allCorrect) {
     return {
       ...state,
-      status: 'Puzzle solved!',
-      statusType: 'win',
+      status: "Puzzle solved!",
+      statusType: "win",
     };
   }
 
@@ -93,26 +94,76 @@ const checkSolution = (state, showErrors) => {
 
   return {
     ...state,
-    status: 'Some cells are incorrect',
-    statusType: 'error',
+    status: "Some cells are incorrect",
+    statusType: "error",
   };
 };
 
 /**
- * Gets indices of incorrectly filled cells.
+ * Gets indices of user-entered cells that violate Sudoku constraints.
+ * A cell is wrong when it duplicates the same digit in its row, column, or box.
  * @param {Object} state - Current state
- * @returns {number[]} Array of cell indices with incorrect values
+ * @returns {number[]} Array of invalid cell indices
  */
 const getWrongCells = (state) => {
   const wrong = [];
   for (let i = 0; i < TOTAL_CELLS; i++) {
-    if (
-      !state.given[i] &&
-      state.board[i] !== 0 &&
-      state.board[i] !== state.solution[i]
-    ) {
+    if (state.given[i] || state.board[i] === 0) {
+      continue;
+    }
+
+    const value = state.board[i];
+    const related = getRelated(i);
+    let hasConflict = false;
+
+    for (const relatedIndex of related) {
+      if (relatedIndex === i) {
+        continue;
+      }
+      if (state.board[relatedIndex] === value) {
+        hasConflict = true;
+        break;
+      }
+    }
+
+    if (hasConflict) {
       wrong.push(i);
     }
   }
   return wrong;
+};
+
+/**
+ * Encodes the board to a hash string (81 characters, one digit per cell).
+ * @param {number[]} board - Board array with 81 elements
+ * @returns {string} Encoded board string
+ */
+const encodeBoard = (board) => {
+  return board.map((digit) => digit.toString()).join("");
+};
+
+/**
+ * Decodes a hash string to a board array, preserving given cells.
+ * @param {string} encodedBoard - Encoded board string (81 characters)
+ * @param {boolean[]} givenCells - Array indicating which cells are given (immutable)
+ * @param {number[]} originalBoard - Original puzzle board to restore given cells from
+ * @returns {number[]} Decoded board array, with given cells restored from original puzzle
+ */
+const decodeBoard = (encodedBoard, givenCells, originalBoard) => {
+  if (!encodedBoard || encodedBoard.length !== TOTAL_CELLS) {
+    return null;
+  }
+  const board = encodedBoard.split("").map((char) => {
+    const num = parseInt(char, 10);
+    return Number.isNaN(num) ? 0 : num;
+  });
+
+  // Restore given cells to their original puzzle values
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if (givenCells[i]) {
+      board[i] = originalBoard[i];
+    }
+  }
+
+  return board;
 };
