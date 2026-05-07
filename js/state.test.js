@@ -173,28 +173,28 @@ const runStateTests = () => {
     return expect(wrong).toEqual([1]);
   });
 
-  test("encodeBoard returns 81-char digit string", () => {
+  test("encodeBoard returns 45-char compressed string", () => {
     const board = new Array(TOTAL_CELLS).fill(0);
     board[0] = 9;
     const encoded = encodeBoard(board);
+    return expect(encoded.length === 45).toBeTruthy();
+  });
+
+  test("decodeBoard round-trips through encodeBoard", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 9;
+    board[40] = 5;
+    const encoded = encodeBoard(board);
+    const decoded = decodeBoard(encoded);
     return expect(
-      encoded.length === TOTAL_CELLS && encoded[0] === "9",
+      Array.isArray(decoded) && decoded[0] === 9 && decoded[40] === 5,
     ).toBeTruthy();
   });
 
-  test("decodeBoard restores given cells from original board", () => {
-    const encoded = "9".repeat(TOTAL_CELLS);
-    const given = new Array(TOTAL_CELLS).fill(false);
-    const original = new Array(TOTAL_CELLS).fill(0);
-    given[0] = true;
-    original[0] = 4;
-    const decoded = decodeBoard(encoded, given, original);
-    return expect(decoded[0] === 4 && decoded[1] === 9).toBeTruthy();
-  });
-
-  test("decodeBoard returns null for invalid length", () => {
-    const decoded = decodeBoard("123", [], []);
-    return expect(decoded).toBe(null);
+  test("decodeBoard returns null for null or empty input", () => {
+    return expect(
+      decodeBoard(null) === null && decodeBoard("") === null,
+    ).toBeTruthy();
   });
 };
 

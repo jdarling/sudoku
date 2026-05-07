@@ -6,11 +6,15 @@ let currentState = null;
 
 /**
  * Updates the URL hash with the current board state.
- * Triggers hashchange listener for board reload and link sharing.
+ * Uses replaceState to avoid triggering hashchange for internal updates.
  */
 const updateHash = () => {
   const encoded = encodeBoard(currentState.board);
-  window.location.hash = `board=${encoded}`;
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}#board=${encoded}`,
+  );
 };
 
 /**
@@ -175,7 +179,7 @@ const getBoardFromHash = () => {
     return null;
   }
   const encoded = hash.split("board=")[1];
-  return encoded && encoded.length === TOTAL_CELLS ? encoded : null;
+  return encoded || null;
 };
 /**
  * Updates URL query parameter with current puzzle filename.
@@ -206,11 +210,7 @@ const loadPuzzleByFilename = async (filename) => {
 
     const boardHash = getBoardFromHash();
     if (boardHash) {
-      const decodedBoard = decodeBoard(
-        boardHash,
-        currentState.given,
-        currentState.puzzle,
-      );
+      const decodedBoard = decodeBoard(boardHash);
       if (decodedBoard) {
         currentState = {
           ...currentState,
@@ -299,11 +299,7 @@ const init = async () => {
     }
     const boardHash = getBoardFromHash();
     if (boardHash && currentState) {
-      const decodedBoard = decodeBoard(
-        boardHash,
-        currentState.given,
-        currentState.puzzle,
-      );
+      const decodedBoard = decodeBoard(boardHash);
       if (decodedBoard) {
         currentState = {
           ...currentState,

@@ -152,12 +152,45 @@ const getWrongCells = (state) => {
 };
 
 /**
+ * Encodes an 81-character Sudoku string into a 45-character URL-safe string.
+ * @param {string} board - 81 digits (0-9).
+ * @returns {string} 45-character compact string.
+ */
+const compressBoard = (board) => {
+  // Treat the 81 digits as one massive BigInt
+  let val = BigInt(board);
+  let result = "";
+
+  // log64(10^81) ≈ 44.8, so 45 characters is the minimum possible
+  for (let i = 0; i < 45; i++) {
+    result = ENCODING_CHARS[Number(val % 64n)] + result;
+    val /= 64n;
+  }
+  return result;
+};
+
+/**
+ * Decodes the 45-character string back into the original 81-character board.
+ * @param {string} compact - 45-character string.
+ * @returns {string} 81-character board string.
+ */
+const decompressBoard = (compact) => {
+  let val = 0n;
+  for (let char of compact) {
+    val = val * 64n + BigInt(ENCODING_CHARS.indexOf(char));
+  }
+
+  // Restore as string, padding with leading zeros to maintain 81 chars
+  return val.toString().padStart(81, "0");
+};
+
+/**
  * Encodes the board to a hash string (81 characters, one digit per cell).
  * @param {number[]} board - Board array with 81 elements
  * @returns {string} Encoded board string
  */
 const encodeBoard = (board) => {
-  return board.map((digit) => digit.toString()).join("");
+  return compressBoard(board.map((digit) => digit.toString()).join(""));
 };
 
 /**
@@ -167,21 +200,18 @@ const encodeBoard = (board) => {
  * @param {number[]} originalBoard - Original puzzle board to restore given cells from
  * @returns {number[]} Decoded board array, with given cells restored from original puzzle
  */
-const decodeBoard = (encodedBoard, givenCells, originalBoard) => {
-  if (!encodedBoard || encodedBoard.length !== TOTAL_CELLS) {
+/**
+ * Decodes an encoded board string into a board array.
+ * @param {string} encodedBoard - 81-character digit string
+ * @returns {number[]|null} Board array or null if invalid
+ */
+const decodeBoard = (encodedBoard) => {
+  if (!encodedBoard) {
     return null;
   }
-  const board = encodedBoard.split("").map((char) => {
-    const num = parseInt(char, 10);
-    return Number.isNaN(num) ? 0 : num;
-  });
-
-  // Restore given cells to their original puzzle values
-  for (let i = 0; i < TOTAL_CELLS; i++) {
-    if (givenCells[i]) {
-      board[i] = originalBoard[i];
-    }
+  const decoded = decompressBoard(encodedBoard);
+  if (!decoded || decoded.length !== TOTAL_CELLS || !/^\d+$/.test(decoded)) {
+    return null;
   }
-
-  return board;
+  return decoded.split("").map((char) => parseInt(char, 10));
 };

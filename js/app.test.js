@@ -121,8 +121,8 @@ const runAppTests = () => {
     return expect(getBoardFromHash()).toBe(null);
   });
 
-  test("getBoardFromHash returns 81-char board value", () => {
-    const board = "1".repeat(81);
+  test("getBoardFromHash returns encoded board value from hash", () => {
+    const board = "someencodedvalue";
     context.window.location.hash = `#board=${board}`;
     return expect(getBoardFromHash()).toBe(board);
   });
@@ -139,10 +139,15 @@ const runAppTests = () => {
   });
 
   test("updateHash writes encoded board to hash", () => {
+    let replacedUrl = "";
     __setCurrentState({ board: [1, 2, 3] });
-    context.window.location.hash = "";
+    context.window.location.pathname = "/index.html";
+    context.window.location.search = "?puzzle=001";
+    context.window.history.replaceState = (_a, _b, url) => {
+      replacedUrl = url;
+    };
     updateHash();
-    return expect(context.window.location.hash).toBe("board=123");
+    return expect(replacedUrl).toBe("/index.html?puzzle=001#board=123");
   });
 
   test("handleArrowKey returns null when out of bounds", () => {
@@ -185,8 +190,8 @@ const runAppTests = () => {
     return expect(checkCalled).toBeTruthy();
   });
 
-  test("loadPuzzleByFilename passes original puzzle to decodeBoard", async () => {
-    let thirdArg;
+  test("loadPuzzleByFilename applies decoded board from hash", async () => {
+    let decodeCalled = false;
     context.getPuzzle = async () => ({
       filename: "puzzles/001.yaml",
       puzzle: "0".repeat(81),
@@ -199,15 +204,15 @@ const runAppTests = () => {
       status: "",
       statusType: "",
     });
-    context.window.location.hash = `#board=${"9".repeat(81)}`;
-    context.decodeBoard = (_encoded, _given, original) => {
-      thirdArg = original;
+    context.window.location.hash = `#board=${"9".repeat(45)}`;
+    context.decodeBoard = (_encoded) => {
+      decodeCalled = true;
       return new Array(81).fill(0);
     };
 
     await loadPuzzleByFilename("puzzles/001.yaml");
 
-    return expect(Array.isArray(thirdArg) && thirdArg[0] === 4).toBeTruthy();
+    return expect(decodeCalled).toBeTruthy();
   });
 
   test("loadPuzzleByFilename applies decoded board when available", async () => {
@@ -223,7 +228,7 @@ const runAppTests = () => {
       status: "",
       statusType: "",
     });
-    context.window.location.hash = `#board=${"8".repeat(81)}`;
+    context.window.location.hash = `#board=${"8".repeat(45)}`;
     context.decodeBoard = () => {
       const board = new Array(81).fill(0);
       board[1] = 7;
