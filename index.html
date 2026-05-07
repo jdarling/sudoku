@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="style/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Sudoku</h1>
+      <div id="status"></div>
+      <table id="grid"></table>
+      <div id="controls">
+        <button class="num-btn" data-n="1">1</button>
+        <button class="num-btn" data-n="2">2</button>
+        <button class="num-btn" data-n="3">3</button>
+        <button class="num-btn" data-n="4">4</button>
+        <button class="num-btn" data-n="5">5</button>
+        <button class="num-btn" data-n="6">6</button>
+        <button class="num-btn" data-n="7">7</button>
+        <button class="num-btn" data-n="8">8</button>
+        <button class="num-btn" data-n="9">9</button>
+        <button class="num-btn erase" data-n="0">Erase</button>
+      </div>
+      <div id="action-row">
+        <button class="action-btn" id="new-btn">New Puzzle</button>
+        <button class="action-btn" id="check-btn">Check</button>
+        <button class="action-btn" id="solve-btn">Solve</button>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/solver.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/puzzles.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

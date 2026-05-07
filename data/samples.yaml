@@ -1,0 +1,104 @@
+# =============================================================================
+# samples.yaml — Sample puzzle files demonstrating supported formats
+#
+# This file contains two puzzle documents showing both supported input formats.
+# Real puzzle files should each be a single document in their own .yaml file.
+#
+# REQUIRED FIELDS:
+#   name        - Display name for the puzzle
+#   author      - Your name or handle
+#   difficulty  - One of: easy, medium, hard, expert
+#   puzzle      - The puzzle data (see formats below)
+#
+# OPTIONAL FIELDS:
+#   schemaVersion - File format version (default: 1.0.0)
+#   version       - Puzzle revision (default: omitted)
+#
+# PUZZLE FORMATS:
+#   Two formats are supported: rows and blocks (see examples below).
+#   Use whichever you find easier to read or write.
+#   Values must be quoted strings to avoid YAML interpreting leading zeros.
+#   Zeros represent empty cells.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# FORMAT 1: rows
+# The puzzle is written as 9 rows of 9 digits, top to bottom.
+# This is the simplest format for most contributors.
+# -----------------------------------------------------------------------------
+---
+schemaVersion: 1.0.0
+version: 1.0.0
+name: Sample Row Puzzle
+author: Jeremy Darling
+difficulty: easy
+puzzle:
+  rows:
+    - "530070000"
+    - "600195000"
+    - "098000060"
+    - "800060003"
+    - "400803001"
+    - "700020006"
+    - "060000280"
+    - "000419005"
+    - "000080079"
+
+# -----------------------------------------------------------------------------
+# FORMAT 2: blocks
+# The puzzle is written as the 9 named 3x3 boxes that make up a sudoku grid.
+# Each block contains 3 rows of 3 digits covering that box's area.
+# Blocks are named by their position on the grid:
+#
+#   top-left    | top-center    | top-right
+#   ------------+---------------+------------
+#   middle-left | middle-center | middle-right
+#   ------------+---------------+------------
+#   bottom-left | bottom-center | bottom-right
+#
+# Each block lists its rows top to bottom within that box.
+# -----------------------------------------------------------------------------
+---
+schemaVersion: 1.0.0
+version: 1.0.0
+name: Sample Block Puzzle
+author: Jeremy Darling
+difficulty: easy
+puzzle:
+  blocks:
+    top-left:
+      - "530"
+      - "600"
+      - "098"
+    top-center:
+      - "070"
+      - "195"
+      - "000"
+    top-right:
+      - "000"
+      - "000"
+      - "060"
+    middle-left:
+      - "800"
+      - "400"
+      - "700"
+    middle-center:
+      - "060"
+      - "803"
+      - "020"
+    middle-right:
+      - "003"
+      - "001"
+      - "006"
+    bottom-left:
+      - "060"
+      - "000"
+      - "000"
+    bottom-center:
+      - "000"
+      - "419"
+      - "080"
+    bottom-right:
+      - "280"
+      - "005"
+      - "079"

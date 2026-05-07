@@ -1,0 +1,252 @@
+/**
+ * Module-level current game state.
+ * @type {Object|null}
+ */
+let currentState = null;
+
+/**
+ * Updates current state and orchestrates rendering and side effects.
+ * @param {Object} newState - New state to apply
+ */
+const updateState = (newState) => {
+  currentState = newState;
+  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  markWrongCells(currentState);
+  setStatus(currentState.status, currentState.statusType);
+  focusCell(currentState.selected);
+};
+
+/**
+ * Handles cell focus event.
+ * @param {Event} event - Focus event
+ */
+const onCellFocus = (event) => {
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  updateState(selectCell(currentState, cellIndex));
+};
+
+/**
+ * Handles number key press (1-9).
+ * @param {number} num - Number pressed
+ * @returns {Object} New state or current state
+ */
+const handleNumberKey = (num) => {
+  const cellIndex = currentState.selected;
+  const newState = placeNumber(currentState, cellIndex, num);
+  if (newState.board.every((digit) => digit !== 0)) {
+    return checkSolution(newState, false);
+  }
+  return newState;
+};
+
+/**
+ * Handles delete key (Backspace, Delete, or 0).
+ * @returns {Object} New state
+ */
+const handleDeleteKey = () => {
+  const cellIndex = currentState.selected;
+  return placeNumber(currentState, cellIndex, 0);
+};
+
+/**
+ * Handles arrow key navigation.
+ * @param {number} offset - Cell offset from arrow key
+ * @returns {Object|null} New state or null if out of bounds
+ */
+const handleArrowKey = (offset) => {
+  const nextCell = currentState.selected + offset;
+  if (nextCell < 0 || nextCell >= TOTAL_CELLS) {
+    return null;
+  }
+  return selectCell(currentState, nextCell);
+};
+
+/**
+ * Handles cell keydown event.
+ * @param {Event} event - Keydown event
+ */
+const onCellKeydown = (event) => {
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (currentState.given[cellIndex]) {
+    return;
+  }
+
+  if (event.key >= '1' && event.key <= '9') {
+    event.preventDefault();
+    const newState = handleNumberKey(parseInt(event.key, 10));
+    updateState(newState);
+    return;
+  }
+
+  if (
+    event.key === 'Backspace' ||
+    event.key === 'Delete' ||
+    event.key === '0'
+  ) {
+    event.preventDefault();
+    const newState = handleDeleteKey();
+    updateState(newState);
+    return;
+  }
+
+  if (!ARROW_MOVES[event.key]) {
+    return;
+  }
+
+  event.preventDefault();
+  const newState = handleArrowKey(ARROW_MOVES[event.key]);
+  if (newState) {
+    updateState(newState);
+  }
+};
+
+/**
+ * Handles cell input event.
+ * @param {Event} event - Input event
+ */
+const onCellInput = (event) => {
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (currentState.given[cellIndex]) {
+    return;
+  }
+  const numValue =
+    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ''), 10) || 0;
+  updateState(placeNumber(currentState, cellIndex, numValue));
+};
+
+/**
+ * Handles number button click.
+ * @param {Event} event - Click event
+ */
+const onNumberButtonClick = (event) => {
+  if (currentState.selected < 0) {
+    return;
+  }
+  const num = parseInt(event.currentTarget.dataset.n, 10);
+  if (num === 0) {
+    updateState(handleDeleteKey());
+    return;
+  }
+  const newState = handleNumberKey(num);
+  updateState(newState);
+};
+
+/**
+ * Extracts puzzle filename from URL query parameter.
+ * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml
+ * @returns {string|null} Puzzle filename or null if puzzle param is empty
+ */
+const getPuzzleFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const puzzle = params.get('puzzle');
+  if (!puzzle) {
+    return null;
+  }
+  if (!puzzle.includes('/')) {
+    return `puzzles/${puzzle}.yaml`;
+  }
+  if (!puzzle.includes('.yaml')) {
+    return `${puzzle}.yaml`;
+  }
+  return puzzle;
+};
+
+/**
+ * Updates URL query parameter with current puzzle filename.
+ * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
+ */
+const updateQuery = (filename) => {
+  const params = new URLSearchParams(window.location.search);
+  const shortName = filename.replace(/\.yaml$/, '').replace(/^puzzles\//, '');
+  params.set('puzzle', shortName);
+  window.history.replaceState(null, '', `?${params.toString()}`);
+};
+
+/**
+ * Loads a puzzle by filename and initializes game state.
+ * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml")
+ * @returns {Promise<void>}
+ */
+const loadPuzzleByFilename = async (filename) => {
+  try {
+    const puzzle = await getPuzzle(filename);
+    currentState = createStateFromPuzzle(puzzle.puzzle);
+    updateQuery(filename);
+    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+    markWrongCells(currentState);
+    setStatus(currentState.status, currentState.statusType);
+  } catch (error) {
+    setStatus(`Failed to load puzzle: ${error.message}`, 'error');
+  }
+};
+
+/**
+ * Loads a new puzzle and initializes game state.
+ * Checks URL query parameter first; if present, loads that puzzle.
+ * Otherwise loads a random puzzle and updates the URL.
+ * @returns {Promise<void>}
+ */
+const loadNewGame = async () => {
+  const puzzleFromQuery = getPuzzleFromQuery();
+  if (puzzleFromQuery) {
+    await loadPuzzleByFilename(puzzleFromQuery);
+    return;
+  }
+
+  const puzzle = await getRandomPuzzle();
+  currentState = createStateFromPuzzle(puzzle.puzzle);
+  updateQuery(puzzle.filename);
+  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  markWrongCells(currentState);
+  setStatus(currentState.status, currentState.statusType);
+};
+
+/**
+ * Loads a random puzzle and updates the URL.
+ * Used by the "New Puzzle" button to always get a different puzzle.
+ * @returns {Promise<void>}
+ */
+const loadRandomPuzzle = async () => {
+  try {
+    const puzzle = await getRandomPuzzle();
+    currentState = createStateFromPuzzle(puzzle.puzzle);
+    updateQuery(puzzle.filename);
+    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+    markWrongCells(currentState);
+    setStatus(currentState.status, currentState.statusType);
+  } catch (error) {
+    setStatus(`Failed to load puzzle: ${error.message}`, 'error');
+  }
+};
+
+/**
+ * Initializes the game and sets up event listeners.
+ * @returns {Promise<void>}
+ */
+const init = async () => {
+  await loadNewGame();
+
+  document.getElementById('new-btn').addEventListener('click', () => {
+    loadRandomPuzzle();
+  });
+
+  document.getElementById('check-btn').addEventListener('click', () => {
+    updateState(checkSolution(currentState, true));
+  });
+
+  document.getElementById('solve-btn').addEventListener('click', () => {
+    updateState(solveBoard(currentState));
+  });
+
+  document.querySelectorAll('.num-btn').forEach((btn) => {
+    btn.addEventListener('click', onNumberButtonClick);
+  });
+
+  window.addEventListener('popstate', () => {
+    loadNewGame();
+  });
+};
+
+init().catch((error) => {
+  console.error('Failed to initialize game:', error);
+});
