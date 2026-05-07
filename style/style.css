@@ -1,11 +1,13 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   background: #f5f0e8;
   min-height: 100vh;
   display: flex;
@@ -82,7 +84,6 @@ input.cell {
 
 input.cell.given {
   font-weight: 700;
-  pointer-events: none;
 }
 
 input.cell.selected {
@@ -120,7 +121,9 @@ input.cell.wrong {
   font-weight: 600;
   cursor: pointer;
   color: #1a1a1a;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 }
 
 .num-btn:hover {

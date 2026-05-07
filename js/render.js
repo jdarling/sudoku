@@ -55,6 +55,7 @@ const createCell = (
 
   if (state.given[cellIndex]) {
     input.classList.add("given");
+    input.readOnly = true;
   }
 
   const relatedCells =
