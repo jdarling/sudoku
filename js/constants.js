@@ -10,7 +10,7 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = '1.10.0';
+const VERSION = '1.10.1';
 
 /**
  * Characters used for encoding the board in the URL.

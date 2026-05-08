@@ -4,14 +4,16 @@
  * See colors.css for color scheme.
  */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: Georgia, "Times New Roman", serif;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -72,7 +74,6 @@ input.cell {
 
 input.cell.given {
   font-weight: 700;
-  pointer-events: none;
 }
 
 #controls {
@@ -91,7 +92,9 @@ input.cell.given {
   font-family: Georgia, serif;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 }
 
 .num-btn.erase {

@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.10.1]
+
+- Fixed broken cell highlighting after stylesheet split in 1.9.0: restored all Okabe-Ito colors, added missing `related-line` class for row/column highlights, restored `#hint-btn` and `#version` styling in both default and dark themes, removed conflicting `pointer-events: none` from given cells
+
 ## [1.10.0]
 
 - Added favicons and app icons (favicon.ico, apple-touch-icon, android-chrome, mstile) with references in index.html

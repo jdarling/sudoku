@@ -46,8 +46,16 @@ input.cell {
   color: #e8e4dc;
 }
 
+input.cell.given {
+  background: #333;
+}
+
 input.cell.selected {
   background: #1e3a52;
+}
+
+input.cell.related-line {
+  background: #2a3a52;
 }
 
 input.cell.related {
@@ -98,12 +106,18 @@ input.cell.wrong {
   background: #1a2d3d;
 }
 
-#theme-row {
-  color: #888;
+#hint-btn {
+  border-color: #6b5900;
+  color: #d4a85c;
 }
 
-#theme-select {
-  border-color: #555;
-  background: #2a2a2a;
-  color: #e8e4dc;
+#hint-btn:hover {
+  background: #2a2a1a;
+}
+
+#version {
+  font-size: 11px;
+  color: #666;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
 }

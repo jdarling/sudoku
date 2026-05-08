@@ -45,21 +45,30 @@ input.cell {
   color: #1a1a1a;
 }
 
+input.cell.given {
+  background: #dcdcdc;
+}
+
 input.cell.selected {
-  background: #d6e8f7;
+  background: #5b9bd5;
+  color: #fff;
+}
+
+input.cell.related-line {
+  background: #b8d4ed;
 }
 
 input.cell.related {
-  background: #efefef;
+  background: #deeaf6;
 }
 
 input.cell.same-num {
-  background: #cdecd9;
+  background: #f5c842;
 }
 
 input.cell.wrong {
-  background: #fbe0dc;
-  color: #b03a2e;
+  background: #f5d5c0;
+  color: #c0502a;
 }
 
 .num-btn {
@@ -94,5 +103,21 @@ input.cell.wrong {
 }
 
 #check-btn:hover {
-  background: #eaf2fb;
+  background: #deeaf6;
+}
+
+#hint-btn {
+  border-color: #caa24a;
+  color: #7a5600;
+}
+
+#hint-btn:hover {
+  background: #f5e7b2;
+}
+
+#version {
+  font-size: 11px;
+  color: #bbb;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
 }
