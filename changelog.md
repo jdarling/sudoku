@@ -9,6 +9,13 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.0]
+
+- Restructured layout to support responsive desktop view: board on left, controls on right (desktop width 980px+)
+- Added Load Game button to allow users to load puzzles by ID (accepts formats: 001, puzzles/001, puzzles/001.yaml)
+- Reorganized controls structure with separate #game-shell wrapper and #control-panel for better layout management
+- Renamed "New Puzzle" button to "New Game" for consistency
+
 ## [1.10.4]
 
 - Improved dark theme accessibility for colorblind users by increasing contrast and using more distinguishable colors for selected, related-line, related, same-num, and wrong cell states

@@ -267,6 +267,63 @@ const loadRandomPuzzle = async () => {
 };
 
 /**
+ * Normalizes puzzle input to standard filename format: "puzzles/XXX.yaml"
+ * Accepts formats: "001", "puzzles/001", "puzzles/001.yaml"
+ * @param {string} inputValue - User input value
+ * @returns {string} Normalized filename or null if invalid
+ */
+const normalizePuzzleInput = (inputValue) => {
+  if (!inputValue || typeof inputValue !== "string") {
+    return null;
+  }
+
+  const trimmed = inputValue.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  // Remove ".yaml" extension if present
+  let withoutExt = trimmed;
+  if (trimmed.endsWith(".yaml")) {
+    withoutExt = trimmed.slice(0, -5);
+  }
+
+  // Remove "puzzles/" prefix if present
+  let puzzleId = withoutExt;
+  if (withoutExt.startsWith("puzzles/")) {
+    puzzleId = withoutExt.slice(8);
+  }
+
+  // Validate it's a valid puzzle ID (numeric)
+  if (!/^\d+$/.test(puzzleId)) {
+    return null;
+  }
+
+  return `puzzles/${puzzleId}.yaml`;
+};
+
+/**
+ * Handles Load Game button click.
+ * Prompts user for puzzle ID and loads the puzzle if valid.
+ */
+const onLoadButtonClick = () => {
+  const inputValue = prompt(
+    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
+  );
+  if (inputValue === null) {
+    return; // User cancelled
+  }
+
+  const normalized = normalizePuzzleInput(inputValue);
+  if (!normalized) {
+    setStatus("Invalid puzzle ID format.", "error");
+    return;
+  }
+
+  loadPuzzleByFilename(normalized);
+};
+
+/**
  * Initializes the game and sets up event listeners.
  * @returns {Promise<void>}
  */
@@ -278,6 +335,10 @@ const init = async () => {
   document.getElementById("new-btn").addEventListener("click", () => {
     loadRandomPuzzle();
   });
+
+  document
+    .getElementById("load-btn")
+    .addEventListener("click", onLoadButtonClick);
 
   document.getElementById("check-btn").addEventListener("click", () => {
     updateState(checkSolution(currentState, true));

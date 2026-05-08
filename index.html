@@ -39,31 +39,40 @@
     <div id="app">
       <h1>Sudoku</h1>
       <div id="status"></div>
-      <table id="grid"></table>
-      <div id="controls">
-        <button class="num-btn" data-n="1">1</button>
-        <button class="num-btn" data-n="2">2</button>
-        <button class="num-btn" data-n="3">3</button>
-        <button class="num-btn" data-n="4">4</button>
-        <button class="num-btn" data-n="5">5</button>
-        <button class="num-btn" data-n="6">6</button>
-        <button class="num-btn" data-n="7">7</button>
-        <button class="num-btn" data-n="8">8</button>
-        <button class="num-btn" data-n="9">9</button>
-        <button class="num-btn erase" data-n="0">Erase</button>
-      </div>
-      <div id="action-row">
-        <button class="action-btn" id="new-btn">New Puzzle</button>
-        <button class="action-btn" id="check-btn">Check</button>
-        <button class="action-btn" id="hint-btn">Hint</button>
-        <button class="action-btn" id="solve-btn">Solve</button>
-      </div>
-      <div id="theme-row">
-        <label for="theme-select">Theme:</label>
-        <select id="theme-select">
-          <option value="default">Default</option>
-          <option value="dark">Dark</option>
-        </select>
+      <div id="game-shell">
+        <div id="board-column">
+          <table id="grid"></table>
+        </div>
+        <div id="control-panel">
+          <div id="top-controls">
+            <button class="action-btn" id="new-btn">New Game</button>
+            <button class="action-btn" id="load-btn">Load Game</button>
+            <button class="action-btn" id="solve-btn">Solve</button>
+          </div>
+          <div id="controls">
+            <button class="num-btn" data-n="1">1</button>
+            <button class="num-btn" data-n="2">2</button>
+            <button class="num-btn" data-n="3">3</button>
+            <button class="num-btn" data-n="4">4</button>
+            <button class="num-btn" data-n="5">5</button>
+            <button class="num-btn" data-n="6">6</button>
+            <button class="num-btn" data-n="7">7</button>
+            <button class="num-btn" data-n="8">8</button>
+            <button class="num-btn" data-n="9">9</button>
+            <button class="num-btn erase" data-n="0">Erase</button>
+          </div>
+          <div id="action-row">
+            <button class="action-btn" id="check-btn">Check</button>
+            <button class="action-btn" id="hint-btn">Hint</button>
+          </div>
+          <div id="theme-row">
+            <label for="theme-select">Theme:</label>
+            <select id="theme-select">
+              <option value="default">Default</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div id="version"></div>
     </div>

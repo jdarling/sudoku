@@ -134,3 +134,37 @@ input.cell.given {
   font-family: system-ui, sans-serif;
   cursor: pointer;
 }
+
+#game-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
+}
+
+#board-column {
+  display: flex;
+  justify-content: center;
+}
+
+#control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+  align-items: center;
+}
+
+#top-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+#control-panel .action-btn {
+  flex: 1;
+  min-width: 100px;
+}
