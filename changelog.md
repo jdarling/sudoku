@@ -9,6 +9,15 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.3]
+
+- Removed excessive padding and margins to maximize game focus
+- Reduced vertical gaps throughout layout (app gap, game-shell gap, control-panel gap)
+- Reduced top/bottom body padding from 2rem to 0.4rem
+- Increased cell sizes from 48px to 50px to fill recovered space
+- Made version display subtle with reduced opacity
+- Status message area preserved for gameplay feedback
+
 ## [1.11.2]
 
 - Simplified action buttons layout by converting from flex to 2-column grid (Check, Hint)
