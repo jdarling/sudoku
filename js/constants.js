@@ -10,7 +10,7 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = '1.10.1';
+const VERSION = "1.10.2";
 
 /**
  * Characters used for encoding the board in the URL.
@@ -18,7 +18,7 @@ const VERSION = '1.10.1';
  * The first 27 cells (3x3 block) are encoded in the URL for state persistence.
  */
 const ENCODING_CHARS =
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 /**
  * Arrow key to offset mapping.
  */
@@ -28,3 +28,14 @@ const ARROW_MOVES = {
   ArrowDown: GRID_SIZE,
   ArrowUp: -GRID_SIZE,
 };
+
+/**
+ * Available themes.
+ * Add new themes to this array for registration.
+ */
+const AVAILABLE_THEMES = ["default", "dark"];
+
+/**
+ * Default theme on first load.
+ */
+const DEFAULT_THEME = "default";

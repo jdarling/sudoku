@@ -271,6 +271,7 @@ const loadRandomPuzzle = async () => {
  * @returns {Promise<void>}
  */
 const init = async () => {
+  initTheme();
   renderVersion();
   await loadNewGame();
 
@@ -288,6 +289,10 @@ const init = async () => {
 
   document.getElementById("solve-btn").addEventListener("click", () => {
     updateState(solveBoard(currentState));
+  });
+
+  document.getElementById("theme-select").addEventListener("change", (event) => {
+    applyTheme(event.target.value);
   });
 
   document.querySelectorAll(".num-btn").forEach((btn) => {

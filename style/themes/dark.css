@@ -121,3 +121,17 @@ input.cell.wrong {
   font-family: system-ui, sans-serif;
   margin-top: 0.25rem;
 }
+
+#theme-row {
+  color: #888;
+}
+
+#theme-select {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #e8e4dc;
+}
+
+#theme-select:hover {
+  border-color: #777;
+}

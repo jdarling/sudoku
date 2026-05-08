@@ -33,7 +33,7 @@
     <meta name="msapplication-TileImage" content="icons/mstile-150x150.png" />
     <meta name="msapplication-TileColor" content="#f5f0e8" />
     <link rel="stylesheet" href="style/layout.css" />
-    <link rel="stylesheet" href="style/themes/default.css" />
+    <link rel="stylesheet" href="style/themes/default.css" data-theme-link />
   </head>
   <body>
     <div id="app">
@@ -58,6 +58,13 @@
         <button class="action-btn" id="hint-btn">Hint</button>
         <button class="action-btn" id="solve-btn">Solve</button>
       </div>
+      <div id="theme-row">
+        <label for="theme-select">Theme:</label>
+        <select id="theme-select">
+          <option value="default">Default</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
       <div id="version"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
@@ -66,6 +73,7 @@
     <script src="js/state.js"></script>
     <script src="js/render.js"></script>
     <script src="js/puzzles.js"></script>
+    <script src="js/theme.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

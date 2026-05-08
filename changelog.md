@@ -9,6 +9,15 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.10.2]
+
+- Added theme system with theme picker UI
+- Users can now switch between Default and Dark themes
+- Theme preference is saved to localStorage and persists across sessions
+- Created comprehensive theming documentation in `docs/theming.md` for future theme additions
+- Added `js/theme.js` module for theme management (switching, persistence)
+- Architecture supports easy addition of new themes without duplicating layout CSS
+
 ## [1.10.1]
 
 - Fixed broken cell highlighting after stylesheet split in 1.9.0: restored all Okabe-Ito colors, added missing `related-line` class for row/column highlights, restored `#hint-btn` and `#version` styling in both default and dark themes, removed conflicting `pointer-events: none` from given cells
