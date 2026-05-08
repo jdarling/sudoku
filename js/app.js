@@ -33,6 +33,13 @@ const STATUS_TEMPLATES =
           'Failed to load puzzle "{puzzleName}": {errorMessage}',
       };
 
+const STATUS_TEMPLATE_BY_BASE_MESSAGE = {
+  [STATUS_BASE.allValuesCorrect]: STATUS_TEMPLATES.allValuesCorrect,
+  [STATUS_BASE.someCellsIncorrect]: STATUS_TEMPLATES.someCellsIncorrect,
+  [STATUS_BASE.puzzleSolved]: STATUS_TEMPLATES.puzzleSolved,
+  [STATUS_BASE.puzzleUnsolveable]: STATUS_TEMPLATES.puzzleUnsolveable,
+};
+
 /**
  * Interpolates placeholders in a status template.
  * @param {string} template - Template with placeholders
@@ -85,26 +92,9 @@ const formatStatusWithPuzzleName = (statusMessage) => {
     return statusMessage;
   }
 
-  if (statusMessage === STATUS_BASE.allValuesCorrect) {
-    return applyStatusTemplate(STATUS_TEMPLATES.allValuesCorrect, {
-      puzzleName: currentPuzzleName,
-    });
-  }
-
-  if (statusMessage === STATUS_BASE.someCellsIncorrect) {
-    return applyStatusTemplate(STATUS_TEMPLATES.someCellsIncorrect, {
-      puzzleName: currentPuzzleName,
-    });
-  }
-
-  if (statusMessage === STATUS_BASE.puzzleSolved) {
-    return applyStatusTemplate(STATUS_TEMPLATES.puzzleSolved, {
-      puzzleName: currentPuzzleName,
-    });
-  }
-
-  if (statusMessage === STATUS_BASE.puzzleUnsolveable) {
-    return applyStatusTemplate(STATUS_TEMPLATES.puzzleUnsolveable, {
+  const template = STATUS_TEMPLATE_BY_BASE_MESSAGE[statusMessage];
+  if (template) {
+    return applyStatusTemplate(template, {
       puzzleName: currentPuzzleName,
     });
   }

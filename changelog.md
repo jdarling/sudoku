@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.6]
+
+- Refactored status formatting in app orchestration to use a message-to-template map
+- Removed repetitive conditionals in puzzle-name status rendering without changing behavior
+- Improved maintainability of status rendering logic
+
 ## [1.11.5]
 
 - Moved puzzle status message templates into shared constants for centralized management
