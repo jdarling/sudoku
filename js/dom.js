@@ -1,6 +1,6 @@
 /**
  * DOM and URL persistence utilities.
- * All window/history/location access happens here.
+ * All window/history/location access and DOM event handlers happen here.
  */
 
 /**
@@ -63,4 +63,37 @@ const updateHash = (board) => {
     "",
     `${window.location.pathname}${window.location.search}#board=${encoded}`,
   );
+};
+
+/**
+ * Handles number key press (1-9).
+ * @param {Object} state - Current game state
+ * @param {number} num - Number pressed (1-9)
+ * @returns {Object} New state or current state
+ */
+const handleNumberKey = (state, num) => {
+  const newState = updateCellValue(state, state.selected, num);
+  if (newState.board.every((digit) => digit !== 0)) {
+    return checkSolution(newState, false);
+  }
+  return newState;
+};
+
+/**
+ * Handles delete key (Backspace, Delete, or 0).
+ * @param {Object} state - Current game state
+ * @returns {Object} New state
+ */
+const handleDeleteKey = (state) => {
+  return clearCellValue(state, state.selected);
+};
+
+/**
+ * Handles arrow key navigation.
+ * @param {Object} state - Current game state
+ * @param {number} offset - Cell offset from arrow key
+ * @returns {Object|null} New state or null if out of bounds
+ */
+const handleArrowKey = (state, offset) => {
+  return moveSelection(state, offset);
 };

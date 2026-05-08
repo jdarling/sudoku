@@ -31,6 +31,41 @@ const selectCell = (state, cellIndex) => {
 };
 
 /**
+ * Updates a cell value in the board.
+ * @param {Object} state - Current state
+ * @param {number} cellIndex - Cell position (0-80)
+ * @param {number} num - Number to place (1-9)
+ * @returns {Object} New state with cell updated
+ */
+const updateCellValue = (state, cellIndex, num) => {
+  return placeNumber(state, cellIndex, num);
+};
+
+/**
+ * Clears a cell value from the board.
+ * @param {Object} state - Current state
+ * @param {number} cellIndex - Cell position (0-80)
+ * @returns {Object} New state with cell cleared
+ */
+const clearCellValue = (state, cellIndex) => {
+  return placeNumber(state, cellIndex, 0);
+};
+
+/**
+ * Moves selection by offset (arrow key navigation).
+ * @param {Object} state - Current state
+ * @param {number} offset - Cell offset from arrow key
+ * @returns {Object|null} New state or null if out of bounds
+ */
+const moveSelection = (state, offset) => {
+  const nextCell = state.selected + offset;
+  if (nextCell < 0 || nextCell >= TOTAL_CELLS) {
+    return null;
+  }
+  return selectCell(state, nextCell);
+};
+
+/**
  * Creates a new state with a number placed at a cell.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)
