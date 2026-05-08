@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.10]
+
+- Fixed win celebration trigger so confetti only appears for true solved-puzzle state
+- Prevented confetti from triggering on Hint/Check "all values currently correct" messages
+
 ## [1.11.9]
 
 - Added non-blocking confetti burst when a puzzle enters a win state

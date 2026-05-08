@@ -120,7 +120,9 @@ const updateState = (newState) => {
   renderStatus(currentState.status, currentState.statusType);
 
   const enteredWin =
-    currentState.statusType === "win" && lastStatusType !== "win";
+    currentState.statusType === "win" &&
+    currentState.status === "Puzzle solved!" &&
+    lastStatusType !== "win";
   if (enteredWin) {
     launchWinCelebration();
   }
