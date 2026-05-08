@@ -34,6 +34,17 @@ const getCellHighlight = (
 };
 
 /**
+ * Detects touch-first/coarse-pointer devices where soft keyboard should stay hidden.
+ * @returns {boolean} True when using a coarse pointer device
+ */
+const isCoarsePointerDevice = () => {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return false;
+  }
+  return window.matchMedia("(pointer: coarse)").matches;
+};
+
+/**
  * Creates a table cell element for a given board position.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)
@@ -58,11 +69,19 @@ const createCell = (
   input.maxLength = 1;
   input.value = state.board[cellIndex] || "";
   input.dataset.cellIndex = cellIndex;
+  input.inputMode = "none";
+  input.setAttribute("autocomplete", "off");
+  input.setAttribute("autocorrect", "off");
+  input.setAttribute("autocapitalize", "off");
+  input.setAttribute("spellcheck", "false");
   input.setAttribute("aria-label", `Row ${row + 1}, column ${col + 1}`);
+
+  if (state.given[cellIndex] || isCoarsePointerDevice()) {
+    input.readOnly = true;
+  }
 
   if (state.given[cellIndex]) {
     input.classList.add("given");
-    input.readOnly = true;
   }
 
   const relatedCells =
@@ -153,11 +172,24 @@ const setStatus = (msg, type) => {
 };
 
 /**
+ * Renders the version number in the version footer element.
+ */
+const renderVersion = () => {
+  const el = document.getElementById("version");
+  if (el) {
+    el.textContent = `v${VERSION}`;
+  }
+};
+
+/**
  * Focuses the cell input at the given index.
  * @param {number} cellIndex - Cell position (0-80), or -1 to clear focus
  */
 const focusCell = (cellIndex) => {
   if (cellIndex < 0 || cellIndex >= TOTAL_CELLS) {
+    return;
+  }
+  if (isCoarsePointerDevice()) {
     return;
   }
   const inputs = document.querySelectorAll(".cell");
