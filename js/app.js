@@ -120,42 +120,6 @@ const onCellFocus = (event) => {
 };
 
 /**
- * Handles number key press (1-9).
- * @param {number} num - Number pressed
- * @returns {Object} New state or current state
- */
-const handleNumberKey = (num) => {
-  const cellIndex = currentState.selected;
-  const newState = placeNumber(currentState, cellIndex, num);
-  if (newState.board.every((digit) => digit !== 0)) {
-    return checkSolution(newState, false);
-  }
-  return newState;
-};
-
-/**
- * Handles delete key (Backspace, Delete, or 0).
- * @returns {Object} New state
- */
-const handleDeleteKey = () => {
-  const cellIndex = currentState.selected;
-  return placeNumber(currentState, cellIndex, 0);
-};
-
-/**
- * Handles arrow key navigation.
- * @param {number} offset - Cell offset from arrow key
- * @returns {Object|null} New state or null if out of bounds
- */
-const handleArrowKey = (offset) => {
-  const nextCell = currentState.selected + offset;
-  if (nextCell < 0 || nextCell >= TOTAL_CELLS) {
-    return null;
-  }
-  return selectCell(currentState, nextCell);
-};
-
-/**
  * Handles cell keydown event.
  * @param {Event} event - Keydown event
  */
@@ -167,7 +131,7 @@ const onCellKeydown = (event) => {
 
   if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
-    const newState = handleNumberKey(parseInt(event.key, 10));
+    const newState = handleNumberKey(currentState, parseInt(event.key, 10));
     updateState(newState);
     return;
   }
@@ -178,7 +142,7 @@ const onCellKeydown = (event) => {
     event.key === "0"
   ) {
     event.preventDefault();
-    const newState = handleDeleteKey();
+    const newState = handleDeleteKey(currentState);
     updateState(newState);
     return;
   }
@@ -188,7 +152,7 @@ const onCellKeydown = (event) => {
   }
 
   event.preventDefault();
-  const newState = handleArrowKey(ARROW_MOVES[event.key]);
+  const newState = handleArrowKey(currentState, ARROW_MOVES[event.key]);
   if (newState) {
     updateState(newState);
   }
@@ -218,10 +182,10 @@ const onNumberButtonClick = (event) => {
   }
   const num = parseInt(event.currentTarget.dataset.n, 10);
   if (num === 0) {
-    updateState(handleDeleteKey());
+    updateState(handleDeleteKey(currentState));
     return;
   }
-  const newState = handleNumberKey(num);
+  const newState = handleNumberKey(currentState, num);
   updateState(newState);
 };
 
