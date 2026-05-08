@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.8]
+
+- Reordered mobile controls to prioritize gameplay: Check/Hint first, number pad second, New/Load/Solve third
+- Kept desktop control order unchanged to preserve current wide-screen workflow
+- Implemented via CSS ordering for minimal structural complexity
+
 ## [1.11.7]
 
 - Removed unused status lookup structures from app orchestration after dictionary migration
