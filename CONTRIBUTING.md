@@ -17,15 +17,15 @@ The easiest way to contribute is to add a new puzzle.
    difficulty: easy # or medium, hard
    puzzle:
      rows:
-       - '530070000'
-       - '600195000'
-       - '098000060'
-       - '800060003'
-       - '400803001'
-       - '700050006'
-       - '060000280'
-       - '000009005'
-       - '000040079'
+       - "530070000"
+       - "600195000"
+       - "098000060"
+       - "800060003"
+       - "400803001"
+       - "700050006"
+       - "060000280"
+       - "000009005"
+       - "000040079"
    ```
 4. Add your filename to `data/puzzles.json` (one line, in order)
 5. Test locally: run `./up.sh` and open `http://localhost:8080?puzzle=006` to test your puzzle
@@ -86,6 +86,14 @@ Before starting a code change, read:
 3. **Write pure functions** — Test them in isolation
 4. **Use multi-operation edits** to avoid multiple file writes
 5. **Check against standards** before submitting
+
+### Branching Workflow
+
+- Keep `main` stable and release-ready
+- Start feature work on `feat/v<major>.<minor>` branches (no patch in branch name)
+- Example branch names: `feat/v1.12`, `feat/v2.0`
+- Keep bug-fix patches for that line on the same branch until release
+- Merge back to `main` only when the major.minor line is stable
 
 ### Example: Adding "Undo"
 

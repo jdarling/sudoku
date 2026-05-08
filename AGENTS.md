@@ -279,6 +279,27 @@ The version is displayed in the bottom of the UI via `renderVersion()` in `rende
 
 **Also update `changelog.md` every time a change is made** — add a new entry under the new version with a brief description of what changed.
 
+## Branching Strategy (IMPORTANT)
+
+`main` should only hold stable release-ready commits.
+
+For active feature work, always create a feature branch named with semver major.minor:
+
+```bash
+git switch -c feat/v1.12
+```
+
+Rules:
+
+- Use `feat/v<major>.<minor>` (no patch in the branch name)
+- Keep bug-fix patches on the same active feature branch until release
+- Merge the branch back to `main` only when that major.minor line is stable
+
+Example:
+
+- Version target `1.12.x` → branch `feat/v1.12`
+- Version target `2.0.x` → branch `feat/v2.0`
+
 **After committing version changes, create a git version tag** for the commit:
 
 ```bash

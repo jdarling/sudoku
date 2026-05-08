@@ -52,7 +52,7 @@ const init = () => {
     // Nested function — can't test!
     // ...
   };
-  document.addEventListener('click', onCellClick);
+  document.addEventListener("click", onCellClick);
 };
 ```
 
@@ -64,7 +64,7 @@ const onCellClick = (event) => {
 };
 
 const init = () => {
-  document.addEventListener('click', onCellClick);
+  document.addEventListener("click", onCellClick);
 };
 ```
 
@@ -262,3 +262,24 @@ Before considering a change complete:
 - **Coding Standards** — `standards/coding/general.md`, `standards/coding/javascript.md`, `standards/coding/bash.md`
 - **Project Structure** — [readme.md](../readme.md)
 - **Puzzle Format** — `data/samples.yaml`
+
+## Branching Strategy (IMPORTANT)
+
+`main` should only hold stable release-ready commits.
+
+For active feature work, always create a feature branch named with semver major.minor:
+
+```bash
+git switch -c feat/v1.12
+```
+
+Rules:
+
+- Use `feat/v<major>.<minor>` (no patch in the branch name)
+- Keep bug-fix patches on the same active feature branch until release
+- Merge the branch back to `main` only when that major.minor line is stable
+
+Example:
+
+- Version target `1.12.x` → branch `feat/v1.12`
+- Version target `2.0.x` → branch `feat/v2.0`
