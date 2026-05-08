@@ -10,7 +10,30 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = "1.11.4";
+const VERSION = "1.11.5";
+
+/**
+ * Canonical status messages produced by state functions.
+ */
+const STATUS_BASE_MESSAGES = {
+  allValuesCorrect: "All values are correct",
+  someCellsIncorrect: "Some cells are incorrect",
+  puzzleSolved: "Puzzle solved!",
+  puzzleUnsolveable: "Puzzle is unsolveable",
+};
+
+/**
+ * User-facing status templates that may include puzzle name.
+ * Supported placeholders: {puzzleName}, {errorMessage}
+ */
+const STATUS_MESSAGE_TEMPLATES = {
+  allValuesCorrect: 'All values for "{puzzleName}" are correct!',
+  someCellsIncorrect: 'Some values for "{puzzleName}" are incorrect.',
+  puzzleSolved: 'Puzzle "{puzzleName}" solved!',
+  puzzleUnsolveable: 'Puzzle "{puzzleName}" is unsolveable.',
+  loadedPuzzle: 'Loaded puzzle "{puzzleName}".',
+  failedLoadPuzzle: 'Failed to load puzzle "{puzzleName}": {errorMessage}',
+};
 
 /**
  * Characters used for encoding the board in the URL.

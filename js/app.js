@@ -10,6 +10,45 @@ let currentState = null;
  */
 let currentPuzzleName = "";
 
+const STATUS_BASE =
+  typeof STATUS_BASE_MESSAGES !== "undefined"
+    ? STATUS_BASE_MESSAGES
+    : {
+        allValuesCorrect: "All values are correct",
+        someCellsIncorrect: "Some cells are incorrect",
+        puzzleSolved: "Puzzle solved!",
+        puzzleUnsolveable: "Puzzle is unsolveable",
+      };
+
+const STATUS_TEMPLATES =
+  typeof STATUS_MESSAGE_TEMPLATES !== "undefined"
+    ? STATUS_MESSAGE_TEMPLATES
+    : {
+        allValuesCorrect: 'All values for "{puzzleName}" are correct!',
+        someCellsIncorrect: 'Some values for "{puzzleName}" are incorrect.',
+        puzzleSolved: 'Puzzle "{puzzleName}" solved!',
+        puzzleUnsolveable: 'Puzzle "{puzzleName}" is unsolveable.',
+        loadedPuzzle: 'Loaded puzzle "{puzzleName}".',
+        failedLoadPuzzle:
+          'Failed to load puzzle "{puzzleName}": {errorMessage}',
+      };
+
+/**
+ * Interpolates placeholders in a status template.
+ * @param {string} template - Template with placeholders
+ * @param {Object} values - Placeholder values
+ * @returns {string} Interpolated status text
+ */
+const applyStatusTemplate = (template, values) => {
+  let message = template;
+
+  Object.keys(values).forEach((key) => {
+    message = message.split(`{${key}}`).join(String(values[key]));
+  });
+
+  return message;
+};
+
 /**
  * Builds a fallback puzzle name from filename.
  * @param {string} filename - Puzzle filename
@@ -46,20 +85,28 @@ const formatStatusWithPuzzleName = (statusMessage) => {
     return statusMessage;
   }
 
-  if (statusMessage === "All values are correct") {
-    return `All values for "${currentPuzzleName}" are correct!`;
+  if (statusMessage === STATUS_BASE.allValuesCorrect) {
+    return applyStatusTemplate(STATUS_TEMPLATES.allValuesCorrect, {
+      puzzleName: currentPuzzleName,
+    });
   }
 
-  if (statusMessage === "Some cells are incorrect") {
-    return `Some values for "${currentPuzzleName}" are incorrect.`;
+  if (statusMessage === STATUS_BASE.someCellsIncorrect) {
+    return applyStatusTemplate(STATUS_TEMPLATES.someCellsIncorrect, {
+      puzzleName: currentPuzzleName,
+    });
   }
 
-  if (statusMessage === "Puzzle solved!") {
-    return `Puzzle "${currentPuzzleName}" solved!`;
+  if (statusMessage === STATUS_BASE.puzzleSolved) {
+    return applyStatusTemplate(STATUS_TEMPLATES.puzzleSolved, {
+      puzzleName: currentPuzzleName,
+    });
   }
 
-  if (statusMessage === "Puzzle is unsolveable") {
-    return `Puzzle "${currentPuzzleName}" is unsolveable.`;
+  if (statusMessage === STATUS_BASE.puzzleUnsolveable) {
+    return applyStatusTemplate(STATUS_TEMPLATES.puzzleUnsolveable, {
+      puzzleName: currentPuzzleName,
+    });
   }
 
   return statusMessage;
@@ -292,11 +339,19 @@ const loadPuzzleByFilename = async (filename) => {
 
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
-    setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
+    setStatus(
+      applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+        puzzleName: currentPuzzleName,
+      }),
+      "",
+    );
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
-      `Failed to load puzzle "${failedPuzzleName}": ${error.message}`,
+      applyStatusTemplate(STATUS_TEMPLATES.failedLoadPuzzle, {
+        puzzleName: failedPuzzleName,
+        errorMessage: error.message,
+      }),
       "error",
     );
   }
@@ -321,7 +376,12 @@ const loadNewGame = async () => {
   updateQuery(puzzle.filename);
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
+  setStatus(
+    applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+      puzzleName: currentPuzzleName,
+    }),
+    "",
+  );
 };
 
 /**
@@ -336,7 +396,12 @@ const loadRandomPuzzle = async () => {
     updateQuery(puzzle.filename);
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
-    setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
+    setStatus(
+      applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+        puzzleName: currentPuzzleName,
+      }),
+      "",
+    );
     updateHash();
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");

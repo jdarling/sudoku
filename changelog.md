@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.5]
+
+- Moved puzzle status message templates into shared constants for centralized management
+- Updated app status rendering to use template constants instead of inline hardcoded strings
+- Preserved existing user-visible status behavior while making templates easier to maintain
+
 ## [1.11.4]
 
 - Status bar now shows the loaded puzzle name when using New Game or Load Game
