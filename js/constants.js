@@ -10,29 +10,19 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = "1.11.6";
+const VERSION = "1.11.7";
 
 /**
- * Canonical status messages produced by state functions.
+ * Better status message lookup dictionary
  */
-const STATUS_BASE_MESSAGES = {
-  allValuesCorrect: "All values are correct",
-  someCellsIncorrect: "Some cells are incorrect",
-  puzzleSolved: "Puzzle solved!",
-  puzzleUnsolveable: "Puzzle is unsolveable",
-};
-
-/**
- * User-facing status templates that may include puzzle name.
- * Supported placeholders: {puzzleName}, {errorMessage}
- */
-const STATUS_MESSAGE_TEMPLATES = {
-  allValuesCorrect: 'All values for "{puzzleName}" are correct!',
-  someCellsIncorrect: 'Some values for "{puzzleName}" are incorrect.',
-  puzzleSolved: 'Puzzle "{puzzleName}" solved!',
-  puzzleUnsolveable: 'Puzzle "{puzzleName}" is unsolveable.',
-  loadedPuzzle: 'Loaded puzzle "{puzzleName}".',
-  failedLoadPuzzle: 'Failed to load puzzle "{puzzleName}": {errorMessage}',
+const STATUS_MESSAGES = {
+  "All values are correct": 'All values for "{puzzleName}" are correct!',
+  "Some cells are incorrect": 'Some values for "{puzzleName}" are incorrect.',
+  "Puzzle solved!": 'Puzzle "{puzzleName}" solved!',
+  "Puzzle is unsolveable": 'Puzzle "{puzzleName}" is unsolveable.',
+  "Loaded puzzle": 'Loaded puzzle "{puzzleName}".',
+  "Failed to load puzzle":
+    'Failed to load puzzle "{puzzleName}": {errorMessage}',
 };
 
 /**

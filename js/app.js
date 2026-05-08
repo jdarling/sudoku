@@ -10,35 +10,19 @@ let currentState = null;
  */
 let currentPuzzleName = "";
 
-const STATUS_BASE =
-  typeof STATUS_BASE_MESSAGES !== "undefined"
-    ? STATUS_BASE_MESSAGES
+const STATUS_TEXT =
+  typeof STATUS_MESSAGES !== "undefined"
+    ? STATUS_MESSAGES
     : {
-        allValuesCorrect: "All values are correct",
-        someCellsIncorrect: "Some cells are incorrect",
-        puzzleSolved: "Puzzle solved!",
-        puzzleUnsolveable: "Puzzle is unsolveable",
-      };
-
-const STATUS_TEMPLATES =
-  typeof STATUS_MESSAGE_TEMPLATES !== "undefined"
-    ? STATUS_MESSAGE_TEMPLATES
-    : {
-        allValuesCorrect: 'All values for "{puzzleName}" are correct!',
-        someCellsIncorrect: 'Some values for "{puzzleName}" are incorrect.',
-        puzzleSolved: 'Puzzle "{puzzleName}" solved!',
-        puzzleUnsolveable: 'Puzzle "{puzzleName}" is unsolveable.',
-        loadedPuzzle: 'Loaded puzzle "{puzzleName}".',
-        failedLoadPuzzle:
+        "All values are correct": 'All values for "{puzzleName}" are correct!',
+        "Some cells are incorrect":
+          'Some values for "{puzzleName}" are incorrect.',
+        "Puzzle solved!": 'Puzzle "{puzzleName}" solved!',
+        "Puzzle is unsolveable": 'Puzzle "{puzzleName}" is unsolveable.',
+        "Loaded puzzle": 'Loaded puzzle "{puzzleName}".',
+        "Failed to load puzzle":
           'Failed to load puzzle "{puzzleName}": {errorMessage}',
       };
-
-const STATUS_TEMPLATE_BY_BASE_MESSAGE = {
-  [STATUS_BASE.allValuesCorrect]: STATUS_TEMPLATES.allValuesCorrect,
-  [STATUS_BASE.someCellsIncorrect]: STATUS_TEMPLATES.someCellsIncorrect,
-  [STATUS_BASE.puzzleSolved]: STATUS_TEMPLATES.puzzleSolved,
-  [STATUS_BASE.puzzleUnsolveable]: STATUS_TEMPLATES.puzzleUnsolveable,
-};
 
 /**
  * Interpolates placeholders in a status template.
@@ -92,7 +76,7 @@ const formatStatusWithPuzzleName = (statusMessage) => {
     return statusMessage;
   }
 
-  const template = STATUS_TEMPLATE_BY_BASE_MESSAGE[statusMessage];
+  const template = STATUS_TEXT[statusMessage];
   if (template) {
     return applyStatusTemplate(template, {
       puzzleName: currentPuzzleName,
@@ -330,7 +314,7 @@ const loadPuzzleByFilename = async (filename) => {
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(
-      applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
         puzzleName: currentPuzzleName,
       }),
       "",
@@ -338,7 +322,7 @@ const loadPuzzleByFilename = async (filename) => {
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
-      applyStatusTemplate(STATUS_TEMPLATES.failedLoadPuzzle, {
+      applyStatusTemplate(STATUS_TEXT["Failed to load puzzle"], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
@@ -367,7 +351,7 @@ const loadNewGame = async () => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   setStatus(
-    applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+    applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
       puzzleName: currentPuzzleName,
     }),
     "",
@@ -387,7 +371,7 @@ const loadRandomPuzzle = async () => {
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(
-      applyStatusTemplate(STATUS_TEMPLATES.loadedPuzzle, {
+      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
         puzzleName: currentPuzzleName,
       }),
       "",

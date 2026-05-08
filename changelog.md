@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.7]
+
+- Removed unused status lookup structures from app orchestration after dictionary migration
+- Consolidated status template usage to the single STATUS_MESSAGES dictionary
+- Cleaned up dead constants related to legacy status mapping
+
 ## [1.11.6]
 
 - Refactored status formatting in app orchestration to use a message-to-template map
