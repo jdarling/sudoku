@@ -9,6 +9,13 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.2]
+
+- Simplified action buttons layout by converting from flex to 2-column grid (Check, Hint)
+- Added responsive desktop media queries for 980px+ screens: board on left, controls fixed-width on right
+- Optimized button sizing for desktop: 3-column keypad, full-width action buttons, Erase spans full width
+- Improved spacing and alignment for both mobile and desktop layouts
+
 ## [1.11.1]
 
 - Optimized mobile layout by restructuring number keypad grid from flex to 5-column layout (buttons 1-5 top row, 6-9+Erase bottom row)

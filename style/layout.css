@@ -105,8 +105,10 @@ input.cell.given {
 }
 
 #action-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
+  width: 100%;
 }
 
 .action-btn {
@@ -168,4 +170,60 @@ input.cell.given {
 #control-panel .action-btn {
   flex: 1;
   min-width: 100px;
+}
+
+@media (min-width: 980px) {
+  body {
+    padding-block: 0.6rem;
+  }
+
+  #game-shell {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.2rem;
+    width: auto;
+  }
+
+  #board-column {
+    flex-shrink: 0;
+  }
+
+  #control-panel {
+    width: 218px;
+    align-items: stretch;
+  }
+
+  #top-controls {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  #control-panel .action-btn {
+    flex: 1;
+    width: 100%;
+    min-width: auto;
+  }
+
+  #controls {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: none;
+  }
+
+  .num-btn {
+    width: 100%;
+    height: 46px;
+  }
+
+  .num-btn.erase {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  #action-row {
+    width: 100%;
+  }
+
+  #theme-row {
+    justify-content: flex-start;
+  }
 }
