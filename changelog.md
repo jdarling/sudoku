@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.10.4]
+
+- Improved dark theme accessibility for colorblind users by increasing contrast and using more distinguishable colors for selected, related-line, related, same-num, and wrong cell states
+
 ## [1.10.3]
 
 - Fixed theme picker not updating visual styles - now properly removes and replaces stylesheet link to force browser reload

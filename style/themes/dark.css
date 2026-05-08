@@ -5,133 +5,135 @@
  */
 
 body {
-  background: #1a1a1a;
-  color: #e8e4dc;
+  background: #17191d;
+  color: #f0ece4;
 }
 
 h1 {
-  color: #e8e4dc;
+  color: #f0ece4;
 }
 
 #status {
-  color: #888;
+  color: #b8bec9;
 }
 
 #status.win {
-  color: #4caf82;
+  color: #67d39b;
   font-weight: 600;
 }
 
 #status.error {
-  color: #e06c5a;
+  color: #ff8f7a;
 }
 
 table {
-  border: 2.5px solid #ccc;
+  border: 2.5px solid #d7dde8;
 }
 
 td {
-  border: 0.5px solid #444;
+  border: 0.5px solid #566174;
 }
 
 td:nth-child(3n) {
-  border-right-color: #ccc;
+  border-right-color: #d7dde8;
 }
 
 tr:nth-child(3n) td {
-  border-bottom-color: #ccc;
+  border-bottom-color: #d7dde8;
 }
 
 input.cell {
-  color: #e8e4dc;
+  color: #f0ece4;
 }
 
 input.cell.given {
-  background: #333;
+  background: #3d424d;
 }
 
 input.cell.selected {
-  background: #1e3a52;
+  background: #2f78b8;
+  color: #fff;
 }
 
 input.cell.related-line {
-  background: #2a3a52;
+  background: #245175;
 }
 
 input.cell.related {
-  background: #2a2a2a;
+  background: #263647;
 }
 
 input.cell.same-num {
-  background: #1a3d2e;
+  background: #8f6d18;
+  color: #fff;
 }
 
 input.cell.wrong {
-  background: #3d1f1a;
-  color: #e06c5a;
+  background: #6b3a31;
+  color: #ffd0c5;
 }
 
 .num-btn {
-  border-color: #555;
-  background: #2a2a2a;
-  color: #e8e4dc;
+  border-color: #748197;
+  background: #2a313d;
+  color: #f0ece4;
 }
 
 .num-btn:hover {
-  background: #383838;
-  border-color: #777;
+  background: #364052;
+  border-color: #95a5bf;
 }
 
 .num-btn.erase {
-  color: #aaa;
+  color: #c5ccd8;
 }
 
 .action-btn {
-  border-color: #555;
-  background: #2a2a2a;
-  color: #e8e4dc;
+  border-color: #748197;
+  background: #2a313d;
+  color: #f0ece4;
 }
 
 .action-btn:hover {
-  background: #383838;
-  border-color: #777;
+  background: #364052;
+  border-color: #95a5bf;
 }
 
 #check-btn {
-  border-color: #3a6a99;
-  color: #7ab3e0;
+  border-color: #4f8fc5;
+  color: #9ecdf0;
 }
 
 #check-btn:hover {
-  background: #1a2d3d;
+  background: #29435d;
 }
 
 #hint-btn {
-  border-color: #6b5900;
-  color: #d4a85c;
+  border-color: #b78d1d;
+  color: #ffd36e;
 }
 
 #hint-btn:hover {
-  background: #2a2a1a;
+  background: #4b3a10;
 }
 
 #version {
   font-size: 11px;
-  color: #666;
+  color: #93a0b5;
   font-family: system-ui, sans-serif;
   margin-top: 0.25rem;
 }
 
 #theme-row {
-  color: #888;
+  color: #b8bec9;
 }
 
 #theme-select {
-  border-color: #555;
-  background: #2a2a2a;
-  color: #e8e4dc;
+  border-color: #748197;
+  background: #2a313d;
+  color: #f0ece4;
 }
 
 #theme-select:hover {
-  border-color: #777;
+  border-color: #95a5bf;
 }
