@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.10.0]
+
+- Added favicons and app icons (favicon.ico, apple-touch-icon, android-chrome, mstile) with references in index.html
+
 ## [1.9.0]
 
 - Split stylesheet into layout (geometry/spacing) and theme (colors) for better maintainability and future theme support
