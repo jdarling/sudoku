@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.1]
+
+- Removed duplicate STATUS_MESSAGES from app.js; now uses constants directly
+
 ## [1.12.0]
 
 - Start of 1.12 feature branch line (`feat/v1.12`) from stable 1.11.10 baseline
