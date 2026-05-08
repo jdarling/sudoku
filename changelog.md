@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.1]
+
+- Optimized mobile layout by restructuring number keypad grid from flex to 5-column layout (buttons 1-5 top row, 6-9+Erase bottom row)
+- Eliminates scrollbars on tall mobile screens by reducing vertical space consumption
+
 ## [1.11.0]
 
 - Restructured layout to support responsive desktop view: board on left, controls on right (desktop width 980px+)

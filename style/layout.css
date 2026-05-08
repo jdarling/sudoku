@@ -77,10 +77,11 @@ input.cell.given {
 }
 
 #controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  max-width: 300px;
 }
 
 .num-btn {
