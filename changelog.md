@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.9.0]
+
+- Split stylesheet into layout (geometry/spacing) and theme (colors) for better maintainability and future theme support
+- Created skills/commit-changes/SKILL.md for automated versioning workflow
+
 ## [1.8.1]
 
 - Fixed Check button incorrectly highlighting wrong cells in red; Check now only shows a status message
