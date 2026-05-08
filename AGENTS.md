@@ -278,3 +278,11 @@ The version is displayed in the bottom of the UI via `renderVersion()` in `rende
 **Update `VERSION` in `js/constants.js` every time a change is made.**
 
 **Also update `changelog.md` every time a change is made** — add a new entry under the new version with a brief description of what changed.
+
+**After committing version changes, create a git version tag** for the commit:
+
+```bash
+git tag -a v1.x.x -m "Version 1.x.x: description"
+```
+
+This marks stable release points in history and makes it easy to check out previous versions.

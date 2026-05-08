@@ -59,7 +59,8 @@ Use semantic versioning (MAJOR.MINOR.PATCH):
 5. **Git operations**
    - Stage both files: `git add js/constants.js changelog.md`
    - Create commit: `git commit -m "Version new.version: summary"`
-   - Output: "Ready to push with: git push"
+   - Create version tag: `git tag -a vnew.version -m "Version new.version: summary"`
+   - Output: "Ready to push with: git push && git push --tags"
 
 ### Error Handling
 

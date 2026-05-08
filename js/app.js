@@ -291,9 +291,11 @@ const init = async () => {
     updateState(solveBoard(currentState));
   });
 
-  document.getElementById("theme-select").addEventListener("change", (event) => {
-    applyTheme(event.target.value);
-  });
+  document
+    .getElementById("theme-select")
+    .addEventListener("change", (event) => {
+      applyTheme(event.target.value);
+    });
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);

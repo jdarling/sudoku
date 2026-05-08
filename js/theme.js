@@ -10,7 +10,7 @@ const THEME_STORAGE_KEY = "sudoku-theme";
  * @returns {string} Current theme name
  */
 const getActiveTheme = () => {
-  const linkEl = document.querySelector('link[data-theme-link]');
+  const linkEl = document.querySelector("link[data-theme-link]");
   if (!linkEl) {
     return DEFAULT_THEME;
   }
@@ -56,7 +56,7 @@ const applyTheme = (themeName) => {
     return;
   }
 
-  let linkEl = document.querySelector('link[data-theme-link]');
+  let linkEl = document.querySelector("link[data-theme-link]");
   if (!linkEl) {
     linkEl = document.createElement("link");
     linkEl.rel = "stylesheet";
