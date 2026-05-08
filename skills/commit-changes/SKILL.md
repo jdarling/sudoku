@@ -1,103 +1,77 @@
-# Commit Changes with Versioning
+# Commit Changes with Versioning Skill
 
-Automates committing changes by:
+**Status**: Properly configured VS Code Copilot skill in `.instructions.md`
 
-1. Determining change type (bug fix, feature, breaking change)
-2. Bumping version in `js/constants.js` according to semver
-3. Updating `changelog.md` with new version and summary
-4. Staging and committing all changes
-5. Preparing for git push
+This skill automates the versioning workflow:
 
-## Workflow
+1. Collect change type (bug fix, feature, breaking change)
+2. Bump VERSION in `js/constants.js` according to semver
+3. Update `changelog.md` with new version entry
+4. Create git commit with version message
+5. Create annotated git tag for release
+6. Provide push instructions
 
-### Input
+## Quick Reference
 
-Collect from user:
+### Version Bumping Rules
 
-- **Change type**: "bug fix" | "feature" | "breaking change"
-- **Summary**: One-line description of changes (e.g., "Added hint button", "Fixed solve button marking solved cells as given")
+- **Bug fix** → patch bump only (1.2.3 → 1.2.4)
+- **New feature** → minor bump, reset patch (1.2.3 → 1.3.0)
+- **Breaking change** → major bump, reset minor + patch (1.2.3 → 2.0.0)
 
-### Version Bump Rules
+### Manual Workflow (if needed)
 
-Use semantic versioning (MAJOR.MINOR.PATCH):
+If the skill isn't available, do this manually:
 
-- **Bug fix** → Increment patch only
-  - Example: 1.8.0 → 1.8.1
-- **New feature** → Increment minor, reset patch to 0
-  - Example: 1.8.1 → 1.9.0
-- **Breaking change** → Increment major, reset minor and patch to 0
-  - Example: 1.8.1 → 2.0.0
+1. Edit `js/constants.js`:
 
-### Execution Steps
+   ```javascript
+   const VERSION = "1.3.0";
+   ```
 
-1. **Ask user for change details**
-   - Change type (radio: bug fix, feature, breaking change)
-   - Summary (text)
+2. Edit `changelog.md`, add at top under `---`:
 
-2. **Calculate new version**
-   - Read current VERSION from `js/constants.js`
-   - Parse semver: `major.minor.patch`
-   - Apply bump rule based on change type
-   - Generate new version string
+   ```markdown
+   ## [1.3.0]
 
-3. **Update `js/constants.js`**
-   - Replace `VERSION = "old.version"` with `VERSION = "new.version"`
-   - Keep comment and other constants intact
+   - Your change description here
+   ```
 
-4. **Update `changelog.md`**
-   - Read current file
-   - Insert new section at top (under divider line):
+3. Commit and tag:
+   ```bash
+   git add js/constants.js changelog.md
+   git commit -m "Version 1.3.0: Your change description here"
+   git tag -a v1.3.0 -m "Version 1.3.0: Your change description here"
+   git push && git push --tags
+   ```
 
-     ```markdown
-     ## [new.version]
+## For Skill Developers
 
-     - Summary text here
-     ```
+The actual skill instructions are in `.instructions.md`. That file contains:
 
-   - Preserve all existing changelog entries
+- YAML frontmatter with metadata
+- Detailed step-by-step instructions for agents
+- Error handling strategy
+- File requirements and validation
+- Examples
 
-5. **Git operations**
-   - Stage both files: `git add js/constants.js changelog.md`
-   - Create commit: `git commit -m "Version new.version: summary"`
-   - Create version tag: `git tag -a vnew.version -m "Version new.version: summary"`
-   - Output: "Ready to push with: git push && git push --tags"
+## Usage Examples
 
-### Error Handling
+```
+"Commit the theme picker feature"
+→ Prompts for change type, suggests "New feature"
+→ Prompts for summary
+→ Updates version 1.10.1 → 1.11.0
+→ Updates changelog
+→ Creates commit and tag
+→ Shows: Ready to push with: git push && git push --tags
+```
 
-- If `js/constants.js` has unexpected VERSION format → Ask user to verify file
-- If `changelog.md` is missing → Create with minimal structure
-- If git operations fail → Show error and suggest manual steps
-
-### Example
-
-**Input:**
-
-- Change type: feature
-- Summary: Added hint button that highlights incorrect cells
-
-**Process:**
-
-- Current version: 1.8.0
-- New version: 1.9.0 (minor bump)
-- Update VERSION constant
-- Add to changelog:
-
-  ```markdown
-  ## [1.9.0]
-
-  - Added hint button that highlights incorrect cells
-  ```
-
-- Git commit: `Version 1.9.0: Added hint button that highlights incorrect cells`
-
-**Output:**
-
-- Version updated ✓
-- Changelog updated ✓
-- Changes committed ✓
-- Ready for: `git push`
-
-## Related Skills
-
-- **agent-customization** — For creating VS Code agent skills
-- **git workflows** — For more complex git operations
+```
+"Commit bug fix for related cell highlighting"
+→ Prompts for change type, suggests "Bug fix"
+→ Prompts for summary
+→ Updates version 1.10.0 → 1.10.1
+→ Updates changelog
+→ Creates commit and tag
+```

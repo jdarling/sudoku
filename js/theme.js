@@ -56,15 +56,19 @@ const applyTheme = (themeName) => {
     return;
   }
 
-  let linkEl = document.querySelector("link[data-theme-link]");
-  if (!linkEl) {
-    linkEl = document.createElement("link");
-    linkEl.rel = "stylesheet";
-    linkEl.setAttribute("data-theme-link", "true");
-    document.head.appendChild(linkEl);
+  // Remove old theme link
+  const oldLink = document.querySelector("link[data-theme-link]");
+  if (oldLink) {
+    oldLink.remove();
   }
 
-  linkEl.href = `style/themes/${themeName}.css`;
+  // Create and append new theme link
+  const newLink = document.createElement("link");
+  newLink.rel = "stylesheet";
+  newLink.href = `style/themes/${themeName}.css`;
+  newLink.setAttribute("data-theme-link", "true");
+  document.head.appendChild(newLink);
+
   saveTheme(themeName);
 
   // Update theme select if it exists
