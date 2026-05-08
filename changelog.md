@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.2]
+
+- Start 1.12.2 development line after tagging 1.12.1
+
 ## [1.12.1]
 
 - Removed duplicate STATUS_MESSAGES from app.js; now uses constants directly
