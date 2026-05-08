@@ -52,7 +52,7 @@ const init = () => {
     // Nested function — can't test!
     // ...
   };
-  document.addEventListener('click', onCellClick);
+  document.addEventListener("click", onCellClick);
 };
 ```
 
@@ -64,7 +64,7 @@ const onCellClick = (event) => {
 };
 
 const init = () => {
-  document.addEventListener('click', onCellClick);
+  document.addEventListener("click", onCellClick);
 };
 ```
 
@@ -262,3 +262,19 @@ Before considering a change complete:
 - **Coding Standards** — `standards/coding/general.md`, `standards/coding/javascript.md`, `standards/coding/bash.md`
 - **Project Structure** — [readme.md](readme.md)
 - **Puzzle Format** — `data/samples.yaml`
+
+## Versioning (IMPORTANT)
+
+The app version is a single `VERSION` constant in `js/constants.js` (semver: `major.minor.patch`).
+
+**Rules — always follow these:**
+
+- **Bug fix** → increment `patch` only (e.g. `1.0.0` → `1.0.1`)
+- **New feature, backward compatible** → increment `minor`, reset `patch` to 0 (e.g. `1.0.1` → `1.1.0`)
+- **Breaking change** → increment `major`, reset `minor` and `patch` to 0 (e.g. `1.1.0` → `2.0.0`)
+
+The version is displayed in the bottom of the UI via `renderVersion()` in `render.js`, called once from `init()` in `app.js`.
+
+**Update `VERSION` in `js/constants.js` every time a change is made.**
+
+**Also update `changelog.md` every time a change is made** — add a new entry under the new version with a brief description of what changed.

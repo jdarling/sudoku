@@ -271,6 +271,7 @@ const loadRandomPuzzle = async () => {
  * @returns {Promise<void>}
  */
 const init = async () => {
+  renderVersion();
   await loadNewGame();
 
   document.getElementById("new-btn").addEventListener("click", () => {
