@@ -35,6 +35,9 @@ const runStateTests = () => {
   let getWrongCells = resolveSymbol("getWrongCells");
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
+  let updateCellValue = resolveSymbol("updateCellValue");
+  let clearCellValue = resolveSymbol("clearCellValue");
+  let moveSelection = resolveSymbol("moveSelection");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
 
   setTestFile("state.js");
@@ -218,6 +221,39 @@ const runStateTests = () => {
     return expect(
       decodeBoard(null) === null && decodeBoard("") === null,
     ).toBeTruthy();
+  });
+
+  test("updateCellValue places number and clears status", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const newState = updateCellValue(state, 0, 5);
+    return expect(
+      newState.board[0] === 5 && newState.status === "" && newState !== state,
+    ).toBeTruthy();
+  });
+
+  test("clearCellValue removes number from cell", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const withValue = updateCellValue(state, 5, 7);
+    const cleared = clearCellValue(withValue, 5);
+    return expect(cleared.board[5] === 0 && cleared.status === "").toBeTruthy();
+  });
+
+  test("moveSelection navigates by offset", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const selected = selectCell(state, 5);
+    const moved = moveSelection(selected, 9);
+    return expect(moved.selected === 14).toBeTruthy();
+  });
+
+  test("moveSelection returns null on out of bounds", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const selected = selectCell(state, 0);
+    const moved = moveSelection(selected, -1);
+    return expect(moved === null).toBeTruthy();
   });
 };
 
