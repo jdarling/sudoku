@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.10.3]
+
+- Fixed theme picker not updating visual styles - now properly removes and replaces stylesheet link to force browser reload
+
 ## [1.10.2]
 
 - Added theme system with theme picker UI
