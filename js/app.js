@@ -11,20 +11,6 @@ let currentState = null;
 let currentPuzzleName = "";
 let lastStatusType = "";
 
-const STATUS_TEXT =
-  typeof STATUS_MESSAGES !== "undefined"
-    ? STATUS_MESSAGES
-    : {
-        "All values are correct": 'All values for "{puzzleName}" are correct!',
-        "Some cells are incorrect":
-          'Some values for "{puzzleName}" are incorrect.',
-        "Puzzle solved!": 'Puzzle "{puzzleName}" solved!',
-        "Puzzle is unsolveable": 'Puzzle "{puzzleName}" is unsolveable.',
-        "Loaded puzzle": 'Loaded puzzle "{puzzleName}".',
-        "Failed to load puzzle":
-          'Failed to load puzzle "{puzzleName}": {errorMessage}',
-      };
-
 /**
  * Interpolates placeholders in a status template.
  * @param {string} template - Template with placeholders
@@ -77,7 +63,7 @@ const formatStatusWithPuzzleName = (statusMessage) => {
     return statusMessage;
   }
 
-  const template = STATUS_TEXT[statusMessage];
+  const template = STATUS_MESSAGES[statusMessage];
   if (template) {
     return applyStatusTemplate(template, {
       puzzleName: currentPuzzleName,
@@ -327,7 +313,7 @@ const loadPuzzleByFilename = async (filename) => {
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(
-      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
+      applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
         puzzleName: currentPuzzleName,
       }),
       "",
@@ -336,7 +322,7 @@ const loadPuzzleByFilename = async (filename) => {
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
-      applyStatusTemplate(STATUS_TEXT["Failed to load puzzle"], {
+      applyStatusTemplate(STATUS_MESSAGES["Failed to load puzzle"], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
@@ -365,7 +351,7 @@ const loadNewGame = async () => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   setStatus(
-    applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
+    applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
       puzzleName: currentPuzzleName,
     }),
     "",
@@ -386,7 +372,7 @@ const loadRandomPuzzle = async () => {
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(
-      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
+      applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
         puzzleName: currentPuzzleName,
       }),
       "",
