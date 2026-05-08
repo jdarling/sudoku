@@ -281,6 +281,10 @@ const init = async () => {
     updateState(checkSolution(currentState, true));
   });
 
+  document.getElementById("hint-btn").addEventListener("click", () => {
+    updateState(checkSolution(currentState, true));
+  });
+
   document.getElementById("solve-btn").addEventListener("click", () => {
     updateState(solveBoard(currentState));
   });

@@ -30,6 +30,7 @@ const runStateTests = () => {
   let placeNumber = resolveSymbol("placeNumber");
   let solveBoard = resolveSymbol("solveBoard");
   let checkSolution = resolveSymbol("checkSolution");
+  let getHintCells = resolveSymbol("getHintCells");
   let getWrongCells = resolveSymbol("getWrongCells");
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
@@ -57,7 +58,7 @@ const runStateTests = () => {
 
     const stateCode = fs.readFileSync(path.join(__dirname, "state.js"), "utf8");
     vm.runInContext(
-      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
+      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, getHintCells, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
       context,
     );
 
@@ -67,6 +68,7 @@ const runStateTests = () => {
       placeNumber,
       solveBoard,
       checkSolution,
+      getHintCells,
       getWrongCells,
       encodeBoard,
       decodeBoard,
@@ -197,6 +199,19 @@ const runStateTests = () => {
     };
     const wrong = getWrongCells(state);
     return expect(wrong).toEqual([1]);
+  });
+
+  test("getHintCells flags incorrect user entry from puzzle 002 setup", () => {
+    const puzzle =
+      "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+    const state = createStateFromPuzzle(puzzle);
+    const board = decodeBoard("AGhYfhg3VLUz2jjpRZZO-BPbDOVxAyHiQN6HFEUcD7SF8");
+    const next = {
+      ...state,
+      board,
+    };
+    const wrong = getHintCells(next);
+    return expect(wrong.includes(70)).toBeTruthy();
   });
 
   test("encodeBoard returns 45-char compressed string", () => {

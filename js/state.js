@@ -154,6 +154,30 @@ const checkSolution = (state, showErrors) => {
 };
 
 /**
+ * Gets indices of user-entered cells that do not match the puzzle solution.
+ * Used by Hint/Check when an error state is shown.
+ * @param {Object} state - Current state
+ * @returns {number[]} Array of incorrect user-entered cell indices
+ */
+const getHintCells = (state) => {
+  const solution = solve([...state.puzzle]);
+  if (!solution) {
+    return getWrongCells(state);
+  }
+
+  const wrong = [];
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if (state.given[i] || state.board[i] === 0) {
+      continue;
+    }
+    if (state.board[i] !== solution[i]) {
+      wrong.push(i);
+    }
+  }
+  return wrong;
+};
+
+/**
  * Gets indices of user-entered cells that violate Sudoku constraints.
  * A cell is wrong when it duplicates the same digit in its row, column, or box.
  * @param {Object} state - Current state

@@ -134,7 +134,8 @@ const markWrongCells = (state) => {
   inputs.forEach((input) => {
     input.classList.remove("wrong");
   });
-  const wrongCells = getWrongCells(state);
+  const wrongCells =
+    state.statusType === "error" ? getHintCells(state) : getWrongCells(state);
   wrongCells.forEach((i) => {
     inputs[i].classList.add("wrong");
   });

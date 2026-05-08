@@ -173,3 +173,12 @@ input.cell.wrong {
 #check-btn:hover {
   background: #deeaf6;
 }
+
+#hint-btn {
+  border-color: #caa24a;
+  color: #7a5600;
+}
+
+#hint-btn:hover {
+  background: #f5e7b2;
+}
