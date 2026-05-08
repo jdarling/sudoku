@@ -16,6 +16,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 ## [1.12.1]
 
 - Removed duplicate STATUS_MESSAGES from app.js; now uses constants directly
+- Extracted URL/query/hash persistence functions from app orchestration into js/dom.js
+- Added explicit state mutation helpers in js/state.js and moved keyboard handler orchestration to js/dom.js
+- Added state tests for updateCellValue(), clearCellValue(), and moveSelection()
+- Normalized repository line endings to LF and enforced LF via .gitattributes
 
 ## [1.12.0]
 
