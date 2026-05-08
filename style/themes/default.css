@@ -1,0 +1,98 @@
+/**
+ * Default color scheme (Okabe-Ito colorblind-safe palette).
+ * Complements layout.css for geometry and spacing.
+ */
+
+body {
+  background: #f5f0e8;
+  color: #1a1a1a;
+}
+
+h1 {
+  color: #1a1a1a;
+}
+
+#status {
+  color: #666;
+}
+
+#status.win {
+  color: #0a6e3f;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #b03a2e;
+}
+
+table {
+  border: 2.5px solid #1a1a1a;
+}
+
+td {
+  border: 0.5px solid #aaa;
+}
+
+td:nth-child(3n) {
+  border-right-color: #1a1a1a;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #1a1a1a;
+}
+
+input.cell {
+  color: #1a1a1a;
+}
+
+input.cell.selected {
+  background: #d6e8f7;
+}
+
+input.cell.related {
+  background: #efefef;
+}
+
+input.cell.same-num {
+  background: #cdecd9;
+}
+
+input.cell.wrong {
+  background: #fbe0dc;
+  color: #b03a2e;
+}
+
+.num-btn {
+  border-color: #bbb;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.num-btn:hover {
+  background: #eee;
+  border-color: #888;
+}
+
+.num-btn.erase {
+  color: #555;
+}
+
+.action-btn {
+  border-color: #bbb;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.action-btn:hover {
+  background: #eee;
+  border-color: #888;
+}
+
+#check-btn {
+  border-color: #5b8fc9;
+  color: #1a5a9a;
+}
+
+#check-btn:hover {
+  background: #eaf2fb;
+}

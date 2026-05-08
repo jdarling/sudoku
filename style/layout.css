@@ -1,19 +1,21 @@
-*,
-*::before,
-*::after {
+/**
+ * Layout and structural styles.
+ * Handles sizing, positioning, spacing, and geometry.
+ * See colors.css for color scheme.
+ */
+
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: Georgia, "Times New Roman", serif;
-  background: #f5f0e8;
+  font-family: Georgia, 'Times New Roman', serif;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   padding: 2rem 1rem;
-  color: #1a1a1a;
 }
 
 #app {
@@ -27,43 +29,30 @@ h1 {
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #1a1a1a;
 }
 
 #status {
   font-size: 13px;
-  color: #666;
   height: 18px;
   font-family: system-ui, sans-serif;
 }
 
-#status.win {
-  color: #007a57;
-  font-weight: 600;
-}
-
-#status.error {
-  color: #c0502a;
-}
-
 table {
   border-collapse: collapse;
-  border: 2.5px solid #1a1a1a;
 }
 
 td {
   width: 48px;
   height: 48px;
   padding: 0;
-  border: 0.5px solid #aaa;
 }
 
 td:nth-child(3n) {
-  border-right: 2.5px solid #1a1a1a;
+  border-right: 2.5px solid;
 }
 
 tr:nth-child(3n) td {
-  border-bottom: 2.5px solid #1a1a1a;
+  border-bottom: 2.5px solid;
 }
 
 input.cell {
@@ -75,7 +64,6 @@ input.cell {
   font-size: 20px;
   font-family: Georgia, serif;
   font-weight: 500;
-  color: #1a1a1a;
   cursor: pointer;
   caret-color: transparent;
   outline: none;
@@ -84,28 +72,7 @@ input.cell {
 
 input.cell.given {
   font-weight: 700;
-  background: #dcdcdc;
-}
-
-input.cell.selected {
-  background: #5b9bd5;
-}
-
-input.cell.related {
-  background: #deeaf6;
-}
-
-input.cell.related-line {
-  background: #b8d4ed;
-}
-
-input.cell.same-num {
-  background: #f5c842;
-}
-
-input.cell.wrong {
-  background: #f5d5c0;
-  color: #c0502a;
+  pointer-events: none;
 }
 
 #controls {
@@ -118,29 +85,19 @@ input.cell.wrong {
 .num-btn {
   width: 42px;
   height: 42px;
-  border: 1px solid #bbb;
+  border: 1px solid;
   border-radius: 6px;
-  background: #fff;
   font-size: 17px;
   font-family: Georgia, serif;
   font-weight: 600;
   cursor: pointer;
-  color: #1a1a1a;
-  transition:
-    background 0.1s,
-    border-color 0.1s;
-}
-
-.num-btn:hover {
-  background: #eee;
-  border-color: #888;
+  transition: background 0.1s, border-color 0.1s;
 }
 
 .num-btn.erase {
   font-size: 12px;
   font-family: system-ui, sans-serif;
   width: 56px;
-  color: #555;
 }
 
 #action-row {
@@ -150,42 +107,10 @@ input.cell.wrong {
 
 .action-btn {
   padding: 8px 20px;
+  border: 1px solid;
   border-radius: 6px;
-  border: 1px solid #bbb;
-  background: #fff;
   font-size: 13px;
   font-family: system-ui, sans-serif;
   cursor: pointer;
-  color: #1a1a1a;
   transition: background 0.1s;
-}
-
-.action-btn:hover {
-  background: #eee;
-  border-color: #888;
-}
-
-#check-btn {
-  border-color: #5b9bd5;
-  color: #1a5a9a;
-}
-
-#check-btn:hover {
-  background: #deeaf6;
-}
-
-#hint-btn {
-  border-color: #caa24a;
-  color: #7a5600;
-}
-
-#hint-btn:hover {
-  background: #f5e7b2;
-}
-
-#version {
-  font-size: 11px;
-  color: #bbb;
-  font-family: system-ui, sans-serif;
-  margin-top: 0.25rem;
 }
