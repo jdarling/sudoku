@@ -114,7 +114,7 @@ const runStateTests = () => {
     ).toBeTruthy();
   });
 
-  test("solveBoard fills board with solution and marks all given", () => {
+  test("solveBoard fills board with solution and preserves givens", () => {
     const puzzle =
       "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
     const state = createStateFromPuzzle(puzzle);
@@ -122,7 +122,7 @@ const runStateTests = () => {
     const hasZero = next.board.some((cell) => cell === 0);
     return expect(
       !hasZero &&
-        next.given.every(Boolean) &&
+        next.given.every((isGiven, i) => isGiven === state.given[i]) &&
         next.selected === -1 &&
         next.statusType === "win",
     ).toBeTruthy();
@@ -137,14 +137,14 @@ const runStateTests = () => {
     return expect(hasZero).toBeFalsy();
   });
 
-  test("solveBoard marks all cells as given after solving", () => {
+  test("solveBoard keeps non-given cells editable after solving", () => {
     const puzzle =
       "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
     const state = createStateFromPuzzle(puzzle);
     const solved = solveBoard(state);
-    const allGiven = solved.given.every(Boolean);
+    const hasEditable = solved.given.some((isGiven) => !isGiven);
     const solvedCount = solved.board.filter((cell) => cell !== 0).length;
-    return expect(allGiven && solvedCount === TOTAL_CELLS).toBeTruthy();
+    return expect(hasEditable && solvedCount === TOTAL_CELLS).toBeTruthy();
   });
 
   test("checkSolution returns win state when board matches solution", () => {
@@ -162,6 +162,32 @@ const runStateTests = () => {
     const state = createStateFromPuzzle(puzzle);
     const next = checkSolution(state, false);
     return expect(next).toBe(state);
+  });
+
+  test("checkSolution returns success when partial board is still solveable", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const next = checkSolution(state, true);
+    const isCorrect =
+      next.status === "All values are correct" && next.statusType === "win";
+    return expect(isCorrect).toBeTruthy();
+  });
+
+  test("checkSolution returns error when current entries conflict", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const conflictBoard = [...state.board];
+    conflictBoard[2] = 5;
+    const conflictedState = {
+      ...state,
+      board: conflictBoard,
+    };
+    const next = checkSolution(conflictedState, true);
+    const isError =
+      next.status === "Some cells are incorrect" && next.statusType === "error";
+    return expect(isError).toBeTruthy();
   });
 
   test("getWrongCells returns user cells that conflict by Sudoku rules", () => {

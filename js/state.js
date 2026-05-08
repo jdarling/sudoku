@@ -80,24 +80,61 @@ const solveBoard = (state) => {
 };
 
 /**
- * Checks if board is completely solved and returns state with status.
- * Solves the puzzle fresh from state.puzzle (immutably) to compare.
+ * Checks whether the current board has any duplicate conflicts.
+ * @param {number[]} board - Board state to validate
+ * @returns {boolean} True when a duplicate exists in row/col/box
+ */
+const hasBoardConflicts = (board) => {
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if (board[i] === 0) {
+      continue;
+    }
+
+    const related = getRelated(i);
+    for (const relatedIndex of related) {
+      if (relatedIndex === i) {
+        continue;
+      }
+      if (board[relatedIndex] === board[i]) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+/**
+ * Checks whether the current board entries are still solveable.
  * @param {Object} state - Current state
  * @param {boolean} showErrors - If true, mark incorrect cells
- * @returns {Object} New state with win status or error status
+ * @returns {Object} New state with status based on consistency/solveability
  */
 const checkSolution = (state, showErrors) => {
-  const solution = solve([...state.puzzle]);
-  if (!solution) {
+  if (hasBoardConflicts(state.board)) {
+    if (!showErrors) {
+      return state;
+    }
     return {
       ...state,
-      status: "Puzzle is unsolveable",
+      status: "Some cells are incorrect",
       statusType: "error",
     };
   }
-  const allCorrect = state.board.every((digit, i) => digit === solution[i]);
 
-  if (allCorrect) {
+  const solution = solve([...state.board]);
+  if (!solution) {
+    if (!showErrors) {
+      return state;
+    }
+    return {
+      ...state,
+      status: "Some cells are incorrect",
+      statusType: "error",
+    };
+  }
+
+  const isComplete = state.board.every((digit) => digit !== 0);
+  if (isComplete) {
     return {
       ...state,
       status: "Puzzle solved!",
@@ -111,8 +148,8 @@ const checkSolution = (state, showErrors) => {
 
   return {
     ...state,
-    status: "Some cells are incorrect",
-    statusType: "error",
+    status: "All values are correct",
+    statusType: "win",
   };
 };
 
