@@ -31,33 +31,6 @@ const runSolverTests = () => {
   let getRelated = resolveSymbol("getRelated");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
 
-  if (typeof module !== "undefined" && module.exports) {
-    const fs = require("fs");
-    const vm = require("vm");
-    const path = require("path");
-
-    const context = { console, Math, Set };
-    vm.createContext(context);
-
-    const constantsCode = fs.readFileSync(
-      path.join(__dirname, "constants.js"),
-      "utf8",
-    );
-    vm.runInContext(constantsCode, context);
-
-    const solverCode = fs.readFileSync(
-      path.join(__dirname, "solver.js"),
-      "utf8",
-    );
-    vm.runInContext(
-      `${solverCode}\nthis.__solverExports = { idx, isValid, solve, getRelated, TOTAL_CELLS };`,
-      context,
-    );
-
-    ({ idx, isValid, solve, getRelated, TOTAL_CELLS } =
-      context.__solverExports);
-  }
-
   setTestFile("solver.js");
 
   test("idx(0, 0) equals 0", () => expect(idx(0, 0)).toBe(0));
@@ -116,18 +89,3 @@ const runSolverTests = () => {
 };
 
 runSolverTests();
-
-if (
-  typeof module !== "undefined" &&
-  module.exports &&
-  require.main === module
-) {
-  const {
-    runAllRegisteredTests,
-    printTestResults,
-  } = require("../tests/testharness.js");
-  runAllRegisteredTests().then((summary) => {
-    printTestResults(summary);
-    process.exit(summary.totalFailed > 0 ? 1 : 0);
-  });
-}

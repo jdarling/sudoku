@@ -6,29 +6,29 @@
  */
 const parsePuzzleDoc = (doc) => {
   if (doc.puzzle.rows) {
-    return doc.puzzle.rows.join('');
+    return doc.puzzle.rows.join("");
   }
 
   const ORDER = [
-    'top-left',
-    'top-center',
-    'top-right',
-    'middle-left',
-    'middle-center',
-    'middle-right',
-    'bottom-left',
-    'bottom-center',
-    'bottom-right',
+    "top-left",
+    "top-center",
+    "top-right",
+    "middle-left",
+    "middle-center",
+    "middle-right",
+    "bottom-left",
+    "bottom-center",
+    "bottom-right",
   ];
   const blocks = doc.puzzle.blocks;
-  const rows = ['', '', '', '', '', '', '', '', ''];
+  const rows = ["", "", "", "", "", "", "", "", ""];
   ORDER.forEach((name, blockIndex) => {
     const blockRow = Math.floor(blockIndex / BOX_SIZE) * BOX_SIZE;
     blocks[name].forEach((digits, rowOffset) => {
       rows[blockRow + rowOffset] += digits;
     });
   });
-  return rows.join('');
+  return rows.join("");
 };
 
 /**
@@ -38,7 +38,7 @@ const parsePuzzleDoc = (doc) => {
  * @returns {Promise<string[]>} Array of puzzle filenames
  */
 const getPuzzles = async () => {
-  const response = await fetch('data/puzzles.json');
+  const response = await fetch("data/puzzles.json");
   if (!response.ok) {
     throw new Error(`Failed to load puzzle index: ${response.statusText}`);
   }

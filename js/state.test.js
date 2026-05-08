@@ -37,47 +37,6 @@ const runStateTests = () => {
   let decodeBoard = resolveSymbol("decodeBoard");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
 
-  if (typeof module !== "undefined" && module.exports) {
-    const fs = require("fs");
-    const vm = require("vm");
-    const path = require("path");
-
-    const context = { console, Math, Set };
-    vm.createContext(context);
-
-    const constantsCode = fs.readFileSync(
-      path.join(__dirname, "constants.js"),
-      "utf8",
-    );
-    vm.runInContext(constantsCode, context);
-
-    const solverCode = fs.readFileSync(
-      path.join(__dirname, "solver.js"),
-      "utf8",
-    );
-    vm.runInContext(solverCode, context);
-
-    const stateCode = fs.readFileSync(path.join(__dirname, "state.js"), "utf8");
-    vm.runInContext(
-      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, hintBoard, getHintCells, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
-      context,
-    );
-
-    ({
-      createStateFromPuzzle,
-      selectCell,
-      placeNumber,
-      solveBoard,
-      checkSolution,
-      hintBoard,
-      getHintCells,
-      getWrongCells,
-      encodeBoard,
-      decodeBoard,
-      TOTAL_CELLS,
-    } = context.__stateExports);
-  }
-
   setTestFile("state.js");
 
   test("createStateFromPuzzle builds board and given arrays", () => {

@@ -271,6 +271,7 @@ const getPuzzleFromQuery = () => {
   }
   return puzzle;
 };
+
 /**
  * Extracts board state from URL hash.
  * @returns {string|null} Encoded board string from hash or null if not present
@@ -283,6 +284,7 @@ const getBoardFromHash = () => {
   const encoded = hash.split("board=")[1];
   return encoded || null;
 };
+
 /**
  * Updates URL query parameter with current puzzle filename.
  * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
