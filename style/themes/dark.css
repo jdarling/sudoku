@@ -1,0 +1,109 @@
+/**
+ * Dark color scheme.
+ * Complements layout.css for geometry and spacing.
+ * Swap in index.html by replacing themes/default.css with themes/dark.css.
+ */
+
+body {
+  background: #1a1a1a;
+  color: #e8e4dc;
+}
+
+h1 {
+  color: #e8e4dc;
+}
+
+#status {
+  color: #888;
+}
+
+#status.win {
+  color: #4caf82;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #e06c5a;
+}
+
+table {
+  border: 2.5px solid #ccc;
+}
+
+td {
+  border: 0.5px solid #444;
+}
+
+td:nth-child(3n) {
+  border-right-color: #ccc;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #ccc;
+}
+
+input.cell {
+  color: #e8e4dc;
+}
+
+input.cell.selected {
+  background: #1e3a52;
+}
+
+input.cell.related {
+  background: #2a2a2a;
+}
+
+input.cell.same-num {
+  background: #1a3d2e;
+}
+
+input.cell.wrong {
+  background: #3d1f1a;
+  color: #e06c5a;
+}
+
+.num-btn {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #e8e4dc;
+}
+
+.num-btn:hover {
+  background: #383838;
+  border-color: #777;
+}
+
+.num-btn.erase {
+  color: #aaa;
+}
+
+.action-btn {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #e8e4dc;
+}
+
+.action-btn:hover {
+  background: #383838;
+  border-color: #777;
+}
+
+#check-btn {
+  border-color: #3a6a99;
+  color: #7ab3e0;
+}
+
+#check-btn:hover {
+  background: #1a2d3d;
+}
+
+#theme-row {
+  color: #888;
+}
+
+#theme-select {
+  border-color: #555;
+  background: #2a2a2a;
+  color: #e8e4dc;
+}
