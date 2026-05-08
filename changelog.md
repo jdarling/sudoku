@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.9]
+
+- Added non-blocking confetti burst when a puzzle enters a win state
+- Celebration triggers only on transition into win to avoid repeated bursts during normal updates
+- Kept solved board fully visible and interactive while celebrating
+
 ## [1.11.8]
 
 - Reordered mobile controls to prioritize gameplay: Check/Hint first, number pad second, New/Load/Solve third

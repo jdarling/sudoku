@@ -9,6 +9,7 @@ let currentState = null;
  * @type {string}
  */
 let currentPuzzleName = "";
+let lastStatusType = "";
 
 const STATUS_TEXT =
   typeof STATUS_MESSAGES !== "undefined"
@@ -117,6 +118,14 @@ const updateState = (newState) => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   renderStatus(currentState.status, currentState.statusType);
+
+  const enteredWin =
+    currentState.statusType === "win" && lastStatusType !== "win";
+  if (enteredWin) {
+    launchWinCelebration();
+  }
+
+  lastStatusType = currentState.statusType || "";
   updateHash();
   if (currentState.selected >= 0) {
     focusCell(currentState.selected);
@@ -319,6 +328,7 @@ const loadPuzzleByFilename = async (filename) => {
       }),
       "",
     );
+    lastStatusType = "";
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
@@ -356,6 +366,7 @@ const loadNewGame = async () => {
     }),
     "",
   );
+  lastStatusType = "";
 };
 
 /**
@@ -376,6 +387,7 @@ const loadRandomPuzzle = async () => {
       }),
       "",
     );
+    lastStatusType = "";
     updateHash();
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");

@@ -148,6 +148,38 @@ input.cell.given {
   opacity: 0.6;
 }
 
+#confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 50;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translateY(110vh) rotate(560deg);
+    opacity: 0;
+  }
+}
+
 #game-shell {
   display: flex;
   flex-direction: column;

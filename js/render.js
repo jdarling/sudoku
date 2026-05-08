@@ -171,6 +171,59 @@ const setStatus = (msg, type) => {
 };
 
 /**
+ * Gets or creates the confetti layer used for win celebrations.
+ * @returns {HTMLDivElement|null} Confetti layer element
+ */
+const getConfettiLayer = () => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  let layer = document.getElementById("confetti-layer");
+  if (layer) {
+    return layer;
+  }
+
+  layer = document.createElement("div");
+  layer.id = "confetti-layer";
+  document.body.appendChild(layer);
+  return layer;
+};
+
+/**
+ * Creates and animates a single confetti piece.
+ * @param {HTMLElement} layer - Confetti layer element
+ */
+const createConfettiPiece = (layer) => {
+  const piece = document.createElement("span");
+  piece.className = "confetti-piece";
+  piece.style.left = `${Math.random() * 100}vw`;
+  piece.style.backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 85%, 58%)`;
+  piece.style.animationDuration = `${1.6 + Math.random() * 1.1}s`;
+  piece.style.animationDelay = `${Math.random() * 0.15}s`;
+  piece.style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
+  layer.appendChild(piece);
+
+  piece.addEventListener("animationend", () => {
+    piece.remove();
+  });
+};
+
+/**
+ * Triggers a non-blocking confetti burst to celebrate a win.
+ */
+const launchWinCelebration = () => {
+  const layer = getConfettiLayer();
+  if (!layer) {
+    return;
+  }
+
+  for (let i = 0; i < 90; i++) {
+    createConfettiPiece(layer);
+  }
+};
+
+/**
  * Renders the version number in the version footer element.
  */
 const renderVersion = () => {
