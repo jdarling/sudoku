@@ -283,7 +283,7 @@ const init = async () => {
   });
 
   document.getElementById("hint-btn").addEventListener("click", () => {
-    updateState(checkSolution(currentState, true));
+    updateState(hintBoard(currentState));
   });
 
   document.getElementById("solve-btn").addEventListener("click", () => {

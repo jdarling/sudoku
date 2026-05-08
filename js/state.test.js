@@ -30,6 +30,7 @@ const runStateTests = () => {
   let placeNumber = resolveSymbol("placeNumber");
   let solveBoard = resolveSymbol("solveBoard");
   let checkSolution = resolveSymbol("checkSolution");
+  let hintBoard = resolveSymbol("hintBoard");
   let getHintCells = resolveSymbol("getHintCells");
   let getWrongCells = resolveSymbol("getWrongCells");
   let encodeBoard = resolveSymbol("encodeBoard");
@@ -58,7 +59,7 @@ const runStateTests = () => {
 
     const stateCode = fs.readFileSync(path.join(__dirname, "state.js"), "utf8");
     vm.runInContext(
-      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, getHintCells, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
+      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, hintBoard, getHintCells, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
       context,
     );
 
@@ -68,6 +69,7 @@ const runStateTests = () => {
       placeNumber,
       solveBoard,
       checkSolution,
+      hintBoard,
       getHintCells,
       getWrongCells,
       encodeBoard,
@@ -212,6 +214,27 @@ const runStateTests = () => {
     };
     const wrong = getHintCells(next);
     return expect(wrong.includes(70)).toBeTruthy();
+  });
+
+  test("hintBoard sets hinting true and error status on conflict", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const conflictBoard = [...state.board];
+    conflictBoard[2] = 5;
+    const conflictedState = { ...state, board: conflictBoard };
+    const next = hintBoard(conflictedState);
+    return expect(
+      next.hinting === true && next.statusType === "error",
+    ).toBeTruthy();
+  });
+
+  test("placeNumber resets hinting to false", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = { ...createStateFromPuzzle(puzzle), hinting: true };
+    const next = placeNumber(state, 2, 4);
+    return expect(next.hinting).toBe(false);
   });
 
   test("encodeBoard returns 45-char compressed string", () => {

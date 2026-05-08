@@ -13,6 +13,7 @@ const createStateFromPuzzle = (puzzleStr) => {
     selected: -1,
     status: "",
     statusType: "",
+    hinting: false,
   };
 };
 
@@ -47,6 +48,7 @@ const placeNumber = (state, cellIndex, num) => {
     board: newBoard,
     status: "",
     statusType: "",
+    hinting: false,
   };
 };
 
@@ -151,6 +153,15 @@ const checkSolution = (state, showErrors) => {
     status: "All values are correct",
     statusType: "win",
   };
+};
+
+/**
+ * Creates a new state with hint mode active, showing incorrect cells.
+ * @param {Object} state - Current state
+ * @returns {Object} New state with hinting enabled and error status if applicable
+ */
+const hintBoard = (state) => {
+  return { ...checkSolution(state, true), hinting: true };
 };
 
 /**

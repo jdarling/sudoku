@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.8.1]
+
+- Fixed Check button incorrectly highlighting wrong cells in red; Check now only shows a status message
+- Hint button now exclusively triggers red cell highlighting
+- Placing a number clears hint highlighting
+
 ## [1.8.0]
 
 - Added version display in the UI footer (`renderVersion()` in `render.js`, called from `init()` in `app.js`)
