@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="580" height="580" viewBox="0 0 580 580">
+  <rect width="580" height="580" fill="white"/>
+  <line x1="20" y1="20" x2="20" y2="560" stroke="#111" stroke-width="2.5"/>
+  <line x1="20" y1="20" x2="560" y2="20" stroke="#111" stroke-width="2.5"/>
+  <line x1="80" y1="20" x2="80" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="80" x2="560" y2="80" stroke="#888" stroke-width="0.8"/>
+  <line x1="140" y1="20" x2="140" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="140" x2="560" y2="140" stroke="#888" stroke-width="0.8"/>
+  <line x1="200" y1="20" x2="200" y2="560" stroke="#111" stroke-width="2.5"/>
+  <line x1="20" y1="200" x2="560" y2="200" stroke="#111" stroke-width="2.5"/>
+  <line x1="260" y1="20" x2="260" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="260" x2="560" y2="260" stroke="#888" stroke-width="0.8"/>
+  <line x1="320" y1="20" x2="320" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="320" x2="560" y2="320" stroke="#888" stroke-width="0.8"/>
+  <line x1="380" y1="20" x2="380" y2="560" stroke="#111" stroke-width="2.5"/>
+  <line x1="20" y1="380" x2="560" y2="380" stroke="#111" stroke-width="2.5"/>
+  <line x1="440" y1="20" x2="440" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="440" x2="560" y2="440" stroke="#888" stroke-width="0.8"/>
+  <line x1="500" y1="20" x2="500" y2="560" stroke="#888" stroke-width="0.8"/>
+  <line x1="20" y1="500" x2="560" y2="500" stroke="#888" stroke-width="0.8"/>
+  <line x1="560" y1="20" x2="560" y2="560" stroke="#111" stroke-width="2.5"/>
+  <line x1="20" y1="560" x2="560" y2="560" stroke="#111" stroke-width="2.5"/>
+  <text x="170" y="51" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">3</text>
+  <text x="290" y="51" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">2</text>
+  <text x="410" y="51" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">6</text>
+  <text x="50" y="111" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">9</text>
+  <text x="230" y="111" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">3</text>
+  <text x="350" y="111" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">5</text>
+  <text x="530" y="111" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">1</text>
+  <text x="170" y="171" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">1</text>
+  <text x="230" y="171" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">8</text>
+  <text x="350" y="171" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">6</text>
+  <text x="410" y="171" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">4</text>
+  <text x="170" y="231" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">8</text>
+  <text x="230" y="231" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">1</text>
+  <text x="350" y="231" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">2</text>
+  <text x="410" y="231" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">9</text>
+  <text x="50" y="291" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">7</text>
+  <text x="530" y="291" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">8</text>
+  <text x="170" y="351" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">6</text>
+  <text x="230" y="351" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">7</text>
+  <text x="350" y="351" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">8</text>
+  <text x="410" y="351" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">2</text>
+  <text x="170" y="411" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">2</text>
+  <text x="230" y="411" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">6</text>
+  <text x="350" y="411" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">9</text>
+  <text x="410" y="411" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">5</text>
+  <text x="50" y="471" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">8</text>
+  <text x="230" y="471" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">2</text>
+  <text x="350" y="471" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">3</text>
+  <text x="530" y="471" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">9</text>
+  <text x="170" y="531" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">5</text>
+  <text x="290" y="531" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">1</text>
+  <text x="410" y="531" font-family="Georgia, serif" font-size="32" font-weight="bold" text-anchor="middle" dominant-baseline="central" fill="#111">3</text>
+</svg>
