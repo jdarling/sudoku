@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.11.4]
+
+- Status bar now shows the loaded puzzle name when using New Game or Load Game
+- Gameplay status messages now include the active puzzle name for Check, Hint, and Solve outcomes
+- Example success format: All values for "<puzzleName>" are correct!
+
 ## [1.11.3]
 
 - Removed excessive padding and margins to maximize game focus

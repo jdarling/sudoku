@@ -5,6 +5,76 @@
 let currentState = null;
 
 /**
+ * Module-level active puzzle name for status messaging.
+ * @type {string}
+ */
+let currentPuzzleName = "";
+
+/**
+ * Builds a fallback puzzle name from filename.
+ * @param {string} filename - Puzzle filename
+ * @returns {string} Puzzle display name
+ */
+const getPuzzleNameFromFilename = (filename) => {
+  if (!filename) {
+    return "unknown";
+  }
+
+  return filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
+};
+
+/**
+ * Stores the active puzzle display name from loaded metadata.
+ * @param {Object} puzzle - Loaded puzzle object
+ */
+const setCurrentPuzzleName = (puzzle) => {
+  if (puzzle && puzzle.name && puzzle.name.trim()) {
+    currentPuzzleName = puzzle.name.trim();
+    return;
+  }
+
+  currentPuzzleName = getPuzzleNameFromFilename(puzzle ? puzzle.filename : "");
+};
+
+/**
+ * Formats status messages with the active puzzle name.
+ * @param {string} statusMessage - Base state status message
+ * @returns {string} Puzzle-aware message
+ */
+const formatStatusWithPuzzleName = (statusMessage) => {
+  if (!statusMessage || !currentPuzzleName) {
+    return statusMessage;
+  }
+
+  if (statusMessage === "All values are correct") {
+    return `All values for "${currentPuzzleName}" are correct!`;
+  }
+
+  if (statusMessage === "Some cells are incorrect") {
+    return `Some values for "${currentPuzzleName}" are incorrect.`;
+  }
+
+  if (statusMessage === "Puzzle solved!") {
+    return `Puzzle "${currentPuzzleName}" solved!`;
+  }
+
+  if (statusMessage === "Puzzle is unsolveable") {
+    return `Puzzle "${currentPuzzleName}" is unsolveable.`;
+  }
+
+  return statusMessage;
+};
+
+/**
+ * Renders status with puzzle-aware formatting.
+ * @param {string} statusMessage - Base status message
+ * @param {string} statusType - Status type class
+ */
+const renderStatus = (statusMessage, statusType) => {
+  setStatus(formatStatusWithPuzzleName(statusMessage), statusType);
+};
+
+/**
  * Updates the URL hash with the current board state.
  * Uses replaceState to avoid triggering hashchange for internal updates.
  */
@@ -25,7 +95,7 @@ const updateState = (newState) => {
   currentState = newState;
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  setStatus(currentState.status, currentState.statusType);
+  renderStatus(currentState.status, currentState.statusType);
   updateHash();
   if (currentState.selected >= 0) {
     focusCell(currentState.selected);
@@ -206,6 +276,7 @@ const loadPuzzleByFilename = async (filename) => {
   try {
     const puzzle = await getPuzzle(filename);
     currentState = createStateFromPuzzle(puzzle.puzzle);
+    setCurrentPuzzleName(puzzle);
     updateQuery(filename);
 
     const boardHash = getBoardFromHash();
@@ -221,9 +292,13 @@ const loadPuzzleByFilename = async (filename) => {
 
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
-    setStatus(currentState.status, currentState.statusType);
+    setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
   } catch (error) {
-    setStatus(`Failed to load puzzle: ${error.message}`, "error");
+    const failedPuzzleName = getPuzzleNameFromFilename(filename);
+    setStatus(
+      `Failed to load puzzle "${failedPuzzleName}": ${error.message}`,
+      "error",
+    );
   }
 };
 
@@ -242,10 +317,11 @@ const loadNewGame = async () => {
 
   const puzzle = await getRandomPuzzle();
   currentState = createStateFromPuzzle(puzzle.puzzle);
+  setCurrentPuzzleName(puzzle);
   updateQuery(puzzle.filename);
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  setStatus(currentState.status, currentState.statusType);
+  setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
 };
 
 /**
@@ -256,10 +332,11 @@ const loadRandomPuzzle = async () => {
   try {
     const puzzle = await getRandomPuzzle();
     currentState = createStateFromPuzzle(puzzle.puzzle);
+    setCurrentPuzzleName(puzzle);
     updateQuery(puzzle.filename);
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
-    setStatus(currentState.status, currentState.statusType);
+    setStatus(`Loaded puzzle "${currentPuzzleName}".`, "");
     updateHash();
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");
