@@ -9,6 +9,7 @@ let currentState = null;
  * @type {string}
  */
 let currentPuzzleName = "";
+let currentPuzzleFilename = "";
 let lastStatusType = "";
 
 /**
@@ -142,6 +143,7 @@ const onNumberButtonClick = (event) => {
  */
 const loadGame = (puzzle, boardState) => {
   currentState = boardState;
+  currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
   setCurrentPuzzleName(puzzle);
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
@@ -230,7 +232,7 @@ const loadNewGame = async () => {
  */
 const loadRandomPuzzle = async () => {
   try {
-    const puzzle = await getRandomPuzzle();
+    const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
     const boardState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(puzzle.filename);
     loadGame(puzzle, boardState);

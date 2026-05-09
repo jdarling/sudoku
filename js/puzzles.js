@@ -73,10 +73,20 @@ const getPuzzle = async (filename) => {
  * Currently selects from the local index — replace this implementation
  * with an API call (e.g. GET /api/puzzles/random) when a backend is available,
  * so the server handles selection without transferring the full index.
+ * @param {string|null} excludeFilename - Optional filename to avoid when possible
  * @returns {Promise<Object>} A random puzzle object
  */
-const getRandomPuzzle = async () => {
+const getRandomPuzzle = async (excludeFilename = null) => {
   const filenames = await getPuzzles();
-  const filename = filenames[Math.floor(Math.random() * filenames.length)];
+  if (filenames.length === 0) {
+    throw new Error("No puzzles available");
+  }
+
+  let candidates = filenames;
+  if (excludeFilename && filenames.length > 1) {
+    candidates = filenames.filter((filename) => filename !== excludeFilename);
+  }
+
+  const filename = candidates[Math.floor(Math.random() * candidates.length)];
   return getPuzzle(filename);
 };

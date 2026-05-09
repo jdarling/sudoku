@@ -156,6 +156,75 @@ const runPuzzleTests = () => {
     Math.random = originalRandom;
     return expect(puzzle.name).toBe("Random");
   });
+
+  test("getRandomPuzzle excludes current puzzle when alternatives exist", async () => {
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+
+    const payload = JSON.stringify({
+      name: "Different",
+      author: "C",
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    });
+
+    globalThis.fetch = async (url) => {
+      if (url === "data/puzzles.json") {
+        return {
+          ok: true,
+          json: async () => ["puzzles/001.yaml", "puzzles/002.yaml"],
+        };
+      }
+      return { ok: true, text: async () => payload };
+    };
+
+    const puzzle = await getRandomPuzzle("puzzles/001.yaml");
+    Math.random = originalRandom;
+    return expect(puzzle.filename).toBe("puzzles/002.yaml");
+  });
+
+  test("getRandomPuzzle keeps only puzzle when index has one entry", async () => {
+    const payload = JSON.stringify({
+      name: "Only",
+      author: "D",
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    });
+
+    globalThis.fetch = async (url) => {
+      if (url === "data/puzzles.json") {
+        return { ok: true, json: async () => ["puzzles/001.yaml"] };
+      }
+      return { ok: true, text: async () => payload };
+    };
+
+    const puzzle = await getRandomPuzzle("puzzles/001.yaml");
+    return expect(puzzle.filename).toBe("puzzles/001.yaml");
+  });
 };
 
 runPuzzleTests();

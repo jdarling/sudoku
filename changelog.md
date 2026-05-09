@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.8]
+
+- New Game now avoids selecting the currently loaded puzzle when alternatives exist
+- Added puzzle-layer tests for excluded random selection and single-puzzle fallback behavior
+
 ## [1.12.7]
 
 - Extracted pure string and puzzle-id helpers into `js/utils.js` (`formatString`, `extractPuzzleId`, `normalizePuzzleId`, `formatPuzzleStatus`)
