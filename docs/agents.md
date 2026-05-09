@@ -283,3 +283,21 @@ Example:
 
 - Version target `1.12.x` → branch `feat/v1.12`
 - Version target `2.0.x` → branch `feat/v2.0`
+
+## Commit and Tag Workflow (IMPORTANT)
+
+Follow this cycle precisely:
+
+1. **New work starts** → bump `VERSION` in `js/constants.js` and add a `## [x.y.z]` entry to `changelog.md` **before** any other commits for that version
+2. **During work** → commit freely as logical chunks complete; no tagging yet
+3. **User says “we’re done”** → commit any remaining uncommitted changes, then tag:
+
+```bash
+git tag -a v1.x.x -m "Version 1.x.x: description"
+```
+
+4. **Next work begins** → go back to step 1
+
+**Never tag mid-feature.** Tags mark finished, stable versions only.
+
+**Always update `changelog.md`** alongside `VERSION` at the start of each new version.
