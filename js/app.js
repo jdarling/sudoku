@@ -69,12 +69,7 @@ const applyBoardStateFromHash = (decodedBoard) => {
   if (!currentState) {
     return;
   }
-  currentState = {
-    ...currentState,
-    board: decodedBoard,
-  };
-  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-  markWrongCells(currentState);
+  updateState({ ...currentState, board: decodedBoard });
 };
 
 /**

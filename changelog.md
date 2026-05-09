@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.17]
+
+- Fixed `applyBoardStateFromHash` to route through `updateState` instead of directly mutating `currentState` and manually re-rendering
+
 ## [1.12.16]
 
 - Fixed `loadRandomPuzzle` error path to use `formatString` + `STATUS_MESSAGES` consistently with all other error paths
