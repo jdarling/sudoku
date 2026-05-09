@@ -29,14 +29,14 @@ const runStylerTests = () => {
   let styleCell = resolveSymbol('styleCell');
   let styleRow = resolveSymbol('styleRow');
   let styleCol = resolveSymbol('styleCol');
-  let styleBox = resolveSymbol('styleBox');
+  let styleBlock = resolveSymbol('styleBlock');
   let styleSameValueRows = resolveSymbol('styleSameValueRows');
   let styleSameValueCols = resolveSymbol('styleSameValueCols');
-  let styleSameValueBoxes = resolveSymbol('styleSameValueBoxes');
+  let styleSameValueBlocks = resolveSymbol('styleSameValueBlocks');
   let styleSameValueCells = resolveSymbol('styleSameValueCells');
   let styleSelectedRow = resolveSymbol('styleSelectedRow');
   let styleSelectedCol = resolveSymbol('styleSelectedCol');
-  let styleSelectedBox = resolveSymbol('styleSelectedBox');
+  let styleSelectedBlock = resolveSymbol('styleSelectedBlock');
   let styleSelectedCell = resolveSymbol('styleSelectedCell');
   let buildStyles = resolveSymbol('buildStyles');
   let TOTAL_CELLS = resolveSymbol('TOTAL_CELLS');
@@ -100,9 +100,9 @@ const runStylerTests = () => {
     return expect(allMatch).toBe(true);
   });
 
-  test('styleBox applies style to all cells in a 3x3 box', () => {
+  test('styleBlock applies style to all cells in a 3x3 block', () => {
     const styles = new Array(TOTAL_CELLS).fill(null);
-    styleBox(styles, 0, 'related-line-subtle');
+    styleBlock(styles, 0, 'related-line-subtle');
     let count = 0;
     for (let i = 0; i < TOTAL_CELLS; i++) {
       if (styles[i] === 'related-line-subtle') {
@@ -147,19 +147,19 @@ const runStylerTests = () => {
     return expect(colCount).toBe(9);
   });
 
-  test('styleSameValueBoxes marks boxes of cells with same value', () => {
-    const board = '5' + '0'.repeat(80);
+  test('styleSameValueBlocks marks blocks of cells with same value', () => {
+    const board = '1' + '0'.repeat(80);
     const boardArr = board.split('').map(Number);
     const styles = new Array(TOTAL_CELLS).fill(null);
 
-    styleSameValueBoxes(styles, boardArr, 0);
+    styleSameValueBlocks(styles, boardArr, 0);
 
-    // Box 0 (cells 0-2, 9-11, 18-20) should be highlighted
-    let boxCount = 0;
+    // Block 0 (cells 0-2, 9-11, 18-20) should be highlighted
+    let blockCount = 0;
     for (let i = 0; i < TOTAL_CELLS; i++) {
-      if (styles[i] === 'related-line-subtle') boxCount++;
+      if (styles[i] === 'related-line-subtle') blockCount++;
     }
-    return expect(boxCount).toBe(9);
+    return expect(blockCount).toBe(9);
   });
 
   test('styleSameValueCells marks all cells with same value', () => {
@@ -203,18 +203,18 @@ const runStylerTests = () => {
     return expect(colCount).toBe(9);
   });
 
-  test('styleSelectedBox marks selected cell box', () => {
+  test('styleSelectedBlock marks selected cell block', () => {
     const board = '0'.repeat(81).split('').map(Number);
     const styles = new Array(TOTAL_CELLS).fill(null);
 
-    styleSelectedBox(styles, board, 0);
+    styleSelectedBlock(styles, board, 0);
 
-    // Box 0 should be highlighted with 'related-line-subtle'
-    let boxCount = 0;
+    // Block 0 should be highlighted with 'related-line-subtle'
+    let blockCount = 0;
     for (let i = 0; i < TOTAL_CELLS; i++) {
-      if (styles[i] === 'related-line-subtle') boxCount++;
+      if (styles[i] === 'related-line-subtle') blockCount++;
     }
-    return expect(boxCount).toBe(9);
+    return expect(blockCount).toBe(9);
   });
 
   test('styleSelectedCell marks selected cell', () => {
@@ -228,31 +228,41 @@ const runStylerTests = () => {
 
   test('buildStyles returns array of correct length', () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, 0, 'related-box');
+    const styles = buildStyles(board, 0, [
+      'selected block',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
     return expect(styles.length).toBe(TOTAL_CELLS);
   });
 
   test("buildStyles marks selected cell as 'selected'", () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, 0, 'related-box');
+    const styles = buildStyles(board, 0, []);
     return expect(styles[0]).toBe('selected');
   });
 
   test("buildStyles marks selected cell as 'selected' in 'none' mode", () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, 0, 'none');
+    const styles = buildStyles(board, 0, []);
     return expect(styles[0]).toBe('selected');
   });
 
   test('buildStyles returns empty styles when selected is -1', () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, -1, 'related-box');
+    const styles = buildStyles(board, -1, [
+      'selected block',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
     return expect(styles.every((s) => s === '')).toBe(true);
   });
 
   test("buildStyles highlights same numbers in 'same' mode", () => {
     const board = '1'.repeat(10).concat('0'.repeat(71)).split('').map(Number);
-    const styles = buildStyles(board, 0, 'same');
+    const styles = buildStyles(board, 0, ['same value']);
     let sameCount = 0;
     let selectedCount = 0;
     for (let i = 0; i < TOTAL_CELLS; i++) {
@@ -264,7 +274,7 @@ const runStylerTests = () => {
 
   test("buildStyles highlights row and column in 'minimal' mode", () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, 0, 'minimal');
+    const styles = buildStyles(board, 0, ['selected row', 'selected col']);
     let lineCount = 0;
     let selectedCount = 0;
     for (let i = 0; i < 81; i++) {
@@ -274,9 +284,16 @@ const runStylerTests = () => {
     return expect(lineCount + selectedCount).toBe(17);
   });
 
-  test("buildStyles applies row/col over box in 'related-all' mode", () => {
+  test("buildStyles applies row/col over block in 'related-all' mode", () => {
     const board = '0'.repeat(81).split('').map(Number);
-    const styles = buildStyles(board, 0, 'related-all');
+    const styles = buildStyles(board, 0, [
+      'same value rows',
+      'same value cols',
+      'same value blocks',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
 
     // Cell 4 is in same row as 0 (row 0, col 4) but NOT in same box (box 1)
     // Should get 'related-line' from row, not 'related-line-subtle' from box
@@ -289,7 +306,14 @@ const runStylerTests = () => {
     // Cell 0 selected (row 0, col 0), value 1
     // Cell 9 has value 1 (row 1, col 0) - in selected column
     // same-num is applied last, should overwrite the subtle styling
-    const styles = buildStyles(board, 0, 'related-all');
+    const styles = buildStyles(board, 0, [
+      'same value rows',
+      'same value cols',
+      'same value blocks',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
 
     const cellStyle = styles[9];
     return expect(cellStyle).toBe('same-num');
@@ -316,7 +340,7 @@ const runStylerTests = () => {
     const other5Positions = [10, 17, 45];
 
     // Test 'none' mode - nothing highlighted except selected
-    const noneStyles = buildStyles(board, selectedIndex, 'none');
+    const noneStyles = buildStyles(board, selectedIndex, []);
     return expect(noneStyles[0]).toBe('selected');
   });
 
@@ -334,7 +358,7 @@ const runStylerTests = () => {
     const board = boardStr.split('').map(Number);
     const selectedIndex = 0;
 
-    const styles = buildStyles(board, selectedIndex, 'same');
+    const styles = buildStyles(board, selectedIndex, ['same value']);
 
     // All 5s should be highlighted as 'same-num'
     let sameCount = 0;
@@ -354,7 +378,10 @@ const runStylerTests = () => {
     const boardArr = board.split('').map(Number);
     const selectedIndex = 0;
 
-    const styles = buildStyles(boardArr, selectedIndex, 'minimal');
+    const styles = buildStyles(boardArr, selectedIndex, [
+      'selected row',
+      'selected col',
+    ]);
 
     // Row 0 and col 0 should be highlighted as 'related-line'
     // But cell 0 is 'selected' not 'related-line'
@@ -376,7 +403,12 @@ const runStylerTests = () => {
     const boardArr = board.split('').map(Number);
     const selectedIndex = 0;
 
-    const styles = buildStyles(boardArr, selectedIndex, 'related-box');
+    const styles = buildStyles(boardArr, selectedIndex, [
+      'selected block',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
 
     // Box 0 cells should be subtle, row/col should be darker, selected should be blue
     let boxSubtleCount = 0;
@@ -406,7 +438,14 @@ const runStylerTests = () => {
     const board = boardStr.split('').map(Number);
     const selectedIndex = 0; // Cell 0 selected, value 5
 
-    const styles = buildStyles(board, selectedIndex, 'related-all');
+    const styles = buildStyles(board, selectedIndex, [
+      'same value rows',
+      'same value cols',
+      'same value blocks',
+      'selected row',
+      'selected col',
+      'same value',
+    ]);
 
     // Cell 0: selected - should be 'selected'
     let cell0Ok = styles[0] === 'selected';
@@ -430,7 +469,12 @@ const runStylerTests = () => {
 
     // Select cell 56 (row 6, col 2) - different row, col, and box from 0
     // This cell shares nothing with cell 0
-    const styles = buildStyles(boardArr, 56, 'related-box', given);
+    const styles = buildStyles(
+      boardArr,
+      56,
+      ['selected block', 'selected row', 'selected col', 'same value'],
+      given,
+    );
 
     // Cell 0 is given but given is now an additive render class, not a style output
     const cell0Style = styles[0];
@@ -452,7 +496,12 @@ const runStylerTests = () => {
     }
 
     // Select cell 0
-    const styles = buildStyles(boardArr, 0, 'related-box', given);
+    const styles = buildStyles(
+      boardArr,
+      0,
+      ['selected block', 'selected row', 'selected col', 'same value'],
+      given,
+    );
 
     // Cell 0 selected should get 'selected' (selection is highest priority)
     // Cell 1 should remain related-line in style output; given is added by render
@@ -473,7 +522,19 @@ const runStylerTests = () => {
     given[10] = true;
     given[20] = true;
 
-    const styles = buildStyles(board, 0, 'related-all', given);
+    const styles = buildStyles(
+      board,
+      0,
+      [
+        'same value rows',
+        'same value cols',
+        'same value blocks',
+        'selected row',
+        'selected col',
+        'same value',
+      ],
+      given,
+    );
 
     const expected = new Array(81).fill('');
 

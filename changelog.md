@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.14.2]
+
+- Terminology shift from "box" to "block" for highlight logic APIs and config features
+- Options modal now uses per-feature highlight checkboxes instead of a single mode dropdown
+- Styler now accepts either a preset key or explicit feature array and applies block feature keys correctly
+
 ## [1.14.1]
 
 - Added `related-line-subtle` CSS class to all 8 theme files for consistent styling of subtle highlights

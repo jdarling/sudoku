@@ -11,7 +11,7 @@ const SETTINGS_STORAGE_KEY = 'sudoku-settings';
  * @returns {Object} Default settings
  */
 const createDefaultSettings = () => ({
-  highlightMode: 'related-box',
+  highlightFeatures: [...getStyleConfigFeatures('related-block')],
   theme: 'default',
   autoCheck: false,
 });

@@ -40,12 +40,11 @@ const updateState = (newState) => {
   currentState = newState;
   renderGrid(
     currentState,
-    currentOptions.highlightMode,
+    currentOptions.highlightFeatures,
     onCellFocus,
     onCellKeydown,
     onCellInput,
   );
-  markWrongCells(currentState);
   setStatus(
     formatPuzzleStatus(currentState.status, currentPuzzleName, STATUS_MESSAGES),
     currentState.statusType,
@@ -97,12 +96,11 @@ const loadGame = (puzzle, boardState) => {
   setCurrentPuzzleName(puzzle);
   renderGrid(
     currentState,
-    currentOptions.highlightMode,
+    currentOptions.highlightFeatures,
     onCellFocus,
     onCellKeydown,
     onCellInput,
   );
-  markWrongCells(currentState);
   setStatus(
     formatPuzzleStatus('Loaded puzzle', currentPuzzleName, STATUS_MESSAGES),
     '',
@@ -218,24 +216,39 @@ const loadRandomPuzzle = async () => {
 };
 
 /**
- * Gets the current highlight mode.
- * @returns {string} Current highlight mode
+ * Gets the current highlight feature list.
+ * @returns {string[]} Current highlight features
  */
-const getHighlightMode = () => {
-  return currentOptions.highlightMode;
+const getHighlightFeatures = () => {
+  return currentOptions.highlightFeatures;
 };
 
 /**
- * Applies a new highlight mode, updates the game state, and persists to options.
- * @param {string} mode - Highlight mode to apply
+ * Applies new highlight features, updates game state, and persists options.
+ * @param {string[]} features - Highlight features to apply
  */
-const applyHighlightMode = (mode) => {
+const applyHighlightFeatures = (features) => {
   if (!currentState) {
     return;
   }
-  currentOptions = updateOption(currentOptions, 'highlightMode', mode);
+  currentOptions = updateOption(
+    currentOptions,
+    'highlightFeatures',
+    normalizeHighlightFeatures(features),
+  );
   saveOptions(currentOptions);
   updateState(currentState);
+};
+
+/**
+ * Applies one of the built-in highlight presets.
+ * @param {string} preset - Preset key in STYLE_CONFIGS
+ * @returns {string[]} Applied features
+ */
+const applyHighlightPreset = (preset) => {
+  const features = getStyleConfigFeatures(preset);
+  applyHighlightFeatures(features);
+  return [...features];
 };
 
 /**
@@ -266,8 +279,9 @@ const init = async () => {
 
   configureOptionsModal({
     applyTheme,
-    getHighlightMode,
-    applyHighlightMode,
+    getHighlightFeatures,
+    applyHighlightFeatures,
+    applyHighlightPreset,
   });
 
   document.getElementById('new-btn').addEventListener('click', onNewGameClick);
@@ -308,8 +322,11 @@ const init = async () => {
     .getElementById('options-theme-select')
     .addEventListener('change', onOptionsThemeChange);
   document
-    .getElementById('options-highlight-select')
-    .addEventListener('change', onOptionsHighlightModeChange);
+    .getElementById('options-highlight-features')
+    .addEventListener('change', onOptionsHighlightFeatureChange);
+  document
+    .getElementById('options-highlight-presets')
+    .addEventListener('click', onOptionsPresetClick);
 
   document.querySelectorAll('.num-btn').forEach((btn) => {
     btn.addEventListener('click', onNumberButtonClick);

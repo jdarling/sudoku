@@ -64,19 +64,19 @@ const styleCol = (styles, colIndex, style) => {
 };
 
 /**
- * Applies a style to all cells in a 3x3 box.
+ * Applies a style to all cells in a 3x3 block.
  * @param {(string|null)[]} styles - Array of styles (one per cell)
- * @param {number} cellIndex - Any cell in the box (0-80)
+ * @param {number} cellIndex - Any cell in the block (0-80)
  * @param {string|null} style - Style to apply
  */
-const styleBox = (styles, cellIndex, style) => {
+const styleBlock = (styles, cellIndex, style) => {
   const row = Math.floor(cellIndex / GRID_SIZE);
   const col = cellIndex % GRID_SIZE;
-  const boxRow = BOX_SIZE * Math.floor(row / BOX_SIZE);
-  const boxCol = BOX_SIZE * Math.floor(col / BOX_SIZE);
+  const blockRow = BOX_SIZE * Math.floor(row / BOX_SIZE);
+  const blockCol = BOX_SIZE * Math.floor(col / BOX_SIZE);
   for (let dr = 0; dr < BOX_SIZE; dr++) {
     for (let dc = 0; dc < BOX_SIZE; dc++) {
-      styleCell(styles, (boxRow + dr) * GRID_SIZE + (boxCol + dc), style);
+      styleCell(styles, (blockRow + dr) * GRID_SIZE + (blockCol + dc), style);
     }
   }
 };
@@ -118,19 +118,19 @@ const styleSameValueCols = (styles, boardState, selectedIndex, given) => {
 };
 
 /**
- * Style boxes of cells that contain the same value as the selected cell.
+ * Style blocks of cells that contain the same value as the selected cell.
  * @param {(string|null)[]} styles - Styles array to modify
  * @param {number[]} boardState - Current board state
  * @param {number} selectedIndex - Selected cell index
  * @param {boolean[]} given - Fixed cells array
  */
-const styleSameValueBoxes = (styles, boardState, selectedIndex, given) => {
+const styleSameValueBlocks = (styles, boardState, selectedIndex, given) => {
   if (selectedIndex < 0) {
     return;
   }
   const sameValueCells = getCellsWithSameNumber(boardState, selectedIndex);
   for (const cell of sameValueCells) {
-    styleBox(styles, cell, 'related-line-subtle');
+    styleBlock(styles, cell, 'related-line-subtle');
   }
 };
 
@@ -182,17 +182,17 @@ const styleSelectedCol = (styles, boardState, selectedIndex, given) => {
 };
 
 /**
- * Style the box of the selected cell.
+ * Style the block of the selected cell.
  * @param {(string|null)[]} styles - Styles array to modify
  * @param {number[]} boardState - Current board state
  * @param {number} selectedIndex - Selected cell index
  * @param {boolean[]} given - Fixed cells array
  */
-const styleSelectedBox = (styles, boardState, selectedIndex, given) => {
+const styleSelectedBlock = (styles, boardState, selectedIndex, given) => {
   if (selectedIndex < 0) {
     return;
   }
-  styleBox(styles, selectedIndex, 'related-line-subtle');
+  styleBlock(styles, selectedIndex, 'related-line-subtle');
 };
 
 /**
@@ -227,23 +227,154 @@ const styleSelectedCell = (styles, boardState, selectedIndex, given) => {
 };
 
 /**
- * Builds an 81-element array of styles for the given board state and mode.
- * Applies style features in order based on STYLE_CONFIGS.
+ * Gets user-entered cells that violate direct Sudoku constraints.
+ * @param {number[]} boardState - Current board state
+ * @param {boolean[]} given - Fixed cells array
+ * @returns {number[]} Array of conflicting user-entered cell indices
+ */
+const getDirectErrorCells = (boardState, given) => {
+  const wrong = [];
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if ((given && given[i]) || boardState[i] === 0) {
+      continue;
+    }
+
+    const value = boardState[i];
+    const related = getRelated(i);
+    let hasConflict = false;
+    for (const relatedIndex of related) {
+      if (relatedIndex === i) {
+        continue;
+      }
+      if (boardState[relatedIndex] === value) {
+        hasConflict = true;
+        break;
+      }
+    }
+
+    if (hasConflict) {
+      wrong.push(i);
+    }
+  }
+  return wrong;
+};
+
+/**
+ * Gets user-entered cells that do not match solved puzzle.
+ * @param {number[]} boardState - Current board state
+ * @param {number[]} puzzleState - Original puzzle board
+ * @param {boolean[]} given - Fixed cells array
+ * @returns {number[]} Array of incorrect user-entered cell indices
+ */
+const getSolvedErrorCells = (boardState, puzzleState, given) => {
+  if (!puzzleState) {
+    return getDirectErrorCells(boardState, given);
+  }
+
+  const solution = solve([...puzzleState]);
+  if (!solution) {
+    return getDirectErrorCells(boardState, given);
+  }
+
+  const wrong = [];
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if ((given && given[i]) || boardState[i] === 0) {
+      continue;
+    }
+    if (boardState[i] !== solution[i]) {
+      wrong.push(i);
+    }
+  }
+  return wrong;
+};
+
+/**
+ * Styles all conflicting cells related to the selected cell only.
+ * @param {(string|null)[]} styles - Styles array to modify
+ * @param {number[]} boardState - Current board state
+ * @param {number} selectedIndex - Selected cell index
+ * @param {boolean[]} given - Fixed cells array
+ */
+const styleImmediateErrors = (styles, boardState, selectedIndex, given) => {
+  if (selectedIndex < 0) {
+    return;
+  }
+  if ((given && given[selectedIndex]) || boardState[selectedIndex] === 0) {
+    return;
+  }
+
+  const selectedValue = boardState[selectedIndex];
+  const related = getRelated(selectedIndex);
+  let hasConflict = false;
+  for (const relatedIndex of related) {
+    if (relatedIndex === selectedIndex) {
+      continue;
+    }
+    if (boardState[relatedIndex] === selectedValue) {
+      hasConflict = true;
+      if (!(given && given[relatedIndex])) {
+        styleCell(styles, relatedIndex, 'wrong');
+      }
+    }
+  }
+
+  if (hasConflict) {
+    styleCell(styles, selectedIndex, 'wrong');
+  }
+};
+
+/**
+ * Styles wrong cells using either solved comparison or direct conflicts.
+ * @param {(string|null)[]} styles - Styles array to modify
+ * @param {number[]} boardState - Current board state
+ * @param {number} selectedIndex - Selected cell index
+ * @param {boolean[]} given - Fixed cells array
+ * @param {number[]} puzzleState - Original puzzle board
+ * @param {boolean} useSolvedErrors - Use solved comparison when true
+ */
+const styleErrorCells = (
+  styles,
+  boardState,
+  selectedIndex,
+  given,
+  puzzleState,
+  useSolvedErrors,
+) => {
+  const wrongCells = useSolvedErrors
+    ? getSolvedErrorCells(boardState, puzzleState, given)
+    : getDirectErrorCells(boardState, given);
+  for (const cell of wrongCells) {
+    styleCell(styles, cell, 'wrong');
+  }
+};
+
+/**
+ * Builds an 81-element array of styles for the given board state and config.
+ * Applies style features in order based on highlight feature list.
  * Always applies: selected cell (implicit).
  * @param {number[]} boardState - Current board state
  * @param {number} selectedIndex - Selected cell index (-1 if none)
- * @param {string} styleMode - Style mode (key in STYLE_CONFIGS)
+ * @param {string[]} highlightFeatures - Feature list to apply
  * @param {boolean[]} given - Fixed cells array (optional)
+ * @param {number[]} puzzleState - Original puzzle board (optional)
+ * @param {boolean} hinting - Hint mode flag (optional)
  * @returns {string[]} Array of 81 styles (one per cell)
  */
-const buildStyles = (boardState, selectedIndex, styleMode, given = null) => {
+const buildStyles = (
+  boardState,
+  selectedIndex,
+  highlightFeatures,
+  given = null,
+  puzzleState = null,
+  hinting = false,
+) => {
   const styles = new Array(TOTAL_CELLS).fill('');
-  const features = (STYLE_CONFIGS[styleMode] || STYLE_CONFIGS.none).map((val) =>
-    val.toLowerCase(),
+  const features = (highlightFeatures || []).map((val) =>
+    String(val).toLowerCase(),
   );
 
-  if (features.includes('selected box')) {
-    styleSelectedBox(styles, boardState, selectedIndex, given);
+  if (features.includes('selected block')) {
+    styleSelectedBlock(styles, boardState, selectedIndex, given);
   }
   if (features.includes('same value rows')) {
     styleSameValueRows(styles, boardState, selectedIndex, given);
@@ -251,8 +382,8 @@ const buildStyles = (boardState, selectedIndex, styleMode, given = null) => {
   if (features.includes('same value cols')) {
     styleSameValueCols(styles, boardState, selectedIndex, given);
   }
-  if (features.includes('same value boxes')) {
-    styleSameValueBoxes(styles, boardState, selectedIndex, given);
+  if (features.includes('same value blocks')) {
+    styleSameValueBlocks(styles, boardState, selectedIndex, given);
   }
   if (features.includes('selected row')) {
     styleSelectedRow(styles, boardState, selectedIndex, given);
@@ -265,5 +396,22 @@ const buildStyles = (boardState, selectedIndex, styleMode, given = null) => {
   }
 
   styleSelectedCell(styles, boardState, selectedIndex, given);
+
+  if (features.includes('immediate errors')) {
+    styleImmediateErrors(styles, boardState, selectedIndex, given);
+  }
+
+  const useSolvedErrors = hinting || features.includes('error cells');
+  if (useSolvedErrors) {
+    styleErrorCells(
+      styles,
+      boardState,
+      selectedIndex,
+      given,
+      puzzleState,
+      true,
+    );
+  }
+
   return styles;
 };

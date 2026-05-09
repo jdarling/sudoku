@@ -352,15 +352,28 @@ input.cell.given {
   color: var(--load-modal-panel-fg);
 }
 
-#options-highlight-select {
-  padding: 6px 8px;
-  border: 1px solid var(--load-modal-border);
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: system-ui, sans-serif;
-  cursor: pointer;
-  background: var(--load-modal-panel-bg);
-  color: var(--load-modal-panel-fg);
+#options-highlight-presets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+#options-highlight-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+}
+
+.feature-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.feature-option input[type='checkbox'] {
+  margin: 0;
 }
 
 #options-modal-actions {

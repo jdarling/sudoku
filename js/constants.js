@@ -10,7 +10,7 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = '1.14.1';
+const VERSION = '1.14.2';
 
 /**
  * Better status message lookup dictionary
@@ -66,20 +66,51 @@ const DEFAULT_THEME = 'default';
 /**
  * Style configuration for highlight modes.
  * Each mode is a list of style features to apply.
- * Features: 'same value rows', 'same value cols', 'same value boxes', 'selected row', 'selected col', 'selected box', 'same value'.
+ * Features: 'same value rows', 'same value cols', 'same value blocks', 'selected row', 'selected col', 'selected block', 'same value'.
  * styleSelectedCell and styleGivenCells are always applied.
  */
+const HIGHLIGHT_FEATURES = [
+  'same value rows',
+  'same value cols',
+  'same value blocks',
+  'selected row',
+  'selected col',
+  'selected block',
+  'same value',
+  'immediate errors',
+  'error cells',
+];
+
 const STYLE_CONFIGS = {
-  none: [],
-  same: ['same value'],
-  minimal: ['selected row', 'selected col'],
-  'related-box': ['selected box', 'selected row', 'selected col', 'same value'],
-  'related-all': [
-    'same value rows',
-    'same value cols',
-    'same value boxes',
+  None: [],
+  Errors: ['immediate errors', 'error cells'],
+  Same: ['same value'],
+  Minimal: ['selected row', 'selected col'],
+  'Related Block': [
+    'selected block',
     'selected row',
     'selected col',
     'same value',
   ],
+  'Related All': [
+    'same value rows',
+    'same value cols',
+    'same value blocks',
+    'selected row',
+    'selected col',
+    'same value',
+  ],
+};
+
+/**
+ * Backward-compatible aliases from legacy preset keys to current preset keys.
+ */
+const STYLE_CONFIG_ALIASES = {
+  none: 'None',
+  errors: 'Errors',
+  same: 'Same',
+  minimal: 'Minimal',
+  'related-block': 'Related Block',
+  'related-all': 'Related All',
+  'related-box': 'Related Block',
 };

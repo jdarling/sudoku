@@ -375,7 +375,7 @@ const runStateTests = () => {
       0,
       board,
       relatedCells,
-      'related-box',
+      'related-block',
     );
     return expect(result).toBe('selected');
   });
@@ -401,7 +401,7 @@ const runStateTests = () => {
     return expect(result).toBe('related-line');
   });
 
-  test("getCellHighlightClass uses 'related-line' for selected row/col in 'related-box'", () => {
+  test("getCellHighlightClass uses 'related-line' for selected row/col in 'related-block'", () => {
     const board = '1'.concat('3'.repeat(80));
     const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
     const result = getCellHighlightClass(
@@ -409,12 +409,12 @@ const runStateTests = () => {
       0,
       board,
       relatedCells,
-      'related-box',
+      'related-block',
     );
     return expect(result).toBe('related-line');
   });
 
-  test("getCellHighlightClass uses 'related-line-subtle' for selected box in 'related-box'", () => {
+  test("getCellHighlightClass uses 'related-line-subtle' for selected block in 'related-block'", () => {
     const board = '1'.concat('3'.repeat(80));
     const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
     const result = getCellHighlightClass(
@@ -422,7 +422,7 @@ const runStateTests = () => {
       0,
       board,
       relatedCells,
-      'related-box',
+      'related-block',
     );
     return expect(result).toBe('related-line-subtle');
   });

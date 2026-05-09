@@ -100,14 +100,14 @@ const createRow = (
 /**
  * Renders the sudoku grid.
  * @param {Object} state - Current state
- * @param {string} highlightMode - Active highlight mode from options
+ * @param {string[]} highlightFeatures - Active highlight features from options
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
  */
 const renderGrid = (
   state,
-  highlightMode,
+  highlightFeatures,
   onCellFocus,
   onCellKeydown,
   onCellInput,
@@ -119,8 +119,10 @@ const renderGrid = (
   const boardStyles = buildStyles(
     state.board,
     state.selected,
-    highlightMode || 'related-box',
+    highlightFeatures || getStyleConfigFeatures('related-block'),
     state.given,
+    state.puzzle,
+    state.hinting,
   );
 
   for (let row = 0; row < GRID_SIZE; row++) {
@@ -135,21 +137,6 @@ const renderGrid = (
       ),
     );
   }
-};
-
-/**
- * Marks wrong cells with visual indicator.
- * @param {Object} state - Current state
- */
-const markWrongCells = (state) => {
-  const inputs = document.querySelectorAll('.cell');
-  inputs.forEach((input) => {
-    input.classList.remove('wrong');
-  });
-  const wrongCells = state.hinting ? getHintCells(state) : getWrongCells(state);
-  wrongCells.forEach((i) => {
-    inputs[i].classList.add('wrong');
-  });
 };
 
 /**

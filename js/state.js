@@ -64,10 +64,11 @@ const getCellHighlightClass = (
   selectedIndex,
   boardState,
   relatedCells,
-  highlightMode = 'related-box',
+  highlightMode = 'related-block',
   given = null,
 ) => {
-  const styles = buildStyles(boardState, selectedIndex, highlightMode, given);
+  const features = getStyleConfigFeatures(highlightMode);
+  const styles = buildStyles(boardState, selectedIndex, features, given);
   return styles[cellIndex];
 };
 
