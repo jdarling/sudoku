@@ -218,7 +218,7 @@ const launchWinCelebration = () => {
     return;
   }
 
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 180; i++) {
     createConfettiPiece(layer);
   }
 };

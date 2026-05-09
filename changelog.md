@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.1]
+
+- Doubled win celebration confetti burst density to make solved-puzzle feedback easier to notice
+
 ## [1.13.0]
 
 - Swapped mobile control groups so `Check`/`Hint` appear above the keypad and `Solve`/`New Game`/`Load Game` appear below it
