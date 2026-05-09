@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.27]
+
+- Added a confirmation prompt on `New Game` to clearly warn that current progress will be lost
+
 ## [1.12.26]
 
 - Repositioned `Solve` back into the top control group and removed the separate lower `solve-row` layout
