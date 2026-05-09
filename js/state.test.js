@@ -36,7 +36,6 @@ const runStateTests = () => {
   let hasBoardConflicts = resolveSymbol("hasBoardConflicts");
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
-  let updateCellValue = resolveSymbol("updateCellValue");
   let clearCellValue = resolveSymbol("clearCellValue");
   let moveSelection = resolveSymbol("moveSelection");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
@@ -286,19 +285,10 @@ const runStateTests = () => {
     return expect(decodeBoard("!".repeat(45)) === null).toBeTruthy();
   });
 
-  test("updateCellValue places number and clears status", () => {
-    const puzzle = "000000000".repeat(9);
-    const state = createStateFromPuzzle(puzzle);
-    const newState = updateCellValue(state, 0, 5);
-    return expect(
-      newState.board[0] === 5 && newState.status === "" && newState !== state,
-    ).toBeTruthy();
-  });
-
   test("clearCellValue removes number from cell", () => {
     const puzzle = "000000000".repeat(9);
     const state = createStateFromPuzzle(puzzle);
-    const withValue = updateCellValue(state, 5, 7);
+    const withValue = placeNumber(state, 5, 7);
     const cleared = clearCellValue(withValue, 5);
     return expect(cleared.board[5] === 0 && cleared.status === "").toBeTruthy();
   });

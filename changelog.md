@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.14]
+
+- Removed `updateCellValue` alias from state.js; callers in dom.js now call `placeNumber` directly
+- Removed redundant `updateCellValue` test; `clearCellValue` test updated to use `placeNumber` for setup
+
 ## [1.12.13]
 
 - Removed pure helper functions (handleNumberKey, handleDeleteKey, handleArrowKey) from dom.js; logic inlined directly into DOM event handlers where it belongs

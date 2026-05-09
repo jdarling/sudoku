@@ -123,7 +123,7 @@ const onCellKeydown = (event) => {
   if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
     const num = parseInt(event.key, 10);
-    const afterNum = updateCellValue(state, state.selected, num);
+    const afterNum = placeNumber(state, state.selected, num);
     const resolved = afterNum.board.every((d) => d !== 0)
       ? checkSolution(afterNum, false)
       : afterNum;
@@ -198,7 +198,7 @@ const onNumberButtonClick = (event) => {
     return;
   }
 
-  const afterNum = updateCellValue(state, state.selected, num);
+  const afterNum = placeNumber(state, state.selected, num);
   const resolved = afterNum.board.every((d) => d !== 0)
     ? checkSolution(afterNum, false)
     : afterNum;

@@ -31,17 +31,6 @@ const selectCell = (state, cellIndex) => {
 };
 
 /**
- * Updates a cell value in the board.
- * @param {Object} state - Current state
- * @param {number} cellIndex - Cell position (0-80)
- * @param {number} num - Number to place (1-9)
- * @returns {Object} New state with cell updated
- */
-const updateCellValue = (state, cellIndex, num) => {
-  return placeNumber(state, cellIndex, num);
-};
-
-/**
  * Clears a cell value from the board.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)

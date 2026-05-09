@@ -70,7 +70,6 @@ loadScript(path.join(__dirname, "../js/state.js"), [
   "getWrongCells",
   "encodeBoard",
   "decodeBoard",
-  "updateCellValue",
   "clearCellValue",
   "moveSelection",
 ]);
