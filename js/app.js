@@ -58,7 +58,7 @@ const setCurrentPuzzleName = (puzzle) => {
  * @param {string} statusMessage - Base state status message
  * @returns {string} Puzzle-aware message
  */
-const formatStatusWithPuzzleName = (statusMessage) => {
+const formatPuzzleStatus = (statusMessage) => {
   if (!statusMessage || !currentPuzzleName) {
     return statusMessage;
   }
@@ -74,15 +74,6 @@ const formatStatusWithPuzzleName = (statusMessage) => {
 };
 
 /**
- * Renders status with puzzle-aware formatting.
- * @param {string} statusMessage - Base status message
- * @param {string} statusType - Status type class
- */
-const renderStatus = (statusMessage, statusType) => {
-  setStatus(formatStatusWithPuzzleName(statusMessage), statusType);
-};
-
-/**
  * Updates current state and orchestrates rendering and side effects.
  * @param {Object} newState - New state to apply
  */
@@ -90,7 +81,7 @@ const updateState = (newState) => {
   currentState = newState;
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  renderStatus(currentState.status, currentState.statusType);
+  setStatus(formatPuzzleStatus(currentState.status), currentState.statusType);
 
   const enteredWin =
     currentState.statusType === "win" &&
@@ -190,12 +181,12 @@ const onNumberButtonClick = (event) => {
 };
 
 /**
- * Finalizes game load: renders grid, marks cells, displays status, clears hash.
+ * Loads and displays a game: renders grid, marks cells, displays status, updates hash.
  * Common logic shared by all puzzle-loading functions.
  * @param {Object} puzzle - Loaded puzzle object with name and filename
  * @param {Object} boardState - The board state to apply
  */
-const finalizeGameLoad = (puzzle, boardState) => {
+const loadGame = (puzzle, boardState) => {
   currentState = boardState;
   setCurrentPuzzleName(puzzle);
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
@@ -222,7 +213,7 @@ const loadPuzzleByFilename = async (filename) => {
     const puzzle = await getPuzzle(filename);
     const boardState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(filename);
-    finalizeGameLoad(puzzle, boardState);
+    loadGame(puzzle, boardState);
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
@@ -257,7 +248,7 @@ const loadNewGame = async () => {
         }
       }
 
-      finalizeGameLoad(puzzle, boardState);
+      loadGame(puzzle, boardState);
     } catch (error) {
       const failedPuzzleName = getPuzzleNameFromFilename(puzzleFromQuery);
       setStatus(
@@ -274,7 +265,7 @@ const loadNewGame = async () => {
   const puzzle = await getRandomPuzzle();
   const boardState = createStateFromPuzzle(puzzle.puzzle);
   updateQuery(puzzle.filename);
-  finalizeGameLoad(puzzle, boardState);
+  loadGame(puzzle, boardState);
 };
 
 /**
@@ -288,7 +279,7 @@ const loadRandomPuzzle = async () => {
     const puzzle = await getRandomPuzzle();
     const boardState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(puzzle.filename);
-    finalizeGameLoad(puzzle, boardState);
+    loadGame(puzzle, boardState);
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");
   }
