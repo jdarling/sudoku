@@ -97,3 +97,159 @@ const handleDeleteKey = (state) => {
 const handleArrowKey = (state, offset) => {
   return moveSelection(state, offset);
 };
+
+/**
+ * Creates a click handler for keypad buttons.
+ * @param {Function} getState - Returns current state
+ * @param {Function} applyState - Applies a new state
+ * @returns {Function} Click handler
+ */
+const createOnNumberButtonClick = (getState, applyState) => {
+  return (event) => {
+    const state = getState();
+    if (!state || state.selected < 0) {
+      return;
+    }
+
+    const num = parseInt(event.currentTarget.dataset.n, 10);
+    if (num === 0) {
+      applyState(handleDeleteKey(state));
+      return;
+    }
+
+    applyState(handleNumberKey(state, num));
+  };
+};
+
+/**
+ * Creates click handler for New Game.
+ * @param {Function} loadRandomPuzzleFn - New game loader
+ * @returns {Function} Click handler
+ */
+const createOnNewGameClick = (loadRandomPuzzleFn) => {
+  return () => {
+    loadRandomPuzzleFn();
+  };
+};
+
+/**
+ * Creates click handler for Load Game prompt flow.
+ * @param {Function} setStatusFn - Status renderer
+ * @param {Function} loadPuzzleByFilenameFn - Puzzle loader
+ * @returns {Function} Click handler
+ */
+const createOnLoadGameClick = (setStatusFn, loadPuzzleByFilenameFn) => {
+  return () => {
+    const inputValue = prompt(
+      "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
+    );
+    if (inputValue === null) {
+      return;
+    }
+
+    const normalized = normalizePuzzleId(inputValue);
+    if (!normalized) {
+      setStatusFn("Invalid puzzle ID format.", "error");
+      return;
+    }
+
+    loadPuzzleByFilenameFn(normalized);
+  };
+};
+
+/**
+ * Creates click handler for Check button.
+ * @param {Function} getState - Returns current state
+ * @param {Function} applyState - Applies a new state
+ * @returns {Function} Click handler
+ */
+const createOnCheckButtonClick = (getState, applyState) => {
+  return () => {
+    const state = getState();
+    if (!state) {
+      return;
+    }
+    applyState(checkSolution(state, true));
+  };
+};
+
+/**
+ * Creates click handler for Hint button.
+ * @param {Function} getState - Returns current state
+ * @param {Function} applyState - Applies a new state
+ * @returns {Function} Click handler
+ */
+const createOnHintButtonClick = (getState, applyState) => {
+  return () => {
+    const state = getState();
+    if (!state) {
+      return;
+    }
+    applyState(hintBoard(state));
+  };
+};
+
+/**
+ * Creates click handler for Solve button.
+ * @param {Function} getState - Returns current state
+ * @param {Function} applyState - Applies a new state
+ * @returns {Function} Click handler
+ */
+const createOnSolveButtonClick = (getState, applyState) => {
+  return () => {
+    const state = getState();
+    if (!state) {
+      return;
+    }
+    applyState(solveBoard(state));
+  };
+};
+
+/**
+ * Creates change handler for theme selector.
+ * @param {Function} applyThemeFn - Theme applicator
+ * @returns {Function} Change handler
+ */
+const createOnThemeChange = (applyThemeFn) => {
+  return (event) => {
+    applyThemeFn(event.target.value);
+  };
+};
+
+/**
+ * Creates popstate handler for URL navigation.
+ * @param {Function} loadNewGameFn - URL-aware game loader
+ * @returns {Function} Event handler
+ */
+const createOnPopState = (loadNewGameFn) => {
+  return () => {
+    loadNewGameFn();
+  };
+};
+
+/**
+ * Creates hashchange handler for board restore.
+ * @param {Function} getState - Returns current state
+ * @param {Function} applyBoardStateFromHash - Applies decoded board to current state
+ * @returns {Function} Event handler
+ */
+const createOnHashChange = (getState, applyBoardStateFromHash) => {
+  return () => {
+    const state = getState();
+    if (!state || state.statusType === "win") {
+      return;
+    }
+
+    const boardHash = getBoardFromHash();
+    if (!boardHash) {
+      return;
+    }
+
+    const decodedBoard = decodeBoard(boardHash);
+    if (!decodedBoard) {
+      return;
+    }
+
+    applyBoardStateFromHash(decodedBoard);
+  };
+};

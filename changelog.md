@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.9]
+
+- Moved init-registered UI/window event handlers to `js/dom.js` as named top-level handler factories
+- Replaced inline listener lambdas in `js/app.js` `init()` with registered handler functions created from dom helpers
+- Added state-curried registration wiring in app orchestration for check/hint/solve/theme/new/load/number/popstate/hashchange handlers
+
 ## [1.12.8]
 
 - New Game now avoids selecting the currently loaded puzzle when alternatives exist

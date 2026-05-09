@@ -119,20 +119,27 @@ const onCellInput = (event) => {
 };
 
 /**
- * Handles number button click.
- * @param {Event} event - Click event
+ * Returns current application state.
+ * @returns {Object|null} Current state
  */
-const onNumberButtonClick = (event) => {
-  if (currentState.selected < 0) {
+const getCurrentState = () => {
+  return currentState;
+};
+
+/**
+ * Applies decoded board state from URL hash and re-renders.
+ * @param {number[]} decodedBoard - Decoded board values
+ */
+const applyBoardStateFromHash = (decodedBoard) => {
+  if (!currentState) {
     return;
   }
-  const num = parseInt(event.currentTarget.dataset.n, 10);
-  if (num === 0) {
-    updateState(handleDeleteKey(currentState));
-    return;
-  }
-  const newState = handleNumberKey(currentState, num);
-  updateState(newState);
+  currentState = {
+    ...currentState,
+    board: decodedBoard,
+  };
+  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  markWrongCells(currentState);
 };
 
 /**
@@ -242,27 +249,6 @@ const loadRandomPuzzle = async () => {
 };
 
 /**
- * Normalizes puzzle input and loads the puzzle by filename.
- * Prompts user for puzzle ID, validates format, and loads.
- */
-const onLoadButtonClick = () => {
-  const inputValue = prompt(
-    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
-  );
-  if (inputValue === null) {
-    return; // User cancelled
-  }
-
-  const normalized = normalizePuzzleId(inputValue);
-  if (!normalized) {
-    setStatus("Invalid puzzle ID format.", "error");
-    return;
-  }
-
-  loadPuzzleByFilename(normalized);
-};
-
-/**
  * Initializes the game and sets up event listeners.
  * @returns {Promise<void>}
  */
@@ -271,57 +257,57 @@ const init = async () => {
   renderVersion();
   await loadNewGame();
 
-  document.getElementById("new-btn").addEventListener("click", () => {
-    loadRandomPuzzle();
-  });
+  const onNewGameClick = createOnNewGameClick(loadRandomPuzzle);
+  const onLoadGameClick = createOnLoadGameClick(
+    setStatus,
+    loadPuzzleByFilename,
+  );
+  const onCheckButtonClick = createOnCheckButtonClick(
+    getCurrentState,
+    updateState,
+  );
+  const onHintButtonClick = createOnHintButtonClick(
+    getCurrentState,
+    updateState,
+  );
+  const onSolveButtonClick = createOnSolveButtonClick(
+    getCurrentState,
+    updateState,
+  );
+  const onThemeChange = createOnThemeChange(applyTheme);
+  const onNumberButtonClick = createOnNumberButtonClick(
+    getCurrentState,
+    updateState,
+  );
+  const onPopState = createOnPopState(loadNewGame);
+  const onHashChange = createOnHashChange(
+    getCurrentState,
+    applyBoardStateFromHash,
+  );
 
+  document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
     .getElementById("load-btn")
-    .addEventListener("click", onLoadButtonClick);
-
-  document.getElementById("check-btn").addEventListener("click", () => {
-    updateState(checkSolution(currentState, true));
-  });
-
-  document.getElementById("hint-btn").addEventListener("click", () => {
-    updateState(hintBoard(currentState));
-  });
-
-  document.getElementById("solve-btn").addEventListener("click", () => {
-    updateState(solveBoard(currentState));
-  });
-
+    .addEventListener("click", onLoadGameClick);
+  document
+    .getElementById("check-btn")
+    .addEventListener("click", onCheckButtonClick);
+  document
+    .getElementById("hint-btn")
+    .addEventListener("click", onHintButtonClick);
+  document
+    .getElementById("solve-btn")
+    .addEventListener("click", onSolveButtonClick);
   document
     .getElementById("theme-select")
-    .addEventListener("change", (event) => {
-      applyTheme(event.target.value);
-    });
+    .addEventListener("change", onThemeChange);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
   });
 
-  window.addEventListener("popstate", () => {
-    loadNewGame();
-  });
-
-  window.addEventListener("hashchange", () => {
-    if (currentState && currentState.statusType === "win") {
-      return;
-    }
-    const boardHash = getBoardFromHash();
-    if (boardHash && currentState) {
-      const decodedBoard = decodeBoard(boardHash);
-      if (decodedBoard) {
-        currentState = {
-          ...currentState,
-          board: decodedBoard,
-        };
-        renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-        markWrongCells(currentState);
-      }
-    }
-  });
+  window.addEventListener("popstate", onPopState);
+  window.addEventListener("hashchange", onHashChange);
 };
 
 init().catch((error) => {
