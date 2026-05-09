@@ -9,6 +9,153 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.27]
+
+- Added a confirmation prompt on `New Game` to clearly warn that current progress will be lost
+
+## [1.12.26]
+
+- Repositioned `Solve` back into the top control group and removed the separate lower `solve-row` layout
+- Updated mobile top controls to `Solve`, `New`, `Load` with `Solve` full-width on row 1 and `New`/`Load` half-width on row 2
+- Added a confirmation prompt before applying `Solve` to prevent accidental one-tap full-board solves
+
+## [1.12.25]
+
+- Moved `Solve` out of the top control cluster into its own lower `solve-row` to reduce accidental clicks near the number pad
+
+## [1.12.24]
+
+- Added missing `try/catch` around `loadNewGame` random puzzle startup path so failures update user-visible status instead of only bubbling to init-level console logging
+
+## [1.12.23]
+
+- Updated root `readme.md` with preferred Node test command: `node tests/run-node-tests.js --report-only-failures --report-status`
+- Updated `AGENTS.md` to require runner-flag-based concise test reporting and prohibit `tail`/`grep` truncation patterns
+
+## [1.12.22]
+
+- Added Node test runner flags in `tests/run-node-tests.js`: `--report-only-failures`, `--report-status`, and `--help`
+- Added runner flag usage examples to `tests/README.md`
+
+## [1.12.21]
+
+- Added `constants.test.js` as an intentional-blank test stub and registered it in shared test configuration
+
+## [1.12.20]
+
+- Simplified puzzle-loading orchestration in app.js by replacing `loadFetchedRandomPuzzle` with a shared `loadFetchedPuzzle` path used by both `loadPuzzleByFilename` and `loadRandomPuzzle`
+- Removed nested random-puzzle error handling complexity while preserving puzzle-specific error names
+
+## [1.12.19]
+
+- Extracted random-puzzle post-fetch work into `loadFetchedRandomPuzzle(puzzle)` for clearer orchestration and named inner error handling
+
+## [1.12.18]
+
+- Refactored `loadRandomPuzzle` to use nested `try/catch`: outer catch handles `getRandomPuzzle` failures, inner catch handles `createStateFromPuzzle`/`updateQuery`/`loadGame` failures with puzzle-specific name extraction
+
+## [1.12.17]
+
+- Fixed `applyBoardStateFromHash` to route through `updateState` instead of directly mutating `currentState` and manually re-rendering
+
+## [1.12.16]
+
+- Fixed `loadRandomPuzzle` error path to use `formatString` + `STATUS_MESSAGES` consistently with all other error paths
+
+## [1.12.15]
+
+- Extracted duplicated number-placement logic from dom.js into `applyNumber(state, num)` in state.js
+- Both `onCellKeydown` and `onNumberButtonClick` now delegate to `applyNumber`
+- Added tests for `applyNumber` in state.test.js
+
+## [1.12.14]
+
+- Removed `updateCellValue` alias from state.js; callers in dom.js now call `placeNumber` directly
+- Removed redundant `updateCellValue` test; `clearCellValue` test updated to use `placeNumber` for setup
+
+## [1.12.13]
+
+- Removed pure helper functions (handleNumberKey, handleDeleteKey, handleArrowKey) from dom.js; logic inlined directly into DOM event handlers where it belongs
+- dom.test.js, render.test.js, and theme.test.js are intentional-blank stubs — these modules are entirely browser-coupled and untestable outside a real browser
+- Registered render.test.js and theme.test.js in testConfig.js
+
+## [1.12.12]
+
+- Removed browser-interaction tests from dom.test.js (event handlers, prompt(), window.location are not testable outside the browser)
+- dom.test.js now covers only the three pure helpers: handleNumberKey, handleDeleteKey, handleArrowKey
+
+## [1.12.11]
+
+- Unified load status formatting path in app orchestration to use shared `formatPuzzleStatus` helper
+- Removed direct loaded-status template interpolation from `loadGame` for cleaner single-path status formatting
+
+## [1.12.10]
+
+- Replaced closure-based DOM handler factories with top-level DOM handlers configured via `configureDomEventHandlers`
+- Moved remaining app cell event handlers into `js/dom.js` (`onCellFocus`, `onCellKeydown`, `onCellInput`)
+- Updated app init to register named DOM handlers with no inline listener lambdas
+- Added `js/dom.test.js` and wired it into browser/node runners for custom DOM handler logic coverage
+
+## [1.12.9]
+
+- Moved init-registered UI/window event handlers to `js/dom.js` as named top-level handler factories
+- Replaced inline listener lambdas in `js/app.js` `init()` with registered handler functions created from dom helpers
+- Added state-curried registration wiring in app orchestration for check/hint/solve/theme/new/load/number/popstate/hashchange handlers
+
+## [1.12.8]
+
+- New Game now avoids selecting the currently loaded puzzle when alternatives exist
+- Added puzzle-layer tests for excluded random selection and single-puzzle fallback behavior
+
+## [1.12.7]
+
+- Extracted pure string and puzzle-id helpers into `js/utils.js` (`formatString`, `extractPuzzleId`, `normalizePuzzleId`, `formatPuzzleStatus`)
+- Added comprehensive utils unit tests in `js/utils.test.js`
+- Updated app orchestration to use shared utils helpers instead of duplicating pure logic
+- Fixed browser test runner to use shared `tests/testConfig.js` list instead of a hardcoded test array
+- Loaded `js/utils.js` in runtime `index.html` to support app usage
+
+## [1.12.6]
+
+- Simplified app.js method names: finalizeGameLoad → loadGame, formatStatusWithPuzzleName → formatPuzzleStatus
+- Removed redundant renderStatus wrapper for cleaner call stack
+- Improved code readability with no functional changes
+
+## [1.12.5]
+
+- Consolidated puzzle-loading logic into shared finalizeGameLoad helper
+- Removed duplicate rendering/status code from loadPuzzleByFilename, loadNewGame, loadRandomPuzzle
+- Improved code maintainability with no user-visible changes
+
+## [1.12.4]
+
+- Fixed Load Game not fully resetting board state: now clears hash on load instead of restoring stale board from previous puzzle
+- URL-based state persistence (query + hash) still works correctly on initial page load
+- Added state test to verify all fields reset when loading a new puzzle
+
+## [1.12.3]
+
+- Removed debug logging from state-layer solve logic to keep business logic side-effect free
+- Added pure-logic test coverage for solver edge cases (unsolveable and already-complete boards)
+- Added pure-logic test coverage for state conflict detection and wrong-cell edge cases
+- Expanded Node test runner exports for state helpers used by the logic test suite
+
+## [1.12.2]
+
+- Start 1.12.2 development line after tagging 1.12.1
+
+## [1.12.1]
+
+- Removed duplicate STATUS_MESSAGES from app.js; now uses constants directly
+- Extracted URL/query/hash persistence functions from app orchestration into js/dom.js
+- Added explicit state mutation helpers in js/state.js and moved keyboard handler orchestration to js/dom.js
+- Added state tests for updateCellValue(), clearCellValue(), and moveSelection()
+- Normalized repository line endings to LF and enforced LF via .gitattributes
+
+## [1.12.0]
+
+- Start of 1.12 feature branch line (`feat/v1.12`) from stable 1.11.10 baseline
+
 ## [1.11.10]
 
 - Fixed win celebration trigger so confetti only appears for true solved-puzzle state

@@ -202,14 +202,17 @@ input.cell.given {
 }
 
 #top-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  justify-content: center;
   width: 100%;
-  flex-wrap: wrap;
 }
 
-#action-row {
+#solve-btn {
+  grid-column: 1 / -1;
+}
+
+#top-controls {
   order: 1;
 }
 
@@ -217,7 +220,7 @@ input.cell.given {
   order: 2;
 }
 
-#top-controls {
+#action-row {
   order: 3;
 }
 
@@ -253,6 +256,7 @@ input.cell.given {
 
   #top-controls {
     order: 1;
+    display: flex;
     flex-direction: column;
     gap: 6px;
   }

@@ -189,10 +189,14 @@
     <h1>Sudoku Tests</h1>
     <div id="test-results"></div>
 
+    <script src="./testConfig.js"></script>
     <script src="../js/constants.js"></script>
+    <script src="../js/utils.js"></script>
     <script src="../js/solver.js"></script>
     <script src="../js/state.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="../js/puzzles.js"></script>
+    <script src="../js/dom.js"></script>
     <script src="./testharness.js"></script>
 
     <script>
@@ -201,13 +205,12 @@
        * Uses the same TEST_FILES list as the Node runner for consistency.
        */
       const loadTestFiles = () => {
-        const testFiles = [
-          "./testharness.test.js",
-          "../js/solver.test.js",
-          "../js/state.test.js",
-          "../js/puzzles.test.js",
-          "../js/app.test.js",
-        ];
+        const testFiles = TEST_FILES.map((filePath) => {
+          if (filePath.startsWith("../")) {
+            return filePath;
+          }
+          return `./${filePath}`;
+        });
         let filesLoaded = 0;
 
         const loadNextFile = () => {

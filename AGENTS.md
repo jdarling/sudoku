@@ -230,6 +230,8 @@ Current constraint: [limitation if any].
 - Agent should verify the change against standards
 - Agent should check for consistency with existing patterns
 - Agent should report what was done (no markdown summaries unless requested)
+- Agent should run Node tests using `node tests/run-node-tests.js --report-only-failures --report-status` for concise terminal output
+- Agent should not truncate test output with shell filters like `tail` or `grep`; use runner flags instead
 
 ## Escalation
 
@@ -255,6 +257,7 @@ Before considering a change complete:
 - [ ] No console.log left in code
 - [ ] No new globals introduced
 - [ ] Standards-compliant (lint-style checks pass)
+- [ ] Node harness run with preferred command: `node tests/run-node-tests.js --report-only-failures --report-status`
 
 ## References
 

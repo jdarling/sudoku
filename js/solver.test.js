@@ -31,33 +31,6 @@ const runSolverTests = () => {
   let getRelated = resolveSymbol("getRelated");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
 
-  if (typeof module !== "undefined" && module.exports) {
-    const fs = require("fs");
-    const vm = require("vm");
-    const path = require("path");
-
-    const context = { console, Math, Set };
-    vm.createContext(context);
-
-    const constantsCode = fs.readFileSync(
-      path.join(__dirname, "constants.js"),
-      "utf8",
-    );
-    vm.runInContext(constantsCode, context);
-
-    const solverCode = fs.readFileSync(
-      path.join(__dirname, "solver.js"),
-      "utf8",
-    );
-    vm.runInContext(
-      `${solverCode}\nthis.__solverExports = { idx, isValid, solve, getRelated, TOTAL_CELLS };`,
-      context,
-    );
-
-    ({ idx, isValid, solve, getRelated, TOTAL_CELLS } =
-      context.__solverExports);
-  }
-
   setTestFile("solver.js");
 
   test("idx(0, 0) equals 0", () => expect(idx(0, 0)).toBe(0));
@@ -102,6 +75,29 @@ const runSolverTests = () => {
     return expect(solve(board)).toBeTruthy();
   });
 
+  test("solve returns null for unsolveable board", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[idx(0, 1)] = 1;
+    board[idx(0, 2)] = 2;
+    board[idx(0, 3)] = 3;
+    board[idx(0, 4)] = 4;
+    board[idx(0, 5)] = 5;
+    board[idx(0, 6)] = 6;
+    board[idx(0, 7)] = 7;
+    board[idx(0, 8)] = 8;
+    board[idx(1, 0)] = 9;
+    return expect(solve(board)).toBe(null);
+  });
+
+  test("solve returns original board when already complete", () => {
+    const solvedBoard =
+      "534678912672195348198342567859761423426853791713924856961537284287419635345286179"
+        .split("")
+        .map(Number);
+    const result = solve([...solvedBoard]);
+    return expect(result).toEqual(solvedBoard);
+  });
+
   test("getRelated includes row, col and box peers", () => {
     const related = getRelated(0);
     return expect(
@@ -116,18 +112,3 @@ const runSolverTests = () => {
 };
 
 runSolverTests();
-
-if (
-  typeof module !== "undefined" &&
-  module.exports &&
-  require.main === module
-) {
-  const {
-    runAllRegisteredTests,
-    printTestResults,
-  } = require("../tests/testharness.js");
-  runAllRegisteredTests().then((summary) => {
-    printTestResults(summary);
-    process.exit(summary.totalFailed > 0 ? 1 : 0);
-  });
-}

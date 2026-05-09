@@ -9,50 +9,8 @@ let currentState = null;
  * @type {string}
  */
 let currentPuzzleName = "";
+let currentPuzzleFilename = "";
 let lastStatusType = "";
-
-const STATUS_TEXT =
-  typeof STATUS_MESSAGES !== "undefined"
-    ? STATUS_MESSAGES
-    : {
-        "All values are correct": 'All values for "{puzzleName}" are correct!',
-        "Some cells are incorrect":
-          'Some values for "{puzzleName}" are incorrect.',
-        "Puzzle solved!": 'Puzzle "{puzzleName}" solved!',
-        "Puzzle is unsolveable": 'Puzzle "{puzzleName}" is unsolveable.',
-        "Loaded puzzle": 'Loaded puzzle "{puzzleName}".',
-        "Failed to load puzzle":
-          'Failed to load puzzle "{puzzleName}": {errorMessage}',
-      };
-
-/**
- * Interpolates placeholders in a status template.
- * @param {string} template - Template with placeholders
- * @param {Object} values - Placeholder values
- * @returns {string} Interpolated status text
- */
-const applyStatusTemplate = (template, values) => {
-  let message = template;
-
-  Object.keys(values).forEach((key) => {
-    message = message.split(`{${key}}`).join(String(values[key]));
-  });
-
-  return message;
-};
-
-/**
- * Builds a fallback puzzle name from filename.
- * @param {string} filename - Puzzle filename
- * @returns {string} Puzzle display name
- */
-const getPuzzleNameFromFilename = (filename) => {
-  if (!filename) {
-    return "unknown";
-  }
-
-  return filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
-};
 
 /**
  * Stores the active puzzle display name from loaded metadata.
@@ -64,49 +22,7 @@ const setCurrentPuzzleName = (puzzle) => {
     return;
   }
 
-  currentPuzzleName = getPuzzleNameFromFilename(puzzle ? puzzle.filename : "");
-};
-
-/**
- * Formats status messages with the active puzzle name.
- * @param {string} statusMessage - Base state status message
- * @returns {string} Puzzle-aware message
- */
-const formatStatusWithPuzzleName = (statusMessage) => {
-  if (!statusMessage || !currentPuzzleName) {
-    return statusMessage;
-  }
-
-  const template = STATUS_TEXT[statusMessage];
-  if (template) {
-    return applyStatusTemplate(template, {
-      puzzleName: currentPuzzleName,
-    });
-  }
-
-  return statusMessage;
-};
-
-/**
- * Renders status with puzzle-aware formatting.
- * @param {string} statusMessage - Base status message
- * @param {string} statusType - Status type class
- */
-const renderStatus = (statusMessage, statusType) => {
-  setStatus(formatStatusWithPuzzleName(statusMessage), statusType);
-};
-
-/**
- * Updates the URL hash with the current board state.
- * Uses replaceState to avoid triggering hashchange for internal updates.
- */
-const updateHash = () => {
-  const encoded = encodeBoard(currentState.board);
-  window.history.replaceState(
-    null,
-    "",
-    `${window.location.pathname}${window.location.search}#board=${encoded}`,
-  );
+  currentPuzzleName = extractPuzzleId(puzzle ? puzzle.filename : "");
 };
 
 /**
@@ -117,7 +33,10 @@ const updateState = (newState) => {
   currentState = newState;
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  renderStatus(currentState.status, currentState.statusType);
+  setStatus(
+    formatPuzzleStatus(currentState.status, currentPuzzleName, STATUS_MESSAGES),
+    currentState.statusType,
+  );
 
   const enteredWin =
     currentState.statusType === "win" &&
@@ -128,213 +47,76 @@ const updateState = (newState) => {
   }
 
   lastStatusType = currentState.statusType || "";
-  updateHash();
+  updateHash(currentState.board);
   if (currentState.selected >= 0) {
     focusCell(currentState.selected);
   }
 };
 
 /**
- * Handles cell focus event.
- * @param {Event} event - Focus event
+ * Returns current application state.
+ * @returns {Object|null} Current state
  */
-const onCellFocus = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (cellIndex === currentState.selected) {
+const getCurrentState = () => {
+  return currentState;
+};
+
+/**
+ * Applies decoded board state from URL hash and re-renders.
+ * @param {number[]} decodedBoard - Decoded board values
+ */
+const applyBoardStateFromHash = (decodedBoard) => {
+  if (!currentState) {
     return;
   }
-  updateState(selectCell(currentState, cellIndex));
+  updateState({ ...currentState, board: decodedBoard });
 };
 
 /**
- * Handles number key press (1-9).
- * @param {number} num - Number pressed
- * @returns {Object} New state or current state
+ * Loads and displays a game: renders grid, marks cells, displays status, updates hash.
+ * Common logic shared by all puzzle-loading functions.
+ * @param {Object} puzzle - Loaded puzzle object with name and filename
+ * @param {Object} boardState - The board state to apply
  */
-const handleNumberKey = (num) => {
-  const cellIndex = currentState.selected;
-  const newState = placeNumber(currentState, cellIndex, num);
-  if (newState.board.every((digit) => digit !== 0)) {
-    return checkSolution(newState, false);
-  }
-  return newState;
-};
-
-/**
- * Handles delete key (Backspace, Delete, or 0).
- * @returns {Object} New state
- */
-const handleDeleteKey = () => {
-  const cellIndex = currentState.selected;
-  return placeNumber(currentState, cellIndex, 0);
-};
-
-/**
- * Handles arrow key navigation.
- * @param {number} offset - Cell offset from arrow key
- * @returns {Object|null} New state or null if out of bounds
- */
-const handleArrowKey = (offset) => {
-  const nextCell = currentState.selected + offset;
-  if (nextCell < 0 || nextCell >= TOTAL_CELLS) {
-    return null;
-  }
-  return selectCell(currentState, nextCell);
-};
-
-/**
- * Handles cell keydown event.
- * @param {Event} event - Keydown event
- */
-const onCellKeydown = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (currentState.given[cellIndex]) {
-    return;
-  }
-
-  if (event.key >= "1" && event.key <= "9") {
-    event.preventDefault();
-    const newState = handleNumberKey(parseInt(event.key, 10));
-    updateState(newState);
-    return;
-  }
-
-  if (
-    event.key === "Backspace" ||
-    event.key === "Delete" ||
-    event.key === "0"
-  ) {
-    event.preventDefault();
-    const newState = handleDeleteKey();
-    updateState(newState);
-    return;
-  }
-
-  if (!ARROW_MOVES[event.key]) {
-    return;
-  }
-
-  event.preventDefault();
-  const newState = handleArrowKey(ARROW_MOVES[event.key]);
-  if (newState) {
-    updateState(newState);
-  }
-};
-
-/**
- * Handles cell input event.
- * @param {Event} event - Input event
- */
-const onCellInput = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (currentState.given[cellIndex]) {
-    return;
-  }
-  const numValue =
-    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
-  updateState(placeNumber(currentState, cellIndex, numValue));
-};
-
-/**
- * Handles number button click.
- * @param {Event} event - Click event
- */
-const onNumberButtonClick = (event) => {
-  if (currentState.selected < 0) {
-    return;
-  }
-  const num = parseInt(event.currentTarget.dataset.n, 10);
-  if (num === 0) {
-    updateState(handleDeleteKey());
-    return;
-  }
-  const newState = handleNumberKey(num);
-  updateState(newState);
-};
-
-/**
- * Extracts puzzle filename from URL query parameter.
- * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml
- * @returns {string|null} Puzzle filename or null if puzzle param is empty
- */
-const getPuzzleFromQuery = () => {
-  const params = new URLSearchParams(window.location.search);
-  const puzzle = params.get("puzzle");
-  if (!puzzle) {
-    return null;
-  }
-  if (!puzzle.includes("/")) {
-    return `puzzles/${puzzle}.yaml`;
-  }
-  if (!puzzle.includes(".yaml")) {
-    return `${puzzle}.yaml`;
-  }
-  return puzzle;
-};
-/**
- * Extracts board state from URL hash.
- * @returns {string|null} Encoded board string from hash or null if not present
- */
-const getBoardFromHash = () => {
-  const hash = window.location.hash;
-  if (!hash.includes("board=")) {
-    return null;
-  }
-  const encoded = hash.split("board=")[1];
-  return encoded || null;
-};
-/**
- * Updates URL query parameter with current puzzle filename.
- * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
- */
-const updateQuery = (filename) => {
-  const params = new URLSearchParams(window.location.search);
-  const shortName = filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
-  params.set("puzzle", shortName);
-  window.history.replaceState(
-    null,
+const loadGame = (puzzle, boardState) => {
+  currentState = boardState;
+  currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
+  setCurrentPuzzleName(puzzle);
+  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  markWrongCells(currentState);
+  setStatus(
+    formatPuzzleStatus("Loaded puzzle", currentPuzzleName, STATUS_MESSAGES),
     "",
-    `?${params.toString()}${window.location.hash}`,
   );
+  lastStatusType = "";
+  updateHash(currentState.board);
+};
+
+/**
+ * Applies a fetched puzzle to state, URL query, and rendering.
+ * @param {Object} puzzle - Loaded puzzle object
+ */
+const loadFetchedPuzzle = (puzzle) => {
+  const boardState = createStateFromPuzzle(puzzle.puzzle);
+  updateQuery(puzzle.filename);
+  loadGame(puzzle, boardState);
 };
 
 /**
  * Loads a puzzle by filename and initializes game state.
- * If a board hash exists in the URL, restores that board state after loading the puzzle.
+ * Creates a fresh board state without restoring from URL hash.
+ * This is used by the "Load Game" button for loading puzzles by ID.
  * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml")
  * @returns {Promise<void>}
  */
 const loadPuzzleByFilename = async (filename) => {
   try {
     const puzzle = await getPuzzle(filename);
-    currentState = createStateFromPuzzle(puzzle.puzzle);
-    setCurrentPuzzleName(puzzle);
-    updateQuery(filename);
-
-    const boardHash = getBoardFromHash();
-    if (boardHash) {
-      const decodedBoard = decodeBoard(boardHash);
-      if (decodedBoard) {
-        currentState = {
-          ...currentState,
-          board: decodedBoard,
-        };
-      }
-    }
-
-    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-    markWrongCells(currentState);
-    setStatus(
-      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
-        puzzleName: currentPuzzleName,
-      }),
-      "",
-    );
-    lastStatusType = "";
+    loadFetchedPuzzle(puzzle);
   } catch (error) {
-    const failedPuzzleName = getPuzzleNameFromFilename(filename);
+    const failedPuzzleName = extractPuzzleId(filename);
     setStatus(
-      applyStatusTemplate(STATUS_TEXT["Failed to load puzzle"], {
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
@@ -345,112 +127,75 @@ const loadPuzzleByFilename = async (filename) => {
 
 /**
  * Loads a new puzzle and initializes game state.
- * Checks URL query parameter first; if present, loads that puzzle and restores board from hash if present.
+ * Checks URL query parameter first; if present, loads that puzzle.
+ * If a board hash exists in the URL, restores that board state (for URL-based persistence).
  * Otherwise loads a random puzzle and updates the URL.
  * @returns {Promise<void>}
  */
 const loadNewGame = async () => {
   const puzzleFromQuery = getPuzzleFromQuery();
   if (puzzleFromQuery) {
-    await loadPuzzleByFilename(puzzleFromQuery);
+    try {
+      const puzzle = await getPuzzle(puzzleFromQuery);
+      let boardState = createStateFromPuzzle(puzzle.puzzle);
+
+      const boardHash = getBoardFromHash();
+      if (boardHash) {
+        const decodedBoard = decodeBoard(boardHash);
+        if (decodedBoard) {
+          boardState = { ...boardState, board: decodedBoard };
+        }
+      }
+
+      loadGame(puzzle, boardState);
+    } catch (error) {
+      const failedPuzzleName = extractPuzzleId(puzzleFromQuery);
+      setStatus(
+        formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+          puzzleName: failedPuzzleName,
+          errorMessage: error.message,
+        }),
+        "error",
+      );
+    }
     return;
   }
 
-  const puzzle = await getRandomPuzzle();
-  currentState = createStateFromPuzzle(puzzle.puzzle);
-  setCurrentPuzzleName(puzzle);
-  updateQuery(puzzle.filename);
-  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-  markWrongCells(currentState);
-  setStatus(
-    applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
-      puzzleName: currentPuzzleName,
-    }),
-    "",
-  );
-  lastStatusType = "";
+  try {
+    const puzzle = await getRandomPuzzle();
+    loadFetchedPuzzle(puzzle);
+  } catch (error) {
+    setStatus(
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        puzzleName: extractPuzzleId(""),
+        errorMessage: error.message,
+      }),
+      "error",
+    );
+  }
 };
 
 /**
  * Loads a random puzzle and updates the URL.
- * Used by the "New Puzzle" button to always get a different puzzle. * Clears any board hash to start fresh. * @returns {Promise<void>}
+ * Used by the "New Puzzle" button to always get a different puzzle.
+ * Clears any board hash to start fresh.
+ * @returns {Promise<void>}
  */
 const loadRandomPuzzle = async () => {
+  let failedPuzzleName = extractPuzzleId("");
   try {
-    const puzzle = await getRandomPuzzle();
-    currentState = createStateFromPuzzle(puzzle.puzzle);
-    setCurrentPuzzleName(puzzle);
-    updateQuery(puzzle.filename);
-    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-    markWrongCells(currentState);
-    setStatus(
-      applyStatusTemplate(STATUS_TEXT["Loaded puzzle"], {
-        puzzleName: currentPuzzleName,
-      }),
-      "",
-    );
-    lastStatusType = "";
-    updateHash();
+    const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
+    failedPuzzleName = extractPuzzleId(puzzle.filename);
+    loadFetchedPuzzle(puzzle);
   } catch (error) {
-    setStatus(`Failed to load puzzle: ${error.message}`, "error");
+    setStatus(
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        puzzleName: failedPuzzleName,
+        errorMessage: error.message,
+      }),
+      "error",
+    );
   }
-};
-
-/**
- * Normalizes puzzle input to standard filename format: "puzzles/XXX.yaml"
- * Accepts formats: "001", "puzzles/001", "puzzles/001.yaml"
- * @param {string} inputValue - User input value
- * @returns {string} Normalized filename or null if invalid
- */
-const normalizePuzzleInput = (inputValue) => {
-  if (!inputValue || typeof inputValue !== "string") {
-    return null;
-  }
-
-  const trimmed = inputValue.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  // Remove ".yaml" extension if present
-  let withoutExt = trimmed;
-  if (trimmed.endsWith(".yaml")) {
-    withoutExt = trimmed.slice(0, -5);
-  }
-
-  // Remove "puzzles/" prefix if present
-  let puzzleId = withoutExt;
-  if (withoutExt.startsWith("puzzles/")) {
-    puzzleId = withoutExt.slice(8);
-  }
-
-  // Validate it's a valid puzzle ID (numeric)
-  if (!/^\d+$/.test(puzzleId)) {
-    return null;
-  }
-
-  return `puzzles/${puzzleId}.yaml`;
-};
-
-/**
- * Handles Load Game button click.
- * Prompts user for puzzle ID and loads the puzzle if valid.
- */
-const onLoadButtonClick = () => {
-  const inputValue = prompt(
-    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
-  );
-  if (inputValue === null) {
-    return; // User cancelled
-  }
-
-  const normalized = normalizePuzzleInput(inputValue);
-  if (!normalized) {
-    setStatus("Invalid puzzle ID format.", "error");
-    return;
-  }
-
-  loadPuzzleByFilename(normalized);
 };
 
 /**
@@ -462,57 +207,40 @@ const init = async () => {
   renderVersion();
   await loadNewGame();
 
-  document.getElementById("new-btn").addEventListener("click", () => {
-    loadRandomPuzzle();
+  configureDomEventHandlers({
+    getState: getCurrentState,
+    applyState: updateState,
+    setStatus,
+    applyTheme,
+    loadRandomPuzzle,
+    loadPuzzleByFilename,
+    loadNewGame,
+    applyBoardStateFromHash,
   });
 
+  document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
     .getElementById("load-btn")
-    .addEventListener("click", onLoadButtonClick);
-
-  document.getElementById("check-btn").addEventListener("click", () => {
-    updateState(checkSolution(currentState, true));
-  });
-
-  document.getElementById("hint-btn").addEventListener("click", () => {
-    updateState(hintBoard(currentState));
-  });
-
-  document.getElementById("solve-btn").addEventListener("click", () => {
-    updateState(solveBoard(currentState));
-  });
-
+    .addEventListener("click", onLoadGameClick);
+  document
+    .getElementById("check-btn")
+    .addEventListener("click", onCheckButtonClick);
+  document
+    .getElementById("hint-btn")
+    .addEventListener("click", onHintButtonClick);
+  document
+    .getElementById("solve-btn")
+    .addEventListener("click", onSolveButtonClick);
   document
     .getElementById("theme-select")
-    .addEventListener("change", (event) => {
-      applyTheme(event.target.value);
-    });
+    .addEventListener("change", onThemeChange);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
   });
 
-  window.addEventListener("popstate", () => {
-    loadNewGame();
-  });
-
-  window.addEventListener("hashchange", () => {
-    if (currentState && currentState.statusType === "win") {
-      return;
-    }
-    const boardHash = getBoardFromHash();
-    if (boardHash && currentState) {
-      const decodedBoard = decodeBoard(boardHash);
-      if (decodedBoard) {
-        currentState = {
-          ...currentState,
-          board: decodedBoard,
-        };
-        renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-        markWrongCells(currentState);
-      }
-    }
-  });
+  window.addEventListener("popstate", onPopState);
+  window.addEventListener("hashchange", onHashChange);
 };
 
 init().catch((error) => {

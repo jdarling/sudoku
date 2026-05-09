@@ -33,50 +33,13 @@ const runStateTests = () => {
   let hintBoard = resolveSymbol("hintBoard");
   let getHintCells = resolveSymbol("getHintCells");
   let getWrongCells = resolveSymbol("getWrongCells");
+  let hasBoardConflicts = resolveSymbol("hasBoardConflicts");
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
+  let clearCellValue = resolveSymbol("clearCellValue");
+  let applyNumber = resolveSymbol("applyNumber");
+  let moveSelection = resolveSymbol("moveSelection");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
-
-  if (typeof module !== "undefined" && module.exports) {
-    const fs = require("fs");
-    const vm = require("vm");
-    const path = require("path");
-
-    const context = { console, Math, Set };
-    vm.createContext(context);
-
-    const constantsCode = fs.readFileSync(
-      path.join(__dirname, "constants.js"),
-      "utf8",
-    );
-    vm.runInContext(constantsCode, context);
-
-    const solverCode = fs.readFileSync(
-      path.join(__dirname, "solver.js"),
-      "utf8",
-    );
-    vm.runInContext(solverCode, context);
-
-    const stateCode = fs.readFileSync(path.join(__dirname, "state.js"), "utf8");
-    vm.runInContext(
-      `${stateCode}\nthis.__stateExports = { createStateFromPuzzle, selectCell, placeNumber, solveBoard, checkSolution, hintBoard, getHintCells, getWrongCells, encodeBoard, decodeBoard, TOTAL_CELLS };`,
-      context,
-    );
-
-    ({
-      createStateFromPuzzle,
-      selectCell,
-      placeNumber,
-      solveBoard,
-      checkSolution,
-      hintBoard,
-      getHintCells,
-      getWrongCells,
-      encodeBoard,
-      decodeBoard,
-      TOTAL_CELLS,
-    } = context.__stateExports);
-  }
 
   setTestFile("state.js");
 
@@ -194,10 +157,68 @@ const runStateTests = () => {
     return expect(isError).toBeTruthy();
   });
 
+  test("hasBoardConflicts detects duplicate in row", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 5;
+    board[1] = 5;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts detects duplicate in column", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 7;
+    board[9] = 7;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts detects duplicate in box", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 3;
+    board[10] = 3;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts returns false for non-conflicting entries", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 1;
+    board[1] = 2;
+    board[2] = 3;
+    return expect(hasBoardConflicts(board)).toBeFalsy();
+  });
+
+  test("hasBoardConflicts ignores empty cells", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 9;
+    board[1] = 0;
+    return expect(hasBoardConflicts(board)).toBeFalsy();
+  });
+
   test("getWrongCells returns user cells that conflict by Sudoku rules", () => {
     const state = {
       board: [1, 1].concat(new Array(TOTAL_CELLS - 2).fill(0)),
       given: [true, false].concat(new Array(TOTAL_CELLS - 2).fill(false)),
+    };
+    const wrong = getWrongCells(state);
+    return expect(wrong).toEqual([1]);
+  });
+
+  test("getWrongCells returns all conflicting user-entered cells", () => {
+    const state = {
+      board: [4, 4, 0].concat(new Array(TOTAL_CELLS - 3).fill(0)),
+      given: [false, false, false].concat(
+        new Array(TOTAL_CELLS - 3).fill(false),
+      ),
+    };
+    const wrong = getWrongCells(state);
+    return expect(wrong).toEqual([0, 1]);
+  });
+
+  test("getWrongCells ignores given and empty cells", () => {
+    const state = {
+      board: [6, 6, 0].concat(new Array(TOTAL_CELLS - 3).fill(0)),
+      given: [true, false, false].concat(
+        new Array(TOTAL_CELLS - 3).fill(false),
+      ),
     };
     const wrong = getWrongCells(state);
     return expect(wrong).toEqual([1]);
@@ -259,6 +280,81 @@ const runStateTests = () => {
     return expect(
       decodeBoard(null) === null && decodeBoard("") === null,
     ).toBeTruthy();
+  });
+
+  test("decodeBoard returns null for invalid encoded characters", () => {
+    return expect(decodeBoard("!".repeat(45)) === null).toBeTruthy();
+  });
+
+  test("clearCellValue removes number from cell", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const withValue = placeNumber(state, 5, 7);
+    const cleared = clearCellValue(withValue, 5);
+    return expect(cleared.board[5] === 0 && cleared.status === "").toBeTruthy();
+  });
+
+  test("moveSelection navigates by offset", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const selected = selectCell(state, 5);
+    const moved = moveSelection(selected, 9);
+    return expect(moved.selected === 14).toBeTruthy();
+  });
+
+  test("moveSelection returns null on out of bounds", () => {
+    const puzzle = "000000000".repeat(9);
+    const state = createStateFromPuzzle(puzzle);
+    const selected = selectCell(state, 0);
+    const moved = moveSelection(selected, -1);
+    return expect(moved === null).toBeTruthy();
+  });
+
+  test("createStateFromPuzzle resets all state fields for new puzzle", () => {
+    const puzzle1 =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const puzzle2 =
+      "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+
+    const state1 = createStateFromPuzzle(puzzle1);
+    const modified1 = {
+      ...state1,
+      selected: 40,
+      status: "error",
+      statusType: "error",
+    };
+
+    const state2 = createStateFromPuzzle(puzzle2);
+
+    return expect(
+      state2.selected === -1 &&
+        state2.status === "" &&
+        state2.statusType === "" &&
+        state2.hinting === false &&
+        state2.board.length === TOTAL_CELLS &&
+        state2.given[0] === false &&
+        state2.given[1] === false &&
+        state2.given[2] === true,
+    ).toBeTruthy();
+  });
+  test("applyNumber places number at selected cell", () => {
+    const state = { ...createStateFromPuzzle("0".repeat(81)), selected: 0 };
+    const next = applyNumber(state, 5);
+    return expect(next.board[0]).toBe(5);
+  });
+
+  test("applyNumber auto-checks solution when board is full", () => {
+    const solved = "534678912672195348198342567859761423426853791713924856961537284287419635345286179";
+    const almostDone = solved.slice(0, 80) + "0";
+    const state = { ...createStateFromPuzzle(almostDone), selected: 80 };
+    const next = applyNumber(state, 9);
+    return expect(next.statusType).toBe("win");
+  });
+
+  test("applyNumber does not mutate input state", () => {
+    const state = { ...createStateFromPuzzle("0".repeat(81)), selected: 3 };
+    applyNumber(state, 7);
+    return expect(state.board[3]).toBe(0);
   });
 };
 

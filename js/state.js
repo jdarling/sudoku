@@ -31,6 +31,30 @@ const selectCell = (state, cellIndex) => {
 };
 
 /**
+ * Clears a cell value from the board.
+ * @param {Object} state - Current state
+ * @param {number} cellIndex - Cell position (0-80)
+ * @returns {Object} New state with cell cleared
+ */
+const clearCellValue = (state, cellIndex) => {
+  return placeNumber(state, cellIndex, 0);
+};
+
+/**
+ * Moves selection by offset (arrow key navigation).
+ * @param {Object} state - Current state
+ * @param {number} offset - Cell offset from arrow key
+ * @returns {Object|null} New state or null if out of bounds
+ */
+const moveSelection = (state, offset) => {
+  const nextCell = state.selected + offset;
+  if (nextCell < 0 || nextCell >= TOTAL_CELLS) {
+    return null;
+  }
+  return selectCell(state, nextCell);
+};
+
+/**
  * Creates a new state with a number placed at a cell.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)
@@ -77,7 +101,6 @@ const solveBoard = (state) => {
     status: "Puzzle solved!",
     statusType: "win",
   };
-  console.log("Board solved:", solvedState);
   return solvedState;
 };
 
@@ -253,6 +276,20 @@ const decompressBoard = (compact) => {
 
   // Restore as string, padding with leading zeros to maintain 81 chars
   return val.toString().padStart(81, "0");
+};
+
+/**
+ * Places a number at the selected cell and auto-checks if the board is complete.
+ * @param {Object} state - Current state
+ * @param {number} num - Number to place (1-9)
+ * @returns {Object} New state with number placed; win/error status if board is full
+ */
+const applyNumber = (state, num) => {
+  const next = placeNumber(state, state.selected, num);
+  if (next.board.every((d) => d !== 0)) {
+    return checkSolution(next, false);
+  }
+  return next;
 };
 
 /**
