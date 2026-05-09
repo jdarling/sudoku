@@ -217,7 +217,7 @@ input.cell.wrong {
 Modal variables are defined in the `body {}` block and control all three modals
 (load puzzle, confirm, options). Add these alongside your other `body` variables:
 
-```css
+````css
 body {
   --load-modal-overlay: rgba(0, 0, 0, 0.55);   /* backdrop tint */
   --load-modal-panel-bg: #yourpanelbg;           /* modal panel background */
@@ -233,7 +233,7 @@ Add your theme name to `AVAILABLE_THEMES` in `js/constants.js`:
 
 ```javascript
 const AVAILABLE_THEMES = ["default", "dark", ..., "yourtheme"];
-```
+````
 
 ### Step 3: Add Theme Option to the Options Modal
 
