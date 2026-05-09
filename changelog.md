@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.5]
+
+- Consolidated puzzle-loading logic into shared finalizeGameLoad helper
+- Removed duplicate rendering/status code from loadPuzzleByFilename, loadNewGame, loadRandomPuzzle
+- Improved code maintainability with no user-visible changes
+
 ## [1.12.4]
 
 - Fixed Load Game not fully resetting board state: now clears hash on load instead of restoring stale board from previous puzzle
