@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.23]
+
+- Updated root `readme.md` with preferred Node test command: `node tests/run-node-tests.js --report-only-failures --report-status`
+- Updated `AGENTS.md` to require runner-flag-based concise test reporting and prohibit `tail`/`grep` truncation patterns
+
 ## [1.12.22]
 
 - Added Node test runner flags in `tests/run-node-tests.js`: `--report-only-failures`, `--report-status`, and `--help`

@@ -156,3 +156,19 @@ All code follows the standards in `standards/coding/`. Key points:
 - All functions are top-level and testable
 - State is immutable (spread operators, new arrays/objects)
 - No global state except the current game state in `app.js`
+
+### Testing (Preferred CLI Output)
+
+For day-to-day validation in terminal workflows, run:
+
+```bash
+node tests/run-node-tests.js --report-only-failures --report-status
+```
+
+This keeps output focused on failures while still printing a clear PASS/FAIL summary line.
+
+When full per-test output is needed, run without flags:
+
+```bash
+node tests/run-node-tests.js
+```
