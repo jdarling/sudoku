@@ -191,7 +191,8 @@ const onNumberButtonClick = (event) => {
 
 /**
  * Loads a puzzle by filename and initializes game state.
- * If a board hash exists in the URL, restores that board state after loading the puzzle.
+ * Creates a fresh board state without restoring from URL hash.
+ * This is used by the "Load Game" button for loading puzzles by ID.
  * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml")
  * @returns {Promise<void>}
  */
@@ -202,17 +203,6 @@ const loadPuzzleByFilename = async (filename) => {
     setCurrentPuzzleName(puzzle);
     updateQuery(filename);
 
-    const boardHash = getBoardFromHash();
-    if (boardHash) {
-      const decodedBoard = decodeBoard(boardHash);
-      if (decodedBoard) {
-        currentState = {
-          ...currentState,
-          board: decodedBoard,
-        };
-      }
-    }
-
     renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
     markWrongCells(currentState);
     setStatus(
@@ -222,6 +212,7 @@ const loadPuzzleByFilename = async (filename) => {
       "",
     );
     lastStatusType = "";
+    updateHash(currentState.board);
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
@@ -236,14 +227,49 @@ const loadPuzzleByFilename = async (filename) => {
 
 /**
  * Loads a new puzzle and initializes game state.
- * Checks URL query parameter first; if present, loads that puzzle and restores board from hash if present.
+ * Checks URL query parameter first; if present, loads that puzzle.
+ * If a board hash exists in the URL, restores that board state (for URL-based persistence).
  * Otherwise loads a random puzzle and updates the URL.
  * @returns {Promise<void>}
  */
 const loadNewGame = async () => {
   const puzzleFromQuery = getPuzzleFromQuery();
   if (puzzleFromQuery) {
-    await loadPuzzleByFilename(puzzleFromQuery);
+    try {
+      const puzzle = await getPuzzle(puzzleFromQuery);
+      currentState = createStateFromPuzzle(puzzle.puzzle);
+      setCurrentPuzzleName(puzzle);
+
+      const boardHash = getBoardFromHash();
+      if (boardHash) {
+        const decodedBoard = decodeBoard(boardHash);
+        if (decodedBoard) {
+          currentState = {
+            ...currentState,
+            board: decodedBoard,
+          };
+        }
+      }
+
+      renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+      markWrongCells(currentState);
+      setStatus(
+        applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
+          puzzleName: currentPuzzleName,
+        }),
+        "",
+      );
+      lastStatusType = "";
+    } catch (error) {
+      const failedPuzzleName = getPuzzleNameFromFilename(puzzleFromQuery);
+      setStatus(
+        applyStatusTemplate(STATUS_MESSAGES["Failed to load puzzle"], {
+          puzzleName: failedPuzzleName,
+          errorMessage: error.message,
+        }),
+        "error",
+      );
+    }
     return;
   }
 

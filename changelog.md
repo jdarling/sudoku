@@ -9,6 +9,19 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.4]
+
+- Fixed Load Game not fully resetting board state: now clears hash on load instead of restoring stale board from previous puzzle
+- URL-based state persistence (query + hash) still works correctly on initial page load
+- Added state test to verify all fields reset when loading a new puzzle
+
+## [1.12.3]
+
+- Removed debug logging from state-layer solve logic to keep business logic side-effect free
+- Added pure-logic test coverage for solver edge cases (unsolveable and already-complete boards)
+- Added pure-logic test coverage for state conflict detection and wrong-cell edge cases
+- Expanded Node test runner exports for state helpers used by the logic test suite
+
 ## [1.12.2]
 
 - Start 1.12.2 development line after tagging 1.12.1

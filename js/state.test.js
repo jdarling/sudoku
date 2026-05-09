@@ -33,6 +33,7 @@ const runStateTests = () => {
   let hintBoard = resolveSymbol("hintBoard");
   let getHintCells = resolveSymbol("getHintCells");
   let getWrongCells = resolveSymbol("getWrongCells");
+  let hasBoardConflicts = resolveSymbol("hasBoardConflicts");
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
   let updateCellValue = resolveSymbol("updateCellValue");
@@ -156,10 +157,68 @@ const runStateTests = () => {
     return expect(isError).toBeTruthy();
   });
 
+  test("hasBoardConflicts detects duplicate in row", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 5;
+    board[1] = 5;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts detects duplicate in column", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 7;
+    board[9] = 7;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts detects duplicate in box", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 3;
+    board[10] = 3;
+    return expect(hasBoardConflicts(board)).toBeTruthy();
+  });
+
+  test("hasBoardConflicts returns false for non-conflicting entries", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 1;
+    board[1] = 2;
+    board[2] = 3;
+    return expect(hasBoardConflicts(board)).toBeFalsy();
+  });
+
+  test("hasBoardConflicts ignores empty cells", () => {
+    const board = new Array(TOTAL_CELLS).fill(0);
+    board[0] = 9;
+    board[1] = 0;
+    return expect(hasBoardConflicts(board)).toBeFalsy();
+  });
+
   test("getWrongCells returns user cells that conflict by Sudoku rules", () => {
     const state = {
       board: [1, 1].concat(new Array(TOTAL_CELLS - 2).fill(0)),
       given: [true, false].concat(new Array(TOTAL_CELLS - 2).fill(false)),
+    };
+    const wrong = getWrongCells(state);
+    return expect(wrong).toEqual([1]);
+  });
+
+  test("getWrongCells returns all conflicting user-entered cells", () => {
+    const state = {
+      board: [4, 4, 0].concat(new Array(TOTAL_CELLS - 3).fill(0)),
+      given: [false, false, false].concat(
+        new Array(TOTAL_CELLS - 3).fill(false),
+      ),
+    };
+    const wrong = getWrongCells(state);
+    return expect(wrong).toEqual([0, 1]);
+  });
+
+  test("getWrongCells ignores given and empty cells", () => {
+    const state = {
+      board: [6, 6, 0].concat(new Array(TOTAL_CELLS - 3).fill(0)),
+      given: [true, false, false].concat(
+        new Array(TOTAL_CELLS - 3).fill(false),
+      ),
     };
     const wrong = getWrongCells(state);
     return expect(wrong).toEqual([1]);
@@ -223,6 +282,10 @@ const runStateTests = () => {
     ).toBeTruthy();
   });
 
+  test("decodeBoard returns null for invalid encoded characters", () => {
+    return expect(decodeBoard("!".repeat(45)) === null).toBeTruthy();
+  });
+
   test("updateCellValue places number and clears status", () => {
     const puzzle = "000000000".repeat(9);
     const state = createStateFromPuzzle(puzzle);
@@ -254,6 +317,34 @@ const runStateTests = () => {
     const selected = selectCell(state, 0);
     const moved = moveSelection(selected, -1);
     return expect(moved === null).toBeTruthy();
+  });
+
+  test("createStateFromPuzzle resets all state fields for new puzzle", () => {
+    const puzzle1 =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const puzzle2 =
+      "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+
+    const state1 = createStateFromPuzzle(puzzle1);
+    const modified1 = {
+      ...state1,
+      selected: 40,
+      status: "error",
+      statusType: "error",
+    };
+
+    const state2 = createStateFromPuzzle(puzzle2);
+
+    return expect(
+      state2.selected === -1 &&
+        state2.status === "" &&
+        state2.statusType === "" &&
+        state2.hinting === false &&
+        state2.board.length === TOTAL_CELLS &&
+        state2.given[0] === false &&
+        state2.given[1] === false &&
+        state2.given[2] === true,
+    ).toBeTruthy();
   });
 };
 

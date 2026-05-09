@@ -112,7 +112,6 @@ const solveBoard = (state) => {
     status: "Puzzle solved!",
     statusType: "win",
   };
-  console.log("Board solved:", solvedState);
   return solvedState;
 };
 

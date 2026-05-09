@@ -57,12 +57,16 @@ loadScript(path.join(__dirname, "../js/state.js"), [
   "selectCell",
   "placeNumber",
   "solveBoard",
+  "hasBoardConflicts",
   "checkSolution",
   "hintBoard",
   "getHintCells",
   "getWrongCells",
   "encodeBoard",
   "decodeBoard",
+  "updateCellValue",
+  "clearCellValue",
+  "moveSelection",
 ]);
 loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "parsePuzzleDoc",
