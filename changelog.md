@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.12]
+
+- Removed browser-interaction tests from dom.test.js (event handlers, prompt(), window.location are not testable outside the browser)
+- dom.test.js now covers only the three pure helpers: handleNumberKey, handleDeleteKey, handleArrowKey
+
 ## [1.12.11]
 
 - Unified load status formatting path in app orchestration to use shared `formatPuzzleStatus` helper
