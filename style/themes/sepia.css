@@ -1,0 +1,145 @@
+/**
+ * Sepia/Vintage theme.
+ * Warm paper tones inspired by printed puzzle books.
+ */
+
+body {
+  --load-modal-overlay: rgba(56, 38, 22, 0.48);
+  --load-modal-panel-bg: #f6ebd8;
+  --load-modal-panel-fg: #3f2e1d;
+  --load-modal-border: #b19170;
+  --load-modal-row-hover: #eddfc7;
+  --load-modal-row-selected: #e3d0b2;
+
+  background: #efe3cf;
+  color: #3f2e1d;
+}
+
+h1 {
+  color: #3b2a1a;
+}
+
+#status {
+  color: #705742;
+}
+
+#status.win {
+  color: #4f7a3d;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #9c4b31;
+}
+
+table {
+  border: 2.5px solid #4f3a26;
+}
+
+td {
+  border: 0.5px solid #b79d80;
+}
+
+td:nth-child(3n) {
+  border-right-color: #4f3a26;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #4f3a26;
+}
+
+input.cell {
+  color: #3f2e1d;
+}
+
+input.cell.given {
+  background: #d9c4a4;
+}
+
+input.cell.selected {
+  background: #a47244;
+  color: #fff7ea;
+}
+
+input.cell.related-line {
+  background: #d8c6ad;
+}
+
+input.cell.related {
+  background: #e7dcc9;
+}
+
+input.cell.same-num {
+  background: #d6a954;
+  color: #4a300e;
+}
+
+input.cell.wrong {
+  background: #e4c0a5;
+  color: #8d3f24;
+}
+
+.num-btn {
+  border-color: #b19170;
+  background: #f7eddc;
+  color: #3f2e1d;
+}
+
+.num-btn:hover {
+  background: #eadcc5;
+  border-color: #8d6f53;
+}
+
+.num-btn.erase {
+  color: #6f5640;
+}
+
+.action-btn {
+  border-color: #b19170;
+  background: #f7eddc;
+  color: #3f2e1d;
+}
+
+.action-btn:hover {
+  background: #eadcc5;
+  border-color: #8d6f53;
+}
+
+#check-btn {
+  border-color: #5f8d56;
+  color: #3f6b35;
+}
+
+#check-btn:hover {
+  background: #dce7cf;
+}
+
+#hint-btn {
+  border-color: #b3873e;
+  color: #7a5316;
+}
+
+#hint-btn:hover {
+  background: #f1dfbd;
+}
+
+#version {
+  font-size: 11px;
+  color: #9c886f;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #705742;
+}
+
+#theme-select {
+  border-color: #b19170;
+  background: #f7eddc;
+  color: #3f2e1d;
+}
+
+#theme-select:hover {
+  border-color: #8d6f53;
+}

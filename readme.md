@@ -30,8 +30,11 @@ Then open http://localhost:8080
 - **Move around** — Use arrow keys, or click other cells
 - **Erase** — Press Backspace, Delete, or 0
 - **Check your work** — Click "Check" to highlight errors
-- **Get the solution** — Click "Solve" to auto-fill the correct answers
-- **Start over** — Click "New Puzzle" for a different puzzle
+- **Get a hint** — Click "Hint" to reveal one correct cell
+- **Get the solution** — Click "Solve" and confirm to auto-fill the board
+- **Load a puzzle** — Click "Load Game" to pick from the available puzzles
+- **Start over** — Click "New Game" and confirm to load a random puzzle
+- **Change theme** — Click "Options" and choose a theme from the dropdown
 
 ### Visual Guide
 
@@ -65,6 +68,10 @@ This lets you:
 - **Community puzzles** — Puzzles are YAML files; contributors can add new ones via PR
 - **Two puzzle formats** — Write puzzles as rows or as 3×3 blocks—whatever's clearer
 - **Async puzzle loading** — Puzzles load on demand, not all at once
+- **Load puzzle modal** — Browse and filter all available puzzles; double-click to load
+- **Themed UI** — Nine selectable themes (Default, Dark, Terminal, Sepia, Forest, Ocean, Sunset, High Contrast, Cyberpunk); preference is saved automatically
+- **Styled modals** — New Game and Solve confirmations use a consistent modal instead of browser dialogs
+- **Options panel** — Theme selection lives in the Options modal, not cluttering the main UI
 - **No dependencies** — Pure vanilla JavaScript (except js-yaml for parsing puzzles)
 - **Works everywhere** — Any modern browser (Chrome, Firefox, Safari, Edge)
 
@@ -75,14 +82,27 @@ sudoku/
 ├── index.html              # Page structure
 ├── up.sh                   # Docker startup script
 ├── style/
-│   └── style.css           # All visual styling
+│   ├── layout.css          # Layout, geometry, and modal styles
+│   └── themes/             # One CSS file per theme
+│       ├── default.css
+│       ├── dark.css
+│       └── ...             # terminal, sepia, forest, ocean, sunset, high-contrast, cyberpunk
 ├── js/
-│   ├── constants.js        # Grid constants and arrow key mappings
+│   ├── constants.js        # Grid constants, theme list, status messages
+│   ├── utils.js            # Shared pure utilities (string formatting, encoding)
 │   ├── solver.js           # Sudoku constraint logic and backtracking solver
 │   ├── state.js            # Pure state transformation functions
 │   ├── render.js           # DOM rendering and view updates
 │   ├── puzzles.js          # Puzzle loading and parsing
-│   └── app.js              # Application orchestration and event handlers
+│   ├── theme.js            # Theme persistence and switching
+│   ├── dom.js              # DOM event handlers and URL persistence
+│   ├── app.js              # Application orchestration
+│   └── components/         # Reusable UI modal components
+│       ├── modal.js        # Generic open/close/isOpen for aria-based modals
+│       ├── table.js        # Generic filterable table rendering
+│       ├── loadmodal.js    # Load puzzle modal
+│       ├── confirmmodal.js # Yes/No confirmation modal
+│       └── optionsmodal.js # Options/settings modal
 ├── data/
 │   ├── puzzles.json        # Index of available puzzles
 │   ├── puzzles/            # Individual puzzle YAML files
@@ -91,8 +111,10 @@ sudoku/
 │   │   └── ...
 │   └── samples.yaml        # Documented example puzzles
 ├── docs/
-│   ├── design.md           # Architecture and design decisions
-│   └── standards/          # Coding standards for contributions
+│   └── design.md           # Architecture and design decisions
+├── standards/
+│   └── coding/             # Coding standards for contributions
+├── tests/                  # Node.js and browser test harness
 └── readme.md               # This file
 ```
 

@@ -270,43 +270,28 @@ Before considering a change complete:
 
 The app version is a single `VERSION` constant in `js/constants.js` (semver: `major.minor.patch`).
 
-**Rules — always follow these:**
+**Increment rules:**
 
-- **Bug fix** → increment `patch` only (e.g. `1.0.0` → `1.0.1`)
+- **Bug fix / docs** → increment `patch` only (e.g. `1.0.0` → `1.0.1`)
 - **New feature, backward compatible** → increment `minor`, reset `patch` to 0 (e.g. `1.0.1` → `1.1.0`)
 - **Breaking change** → increment `major`, reset `minor` and `patch` to 0 (e.g. `1.1.0` → `2.0.0`)
 
 The version is displayed in the bottom of the UI via `renderVersion()` in `render.js`, called once from `init()` in `app.js`.
 
-**Update `VERSION` in `js/constants.js` every time a change is made.**
+## Commit and Tag Workflow (IMPORTANT)
 
-**Also update `changelog.md` every time a change is made** — add a new entry under the new version with a brief description of what changed.
+Follow this cycle precisely:
 
-## Branching Strategy (IMPORTANT)
-
-`main` should only hold stable release-ready commits.
-
-For active feature work, always create a feature branch named with semver major.minor:
-
-```bash
-git switch -c feat/v1.12
-```
-
-Rules:
-
-- Use `feat/v<major>.<minor>` (no patch in the branch name)
-- Keep bug-fix patches on the same active feature branch until release
-- Merge the branch back to `main` only when that major.minor line is stable
-
-Example:
-
-- Version target `1.12.x` → branch `feat/v1.12`
-- Version target `2.0.x` → branch `feat/v2.0`
-
-**After committing version changes, create a git version tag** for the commit:
+1. **New work starts** → bump `VERSION` in `js/constants.js` and add a `## [x.y.z]` entry to `changelog.md` **before** any other commits for that version
+2. **During work** → commit freely as logical chunks complete; no tagging yet
+3. **User says “we’re done”** → commit any remaining uncommitted changes, then tag:
 
 ```bash
 git tag -a v1.x.x -m "Version 1.x.x: description"
 ```
 
-This marks stable release points in history and makes it easy to check out previous versions.
+4. **Next work begins** → go back to step 1
+
+**Never tag mid-feature.** Tags mark finished, stable versions only.
+
+**Always update `changelog.md`** alongside `VERSION` at the start of each new version.

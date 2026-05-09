@@ -204,38 +204,21 @@ const onNewGameClick = () => {
     return;
   }
 
-  const shouldStartNewGame = confirm(
+  openConfirmModal(
     "Start a new game? Your current progress will be lost.",
+    () => domHandlerDeps.loadRandomPuzzle(),
   );
-  if (!shouldStartNewGame) {
-    return;
-  }
-
-  domHandlerDeps.loadRandomPuzzle();
 };
 
 /**
  * Handles Load Game button click.
  */
-const onLoadGameClick = () => {
+const onLoadGameClick = async () => {
   if (!domHandlerDeps) {
     return;
   }
 
-  const inputValue = prompt(
-    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
-  );
-  if (inputValue === null) {
-    return;
-  }
-
-  const normalized = normalizePuzzleId(inputValue);
-  if (!normalized) {
-    domHandlerDeps.setStatus("Invalid puzzle ID format.", "error");
-    return;
-  }
-
-  domHandlerDeps.loadPuzzleByFilename(normalized);
+  await openLoadModal();
 };
 
 /**
@@ -278,25 +261,10 @@ const onSolveButtonClick = () => {
     return;
   }
 
-  const shouldSolve = confirm(
+  openConfirmModal(
     "Reveal the full solution? This will fill the entire board.",
+    () => domHandlerDeps.applyState(solveBoard(state)),
   );
-  if (!shouldSolve) {
-    return;
-  }
-
-  domHandlerDeps.applyState(solveBoard(state));
-};
-
-/**
- * Handles theme selector change.
- * @param {Event} event - Change event
- */
-const onThemeChange = (event) => {
-  if (!domHandlerDeps) {
-    return;
-  }
-  domHandlerDeps.applyTheme(event.target.value);
 };
 
 /**

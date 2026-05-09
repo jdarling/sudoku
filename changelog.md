@@ -9,6 +9,38 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.5]
+
+- Fixed `aria-hidden` accessibility warning: `modal.js` now records the focused element on open and restores focus on close via a `WeakMap`, so focus is never trapped inside a hidden modal
+
+## [1.13.4]
+
+- Updated `readme.md`: corrected project structure, How to Play, and Features to reflect current UI and module layout
+- Updated `docs/design.md`: added `utils.js`, `theme.js`, `dom.js`, and `js/components/` module documentation; removed stale handler references from `app.js` section
+
+## [1.13.3]
+
+- Replaced prompt-based `Load Game` flow with a full-screen modal selector showing all available puzzles
+- Modal includes a live filter by puzzle ID or filename, row selection, and `Cancel`/`Select` actions
+- Extracted modal logic into a `js/components/` folder: `modal.js` (generic open/close), `table.js` (filterable row rendering), `loadmodal.js` (load puzzle modal using both)
+- Replaced native `confirm()` dialogs for New Game and Solve with a styled Yes/No modal (`js/components/confirmmodal.js`)
+- Confirm modal uses the same CSS variables and visual chrome as the load modal; Escape → No, Enter → Yes
+- Moved theme selection into an Options modal (`js/components/optionsmodal.js`); replaced the inline theme row with an Options button
+
+## [1.13.2]
+
+- Added seven new selectable themes: Terminal, Sepia/Vintage, Forest, Ocean/Water, Sunset, High Contrast, and Cyberpunk/Neon
+- Registered all new themes in the theme selector and theme allowlist
+
+## [1.13.1]
+
+- Increased win celebration confetti so win effects fill the full screen with a denser burst
+
+## [1.13.0]
+
+- Swapped mobile control groups so `Check`/`Hint` appear above the keypad and `Solve`/`New Game`/`Load Game` appear below it
+- Kept desktop control ordering unchanged
+
 ## [1.12.27]
 
 - Added a confirmation prompt on `New Game` to clearly warn that current progress will be lost

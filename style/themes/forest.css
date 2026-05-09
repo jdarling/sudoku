@@ -1,0 +1,145 @@
+/**
+ * Forest theme.
+ * Earthy greens and wood tones.
+ */
+
+body {
+  --load-modal-overlay: rgba(20, 44, 28, 0.5);
+  --load-modal-panel-bg: #eef5ea;
+  --load-modal-panel-fg: #213425;
+  --load-modal-border: #7fa08a;
+  --load-modal-row-hover: #e1ebdc;
+  --load-modal-row-selected: #cfe3d4;
+
+  background: #e9f1e3;
+  color: #213425;
+}
+
+h1 {
+  color: #1f3727;
+}
+
+#status {
+  color: #496450;
+}
+
+#status.win {
+  color: #2e7a44;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #9a4f3a;
+}
+
+table {
+  border: 2.5px solid #2c4a34;
+}
+
+td {
+  border: 0.5px solid #9db4a1;
+}
+
+td:nth-child(3n) {
+  border-right-color: #2c4a34;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #2c4a34;
+}
+
+input.cell {
+  color: #213425;
+}
+
+input.cell.given {
+  background: #c8d8c1;
+}
+
+input.cell.selected {
+  background: #4a8e5a;
+  color: #f6fff4;
+}
+
+input.cell.related-line {
+  background: #b5ceb7;
+}
+
+input.cell.related {
+  background: #d8e7d6;
+}
+
+input.cell.same-num {
+  background: #d1a959;
+  color: #3b2a0f;
+}
+
+input.cell.wrong {
+  background: #e4c5b4;
+  color: #8f4a33;
+}
+
+.num-btn {
+  border-color: #7fa08a;
+  background: #f3f8f1;
+  color: #213425;
+}
+
+.num-btn:hover {
+  background: #dfebdc;
+  border-color: #5f826b;
+}
+
+.num-btn.erase {
+  color: #4f6956;
+}
+
+.action-btn {
+  border-color: #7fa08a;
+  background: #f3f8f1;
+  color: #213425;
+}
+
+.action-btn:hover {
+  background: #dfebdc;
+  border-color: #5f826b;
+}
+
+#check-btn {
+  border-color: #3f9a68;
+  color: #2f7c52;
+}
+
+#check-btn:hover {
+  background: #d4efde;
+}
+
+#hint-btn {
+  border-color: #b2863a;
+  color: #725114;
+}
+
+#hint-btn:hover {
+  background: #f0dfbd;
+}
+
+#version {
+  font-size: 11px;
+  color: #7c9583;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #496450;
+}
+
+#theme-select {
+  border-color: #7fa08a;
+  background: #f3f8f1;
+  color: #213425;
+}
+
+#theme-select:hover {
+  border-color: #5f826b;
+}

@@ -163,7 +163,6 @@ loadScript(path.join(__dirname, "../js/dom.js"), [
   "onCheckButtonClick",
   "onHintButtonClick",
   "onSolveButtonClick",
-  "onThemeChange",
   "onPopState",
   "onHashChange",
 ]);

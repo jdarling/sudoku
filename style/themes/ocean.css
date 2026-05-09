@@ -1,0 +1,145 @@
+/**
+ * Ocean/Water theme.
+ * Cool blues and teals with gradient-like contrast.
+ */
+
+body {
+  --load-modal-overlay: rgba(12, 45, 70, 0.48);
+  --load-modal-panel-bg: #eef8fd;
+  --load-modal-panel-fg: #143047;
+  --load-modal-border: #7ea9c5;
+  --load-modal-row-hover: #e0edf5;
+  --load-modal-row-selected: #cae2f0;
+
+  background: #e6f4fb;
+  color: #143047;
+}
+
+h1 {
+  color: #12344f;
+}
+
+#status {
+  color: #3d627f;
+}
+
+#status.win {
+  color: #1f7a64;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #9b3f4d;
+}
+
+table {
+  border: 2.5px solid #1f4765;
+}
+
+td {
+  border: 0.5px solid #9ec1d8;
+}
+
+td:nth-child(3n) {
+  border-right-color: #1f4765;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #1f4765;
+}
+
+input.cell {
+  color: #143047;
+}
+
+input.cell.given {
+  background: #c9e0ed;
+}
+
+input.cell.selected {
+  background: #347ab0;
+  color: #ffffff;
+}
+
+input.cell.related-line {
+  background: #b5d9ea;
+}
+
+input.cell.related {
+  background: #dcecf5;
+}
+
+input.cell.same-num {
+  background: #4fb7a3;
+  color: #08352f;
+}
+
+input.cell.wrong {
+  background: #eac6ca;
+  color: #8d3343;
+}
+
+.num-btn {
+  border-color: #7ea9c5;
+  background: #f4fbff;
+  color: #143047;
+}
+
+.num-btn:hover {
+  background: #e0eff7;
+  border-color: #5b88a8;
+}
+
+.num-btn.erase {
+  color: #466983;
+}
+
+.action-btn {
+  border-color: #7ea9c5;
+  background: #f4fbff;
+  color: #143047;
+}
+
+.action-btn:hover {
+  background: #e0eff7;
+  border-color: #5b88a8;
+}
+
+#check-btn {
+  border-color: #2f90b0;
+  color: #1f6884;
+}
+
+#check-btn:hover {
+  background: #d2edf6;
+}
+
+#hint-btn {
+  border-color: #3d9f8c;
+  color: #236e62;
+}
+
+#hint-btn:hover {
+  background: #d5efe9;
+}
+
+#version {
+  font-size: 11px;
+  color: #7a9bb2;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #3d627f;
+}
+
+#theme-select {
+  border-color: #7ea9c5;
+  background: #f4fbff;
+  color: #143047;
+}
+
+#theme-select:hover {
+  border-color: #5b88a8;
+}

@@ -198,6 +198,7 @@ const createConfettiPiece = (layer) => {
   const piece = document.createElement("span");
   piece.className = "confetti-piece";
   piece.style.left = `${Math.random() * 100}vw`;
+  piece.style.top = `${Math.random() * 100}vh`;
   piece.style.backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 85%, 58%)`;
   piece.style.animationDuration = `${1.6 + Math.random() * 1.1}s`;
   piece.style.animationDelay = `${Math.random() * 0.15}s`;
@@ -210,6 +211,20 @@ const createConfettiPiece = (layer) => {
 };
 
 /**
+ * Calculates a dense confetti piece count based on viewport area.
+ * @returns {number} Number of pieces to emit
+ */
+const getWinConfettiPieceCount = () => {
+  if (typeof window === "undefined") {
+    return 700;
+  }
+
+  const viewportArea = window.innerWidth * window.innerHeight;
+  const scaledCount = Math.floor(viewportArea / 1800);
+  return Math.max(700, Math.min(1400, scaledCount));
+};
+
+/**
  * Triggers a non-blocking confetti burst to celebrate a win.
  */
 const launchWinCelebration = () => {
@@ -218,7 +233,8 @@ const launchWinCelebration = () => {
     return;
   }
 
-  for (let i = 0; i < 90; i++) {
+  const pieceCount = getWinConfettiPieceCount();
+  for (let i = 0; i < pieceCount; i++) {
     createConfettiPiece(layer);
   }
 };

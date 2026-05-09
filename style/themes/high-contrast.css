@@ -1,0 +1,146 @@
+/**
+ * High contrast theme.
+ * Maximum contrast and strong primary accents for accessibility.
+ */
+
+body {
+  --load-modal-overlay: rgba(0, 0, 0, 0.8);
+  --load-modal-panel-bg: #ffffff;
+  --load-modal-panel-fg: #000000;
+  --load-modal-border: #000000;
+  --load-modal-row-hover: #e8e8e8;
+  --load-modal-row-selected: #cce0ff;
+
+  background: #ffffff;
+  color: #000000;
+}
+
+h1 {
+  color: #000000;
+}
+
+#status {
+  color: #111111;
+}
+
+#status.win {
+  color: #007a00;
+  font-weight: 700;
+}
+
+#status.error {
+  color: #b00020;
+  font-weight: 700;
+}
+
+table {
+  border: 3px solid #000000;
+}
+
+td {
+  border: 1px solid #000000;
+}
+
+td:nth-child(3n) {
+  border-right-color: #000000;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #000000;
+}
+
+input.cell {
+  color: #000000;
+}
+
+input.cell.given {
+  background: #d9d9d9;
+}
+
+input.cell.selected {
+  background: #0057ff;
+  color: #ffffff;
+}
+
+input.cell.related-line {
+  background: #cce0ff;
+}
+
+input.cell.related {
+  background: #e8f0ff;
+}
+
+input.cell.same-num {
+  background: #ffd400;
+  color: #000000;
+}
+
+input.cell.wrong {
+  background: #ffccd5;
+  color: #b00020;
+}
+
+.num-btn {
+  border: 2px solid #000000;
+  background: #ffffff;
+  color: #000000;
+}
+
+.num-btn:hover {
+  background: #f0f0f0;
+  border-color: #000000;
+}
+
+.num-btn.erase {
+  color: #000000;
+}
+
+.action-btn {
+  border: 2px solid #000000;
+  background: #ffffff;
+  color: #000000;
+}
+
+.action-btn:hover {
+  background: #f0f0f0;
+  border-color: #000000;
+}
+
+#check-btn {
+  border-color: #0057ff;
+  color: #0039a6;
+}
+
+#check-btn:hover {
+  background: #dbe7ff;
+}
+
+#hint-btn {
+  border-color: #c07f00;
+  color: #7a4f00;
+}
+
+#hint-btn:hover {
+  background: #ffe7b8;
+}
+
+#version {
+  font-size: 11px;
+  color: #333333;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #111111;
+}
+
+#theme-select {
+  border: 2px solid #000000;
+  background: #ffffff;
+  color: #000000;
+}
+
+#theme-select:hover {
+  border-color: #000000;
+}

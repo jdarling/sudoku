@@ -211,17 +211,40 @@ const init = async () => {
     getState: getCurrentState,
     applyState: updateState,
     setStatus,
-    applyTheme,
     loadRandomPuzzle,
     loadPuzzleByFilename,
     loadNewGame,
     applyBoardStateFromHash,
   });
 
+  configureLoadModal({
+    listPuzzles: getPuzzles,
+    loadPuzzleByFilename,
+  });
+
+  configureOptionsModal({
+    applyTheme,
+  });
+
   document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
     .getElementById("load-btn")
     .addEventListener("click", onLoadGameClick);
+  document
+    .getElementById("load-cancel-btn")
+    .addEventListener("click", onLoadModalCancelClick);
+  document
+    .getElementById("load-select-btn")
+    .addEventListener("click", onLoadModalSelectClick);
+  document
+    .getElementById("load-filter-input")
+    .addEventListener("input", onLoadModalFilterInput);
+  document
+    .getElementById("load-puzzle-table-body")
+    .addEventListener("click", onLoadModalTableClick);
+  document
+    .getElementById("load-puzzle-table-body")
+    .addEventListener("dblclick", onLoadModalTableDblClick);
   document
     .getElementById("check-btn")
     .addEventListener("click", onCheckButtonClick);
@@ -232,15 +255,31 @@ const init = async () => {
     .getElementById("solve-btn")
     .addEventListener("click", onSolveButtonClick);
   document
-    .getElementById("theme-select")
-    .addEventListener("change", onThemeChange);
+    .getElementById("options-btn")
+    .addEventListener("click", onOptionsClick);
+  document
+    .getElementById("options-close-btn")
+    .addEventListener("click", onOptionsCloseClick);
+  document
+    .getElementById("options-theme-select")
+    .addEventListener("change", onOptionsThemeChange);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
   });
 
+  document
+    .getElementById("confirm-yes-btn")
+    .addEventListener("click", onConfirmYesClick);
+  document
+    .getElementById("confirm-no-btn")
+    .addEventListener("click", onConfirmNoClick);
+
   window.addEventListener("popstate", onPopState);
   window.addEventListener("hashchange", onHashChange);
+  window.addEventListener("keydown", onLoadModalKeydown);
+  window.addEventListener("keydown", onConfirmModalKeydown);
+  window.addEventListener("keydown", onOptionsModalKeydown);
 };
 
 init().catch((error) => {
