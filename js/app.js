@@ -161,8 +161,18 @@ const loadNewGame = async () => {
     return;
   }
 
-  const puzzle = await getRandomPuzzle();
-  loadFetchedPuzzle(puzzle);
+  try {
+    const puzzle = await getRandomPuzzle();
+    loadFetchedPuzzle(puzzle);
+  } catch (error) {
+    setStatus(
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        puzzleName: extractPuzzleId(""),
+        errorMessage: error.message,
+      }),
+      "error",
+    );
+  }
 };
 
 /**

@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.24]
+
+- Added missing `try/catch` around `loadNewGame` random puzzle startup path so failures update user-visible status instead of only bubbling to init-level console logging
+
 ## [1.12.23]
 
 - Updated root `readme.md` with preferred Node test command: `node tests/run-node-tests.js --report-only-failures --report-status`
