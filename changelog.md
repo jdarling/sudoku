@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.20]
+
+- Simplified puzzle-loading orchestration in app.js by replacing `loadFetchedRandomPuzzle` with a shared `loadFetchedPuzzle` path used by both `loadPuzzleByFilename` and `loadRandomPuzzle`
+- Removed nested random-puzzle error handling complexity while preserving puzzle-specific error names
+
 ## [1.12.19]
 
 - Extracted random-puzzle post-fetch work into `loadFetchedRandomPuzzle(puzzle)` for clearer orchestration and named inner error handling

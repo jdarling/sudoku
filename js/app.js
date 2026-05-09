@@ -93,6 +93,16 @@ const loadGame = (puzzle, boardState) => {
 };
 
 /**
+ * Applies a fetched puzzle to state, URL query, and rendering.
+ * @param {Object} puzzle - Loaded puzzle object
+ */
+const loadFetchedPuzzle = (puzzle) => {
+  const boardState = createStateFromPuzzle(puzzle.puzzle);
+  updateQuery(puzzle.filename);
+  loadGame(puzzle, boardState);
+};
+
+/**
  * Loads a puzzle by filename and initializes game state.
  * Creates a fresh board state without restoring from URL hash.
  * This is used by the "Load Game" button for loading puzzles by ID.
@@ -102,9 +112,7 @@ const loadGame = (puzzle, boardState) => {
 const loadPuzzleByFilename = async (filename) => {
   try {
     const puzzle = await getPuzzle(filename);
-    const boardState = createStateFromPuzzle(puzzle.puzzle);
-    updateQuery(filename);
-    loadGame(puzzle, boardState);
+    loadFetchedPuzzle(puzzle);
   } catch (error) {
     const failedPuzzleName = extractPuzzleId(filename);
     setStatus(
@@ -154,31 +162,7 @@ const loadNewGame = async () => {
   }
 
   const puzzle = await getRandomPuzzle();
-  const boardState = createStateFromPuzzle(puzzle.puzzle);
-  updateQuery(puzzle.filename);
-  loadGame(puzzle, boardState);
-};
-
-/**
- * Loads a random puzzle and updates the URL.
- * Reports puzzle-specific errors for failures after puzzle fetch.
- * @param {Object} puzzle - Loaded puzzle object
- */
-const loadFetchedRandomPuzzle = (puzzle) => {
-  try {
-    const boardState = createStateFromPuzzle(puzzle.puzzle);
-    updateQuery(puzzle.filename);
-    loadGame(puzzle, boardState);
-  } catch (error) {
-    const failedPuzzleName = extractPuzzleId(puzzle.filename);
-    setStatus(
-      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
-        puzzleName: failedPuzzleName,
-        errorMessage: error.message,
-      }),
-      "error",
-    );
-  }
+  loadFetchedPuzzle(puzzle);
 };
 
 /**
@@ -188,13 +172,15 @@ const loadFetchedRandomPuzzle = (puzzle) => {
  * @returns {Promise<void>}
  */
 const loadRandomPuzzle = async () => {
+  let failedPuzzleName = extractPuzzleId("");
   try {
     const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
-    loadFetchedRandomPuzzle(puzzle);
+    failedPuzzleName = extractPuzzleId(puzzle.filename);
+    loadFetchedPuzzle(puzzle);
   } catch (error) {
     setStatus(
       formatString(STATUS_MESSAGES["Failed to load puzzle"], {
-        puzzleName: extractPuzzleId(""),
+        puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
       "error",
