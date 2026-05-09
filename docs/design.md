@@ -43,17 +43,17 @@ js/
 
 Defines immutable game configuration:
 
-| Constant          | Purpose                                      |
-| ----------------- | -------------------------------------------- |
-| `GRID_SIZE`       | Sudoku grid dimension (9)                    |
-| `TOTAL_CELLS`     | Total cells (81)                             |
-| `BOX_SIZE`        | 3×3 box dimension                            |
-| `ARROW_MOVES`     | Maps arrow keys to cell offsets              |
-| `VERSION`         | Application version (semver)                 |
-| `DEFAULT_THEME`   | Name of the fallback theme                   |
-| `AVAILABLE_THEMES`| All valid theme names                        |
-| `STATUS_MESSAGES` | Template strings for status display          |
-| `ENCODING_CHARS`  | Character set used for board hash encoding   |
+| Constant           | Purpose                                    |
+| ------------------ | ------------------------------------------ |
+| `GRID_SIZE`        | Sudoku grid dimension (9)                  |
+| `TOTAL_CELLS`      | Total cells (81)                           |
+| `BOX_SIZE`         | 3×3 box dimension                          |
+| `ARROW_MOVES`      | Maps arrow keys to cell offsets            |
+| `VERSION`          | Application version (semver)               |
+| `DEFAULT_THEME`    | Name of the fallback theme                 |
+| `AVAILABLE_THEMES` | All valid theme names                      |
+| `STATUS_MESSAGES`  | Template strings for status display        |
+| `ENCODING_CHARS`   | Character set used for board hash encoding |
 
 ### `solver.js`
 
@@ -216,23 +216,28 @@ Registers the dependency container used by all handlers.
 Reusable modal UI components. Each component is browser-only (DOM access); none are tested in the Node harness.
 
 **`modal.js`** — Generic open/close primitives using `aria-hidden`:
+
 - `openModal(el)`, `closeModal(el)`, `isModalOpen(el)`
 
 **`table.js`** — Generic filterable table rendering:
+
 - `filterTableRows(rows, filterText, getSearchText)` — Pure filter
 - `renderTableRows(tbody, rows, getKey, getCells, selectedKey)` — Renders rows with `data-key` and `is-selected`
 
 **`loadmodal.js`** — Load puzzle modal:
+
 - `configureLoadModal(deps)` — Registers `{ listPuzzles, loadPuzzleByFilename }`
 - `openLoadModal()`, `closeLoadModal()`
 - Handlers: `onLoadModalFilterInput`, `onLoadModalTableClick`, `onLoadModalTableDblClick`, `onLoadModalCancelClick`, `onLoadModalSelectClick`, `onLoadModalKeydown`
 
 **`confirmmodal.js`** — Yes/No confirmation modal:
+
 - `openConfirmModal(message, onConfirm)` — Sets message and stores callback
 - `closeConfirmModal()`
 - Handlers: `onConfirmYesClick`, `onConfirmNoClick`, `onConfirmModalKeydown` (Escape → No, Enter → Yes)
 
 **`optionsmodal.js`** — Options/settings modal:
+
 - `configureOptionsModal(deps)` — Registers `{ applyTheme }`
 - `openOptionsModal()` — Syncs theme select to active theme via `getActiveTheme()`
 - `closeOptionsModal()`
@@ -345,8 +350,8 @@ author: Jane Doe
 difficulty: easy
 puzzle:
   rows:
-    - '530070000'
-    - '600195000'
+    - "530070000"
+    - "600195000"
     - ...
 ```
 
@@ -358,9 +363,9 @@ Each row is an 81-digit string (or split as 9 separate 3-digit strings).
 puzzle:
   blocks:
     top-left:
-      - '530'
-      - '600'
-      - '098'
+      - "530"
+      - "600"
+      - "098"
     top-center:
       - ...
 ```
