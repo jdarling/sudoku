@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.4]
+
+- Updated `readme.md`: corrected project structure, How to Play, and Features to reflect current UI and module layout
+- Updated `docs/design.md`: added `utils.js`, `theme.js`, `dom.js`, and `js/components/` module documentation; removed stale handler references from `app.js` section
+
 ## [1.13.3]
 
 - Replaced prompt-based `Load Game` flow with a full-screen modal selector showing all available puzzles

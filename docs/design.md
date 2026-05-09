@@ -22,24 +22,38 @@ A single-page Sudoku game that runs in the browser with no build tooling or fram
 
 ```
 js/
-├── constants.js      Game constants (grid size, arrow keys)
+├── constants.js      Game constants, theme list, status message templates
+├── utils.js          Shared pure utilities (string formatting, board encoding)
 ├── solver.js         Sudoku algorithm: validation, backtracking, cell relationships
 ├── state.js          Pure state mutations (place number, select cell, check solution)
-├── render.js         DOM rendering, cell styling, status display
+├── render.js         DOM rendering, cell styling, status display, win celebration
 ├── puzzles.js        Puzzle loading, YAML parsing, index management
-└── app.js            Application state, event handlers, orchestration
+├── theme.js          Theme switching and localStorage persistence
+├── dom.js            DOM event handlers, URL query/hash persistence
+├── app.js            Application state, load cycle, init orchestration
+└── components/
+    ├── modal.js        Generic aria-based modal open/close/isOpen
+    ├── table.js        Generic filterable, selectable table rendering
+    ├── loadmodal.js    Load puzzle modal (uses modal.js + table.js)
+    ├── confirmmodal.js Yes/No confirmation modal (uses modal.js)
+    └── optionsmodal.js Options/settings modal (uses modal.js)
 ```
 
 ### `constants.js`
 
 Defines immutable game configuration:
 
-| Constant      | Value  | Purpose                         |
-| ------------- | ------ | ------------------------------- |
-| `GRID_SIZE`   | 9      | Sudoku grid dimension           |
-| `TOTAL_CELLS` | 81     | Total cells (9×9)               |
-| `BOX_SIZE`    | 3      | 3×3 box dimension               |
-| `ARROW_MOVES` | Object | Maps arrow keys to cell offsets |
+| Constant          | Purpose                                      |
+| ----------------- | -------------------------------------------- |
+| `GRID_SIZE`       | Sudoku grid dimension (9)                    |
+| `TOTAL_CELLS`     | Total cells (81)                             |
+| `BOX_SIZE`        | 3×3 box dimension                            |
+| `ARROW_MOVES`     | Maps arrow keys to cell offsets              |
+| `VERSION`         | Application version (semver)                 |
+| `DEFAULT_THEME`   | Name of the fallback theme                   |
+| `AVAILABLE_THEMES`| All valid theme names                        |
+| `STATUS_MESSAGES` | Template strings for status display          |
+| `ENCODING_CHARS`  | Character set used for board hash encoding   |
 
 ### `solver.js`
 
@@ -145,38 +159,90 @@ Updates the status message and CSS class.
 
 Moves keyboard focus to a specific cell input.
 
-### `puzzles.js`
+### `theme.js`
 
-Async puzzle management.
+Handles theme switching and persistence. No game logic, no state.
 
-**`getPuzzles()` → `Promise<string[]>`**
+**`getActiveTheme()` → `string`**
 
-Fetches `data/puzzles.json`, returns array of puzzle filenames.
+Reads the current theme name from the active `<link data-theme-link>` href.
 
-**`getPuzzle(filename)` → `Promise<Object>`**
+**`getSavedTheme()` → `string`**
 
-Fetches and parses a YAML puzzle file. Returns:
+Reads the saved theme from `localStorage`. Falls back to `DEFAULT_THEME`.
 
-```javascript
-{
-  name: "Puzzle Title",
-  author: "Author Name",
-  difficulty: "easy",
-  puzzle: "530070000..." // 81-character string
-}
-```
+**`applyTheme(themeName)` → `void`**
 
-Supports both `rows` and `blocks` puzzle formats in YAML.
+Swaps the theme stylesheet link and saves the preference via `saveTheme()`.
 
-**`getRandomPuzzle()` → `Promise<Object>`**
+**`initTheme()` → `void`**
 
-Fetches index, picks a random filename, returns that puzzle.
+Called once at startup. Applies the saved theme.
 
-**Note on Scale:** At runtime, only the index is fetched (small). Individual puzzles load on demand. When scaling to millions of puzzles, replace this with a backend API endpoint (`/api/puzzles/random`) that handles randomization server-side.
+---
+
+### `dom.js`
+
+All DOM event handlers and URL persistence logic. No game logic, no rendering.
+
+**URL Persistence**
+
+- `getPuzzleFromQuery()` — Reads the `?puzzle=` query parameter
+- `getBoardFromHash()` — Reads the `#board=` hash fragment
+- `updateQuery(filename)` — Writes the active puzzle to `?puzzle=`
+- `updateHash(board)` — Writes the board state to `#board=`
+
+**Event Handlers** (all top-level, all testable)
+
+- `onCellFocus(event)` — Select a cell
+- `onCellKeydown(event)` — Keyboard input: 1-9, arrows, delete
+- `onCellInput(event)` — Mobile/IME text input
+- `onNumberButtonClick(event)` — Number pad buttons
+- `onNewGameClick()` — Opens the confirm modal for new game
+- `onLoadGameClick()` — Opens the load puzzle modal
+- `onCheckButtonClick()` — Check solution
+- `onHintButtonClick()` — Reveal one cell
+- `onSolveButtonClick()` — Opens the confirm modal to solve
+- `onPopState()`, `onHashChange()` — Browser navigation
+
+**`configureDomEventHandlers(deps)` → `void`**
+
+Registers the dependency container used by all handlers.
+
+---
+
+### `js/components/`
+
+Reusable modal UI components. Each component is browser-only (DOM access); none are tested in the Node harness.
+
+**`modal.js`** — Generic open/close primitives using `aria-hidden`:
+- `openModal(el)`, `closeModal(el)`, `isModalOpen(el)`
+
+**`table.js`** — Generic filterable table rendering:
+- `filterTableRows(rows, filterText, getSearchText)` — Pure filter
+- `renderTableRows(tbody, rows, getKey, getCells, selectedKey)` — Renders rows with `data-key` and `is-selected`
+
+**`loadmodal.js`** — Load puzzle modal:
+- `configureLoadModal(deps)` — Registers `{ listPuzzles, loadPuzzleByFilename }`
+- `openLoadModal()`, `closeLoadModal()`
+- Handlers: `onLoadModalFilterInput`, `onLoadModalTableClick`, `onLoadModalTableDblClick`, `onLoadModalCancelClick`, `onLoadModalSelectClick`, `onLoadModalKeydown`
+
+**`confirmmodal.js`** — Yes/No confirmation modal:
+- `openConfirmModal(message, onConfirm)` — Sets message and stores callback
+- `closeConfirmModal()`
+- Handlers: `onConfirmYesClick`, `onConfirmNoClick`, `onConfirmModalKeydown` (Escape → No, Enter → Yes)
+
+**`optionsmodal.js`** — Options/settings modal:
+- `configureOptionsModal(deps)` — Registers `{ applyTheme }`
+- `openOptionsModal()` — Syncs theme select to active theme via `getActiveTheme()`
+- `closeOptionsModal()`
+- Handlers: `onOptionsClick`, `onOptionsThemeChange`, `onOptionsCloseClick`, `onOptionsModalKeydown`
+
+---
 
 ### `app.js`
 
-Application orchestration. Manages the single mutable `currentState` reference.
+Application orchestration. Manages the single mutable `currentState` reference. No event handling — that lives in `dom.js` and the component modules.
 
 **Module-Level State**
 
@@ -190,30 +256,18 @@ Core update function. Coordinates all side effects:
 
 1. Updates `currentState`
 2. Calls `renderGrid()`, `markWrongCells()`, `setStatus()`, `focusCell()` in sequence
-3. All changes are synchronous and ordered
+3. Triggers win celebration on first win state transition
+4. Persists board to URL hash
 
-**Event Handlers** (top-level functions)
+**Load Functions**
 
-- `onCellFocus(event)` — Select a cell
-- `onCellKeydown(event)` — Handle keyboard input (1-9, arrows, delete)
-- `onCellInput(event)` — Handle typed input
-- `onNumberButtonClick(event)` — Handle number pad buttons
-
-All handlers are pure functions that compute new state and call `updateState()`.
-
-**Helper Functions**
-
-- `handleNumberKey(num)` — Pure: returns new state for placing a number
-- `handleDeleteKey()` — Pure: returns new state for clearing a cell
-- `handleArrowKey(offset)` — Pure: returns new state for arrow navigation
-
-**`loadNewGame()` → `Promise<void>`**
-
-Async function that fetches a puzzle and initializes the game.
+- `loadNewGame()` — Reads URL query/hash on startup; loads specific or random puzzle
+- `loadRandomPuzzle()` — Loads a different random puzzle (skips current)
+- `loadPuzzleByFilename(filename)` — Loads a specific puzzle by filename
 
 **`init()` → `Promise<void>`**
 
-Entry point. Calls `loadNewGame()`, then attaches all event listeners.
+Entry point. Applies theme, loads initial puzzle, wires all event listeners, and configures all modal components.
 
 ---
 
@@ -362,10 +416,18 @@ User Action → Event Handler → Pure State Function → updateState()
 
 Example: User presses "5"
 
-1. `onCellKeydown` fires with key "5"
-2. Calls `handleNumberKey(5)` → returns new state
-3. Calls `updateState(newState)`
+1. `onCellKeydown` fires in `dom.js` with key "5"
+2. Calls `applyNumber(state, 5)` → returns new state
+3. Calls `domHandlerDeps.applyState(newState)` → triggers `updateState()` in `app.js`
 4. `updateState` orchestrates all side effects in order
+
+Example: User clicks "Load Game"
+
+1. `onLoadGameClick` fires in `dom.js`
+2. Calls `openLoadModal()` in `loadmodal.js`
+3. Modal fetches puzzle list via `loadModalDeps.listPuzzles()`
+4. User double-clicks a row → `onLoadModalTableDblClick` calls `loadModalDeps.loadPuzzleByFilename(filename)`
+5. `loadPuzzleByFilename` in `app.js` fetches puzzle, calls `loadFetchedPuzzle()` → `loadGame()` → `updateState()`
 
 ---
 
