@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.0]
+
+- Swapped mobile control groups so `Check`/`Hint` appear above the keypad and `Solve`/`New Game`/`Load Game` appear below it
+- Kept desktop control ordering unchanged
+
 ## [1.12.27]
 
 - Added a confirmation prompt on `New Game` to clearly warn that current progress will be lost

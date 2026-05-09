@@ -213,7 +213,7 @@ input.cell.given {
 }
 
 #top-controls {
-  order: 1;
+  order: 3;
 }
 
 #controls {
@@ -221,7 +221,7 @@ input.cell.given {
 }
 
 #action-row {
-  order: 3;
+  order: 1;
 }
 
 #theme-row {
