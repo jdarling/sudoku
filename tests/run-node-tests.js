@@ -46,6 +46,12 @@ loadScript(path.join(__dirname, "../js/constants.js"), [
   "AVAILABLE_THEMES",
   "DEFAULT_THEME",
 ]);
+loadScript(path.join(__dirname, "../js/utils.js"), [
+  "formatString",
+  "extractPuzzleId",
+  "normalizePuzzleId",
+  "formatPuzzleStatus",
+]);
 loadScript(path.join(__dirname, "../js/solver.js"), [
   "idx",
   "isValid",

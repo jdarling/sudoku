@@ -9,6 +9,14 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.7]
+
+- Extracted pure string and puzzle-id helpers into `js/utils.js` (`formatString`, `extractPuzzleId`, `normalizePuzzleId`, `formatPuzzleStatus`)
+- Added comprehensive utils unit tests in `js/utils.test.js`
+- Updated app orchestration to use shared utils helpers instead of duplicating pure logic
+- Fixed browser test runner to use shared `tests/testConfig.js` list instead of a hardcoded test array
+- Loaded `js/utils.js` in runtime `index.html` to support app usage
+
 ## [1.12.6]
 
 - Simplified app.js method names: finalizeGameLoad → loadGame, formatStatusWithPuzzleName → formatPuzzleStatus

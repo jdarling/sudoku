@@ -12,35 +12,6 @@ let currentPuzzleName = "";
 let lastStatusType = "";
 
 /**
- * Interpolates placeholders in a status template.
- * @param {string} template - Template with placeholders
- * @param {Object} values - Placeholder values
- * @returns {string} Interpolated status text
- */
-const applyStatusTemplate = (template, values) => {
-  let message = template;
-
-  Object.keys(values).forEach((key) => {
-    message = message.split(`{${key}}`).join(String(values[key]));
-  });
-
-  return message;
-};
-
-/**
- * Builds a fallback puzzle name from filename.
- * @param {string} filename - Puzzle filename
- * @returns {string} Puzzle display name
- */
-const getPuzzleNameFromFilename = (filename) => {
-  if (!filename) {
-    return "unknown";
-  }
-
-  return filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
-};
-
-/**
  * Stores the active puzzle display name from loaded metadata.
  * @param {Object} puzzle - Loaded puzzle object
  */
@@ -50,27 +21,7 @@ const setCurrentPuzzleName = (puzzle) => {
     return;
   }
 
-  currentPuzzleName = getPuzzleNameFromFilename(puzzle ? puzzle.filename : "");
-};
-
-/**
- * Formats status messages with the active puzzle name.
- * @param {string} statusMessage - Base state status message
- * @returns {string} Puzzle-aware message
- */
-const formatPuzzleStatus = (statusMessage) => {
-  if (!statusMessage || !currentPuzzleName) {
-    return statusMessage;
-  }
-
-  const template = STATUS_MESSAGES[statusMessage];
-  if (template) {
-    return applyStatusTemplate(template, {
-      puzzleName: currentPuzzleName,
-    });
-  }
-
-  return statusMessage;
+  currentPuzzleName = extractPuzzleId(puzzle ? puzzle.filename : "");
 };
 
 /**
@@ -81,7 +32,10 @@ const updateState = (newState) => {
   currentState = newState;
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
-  setStatus(formatPuzzleStatus(currentState.status), currentState.statusType);
+  setStatus(
+    formatPuzzleStatus(currentState.status, currentPuzzleName, STATUS_MESSAGES),
+    currentState.statusType,
+  );
 
   const enteredWin =
     currentState.statusType === "win" &&
@@ -192,7 +146,7 @@ const loadGame = (puzzle, boardState) => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   setStatus(
-    applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
+    formatString(STATUS_MESSAGES["Loaded puzzle"], {
       puzzleName: currentPuzzleName,
     }),
     "",
@@ -215,9 +169,9 @@ const loadPuzzleByFilename = async (filename) => {
     updateQuery(filename);
     loadGame(puzzle, boardState);
   } catch (error) {
-    const failedPuzzleName = getPuzzleNameFromFilename(filename);
+    const failedPuzzleName = extractPuzzleId(filename);
     setStatus(
-      applyStatusTemplate(STATUS_MESSAGES["Failed to load puzzle"], {
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
@@ -250,9 +204,9 @@ const loadNewGame = async () => {
 
       loadGame(puzzle, boardState);
     } catch (error) {
-      const failedPuzzleName = getPuzzleNameFromFilename(puzzleFromQuery);
+      const failedPuzzleName = extractPuzzleId(puzzleFromQuery);
       setStatus(
-        applyStatusTemplate(STATUS_MESSAGES["Failed to load puzzle"], {
+        formatString(STATUS_MESSAGES["Failed to load puzzle"], {
           puzzleName: failedPuzzleName,
           errorMessage: error.message,
         }),
@@ -286,44 +240,8 @@ const loadRandomPuzzle = async () => {
 };
 
 /**
- * Normalizes puzzle input to standard filename format: "puzzles/XXX.yaml"
- * Accepts formats: "001", "puzzles/001", "puzzles/001.yaml"
- * @param {string} inputValue - User input value
- * @returns {string} Normalized filename or null if invalid
- */
-const normalizePuzzleInput = (inputValue) => {
-  if (!inputValue || typeof inputValue !== "string") {
-    return null;
-  }
-
-  const trimmed = inputValue.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  // Remove ".yaml" extension if present
-  let withoutExt = trimmed;
-  if (trimmed.endsWith(".yaml")) {
-    withoutExt = trimmed.slice(0, -5);
-  }
-
-  // Remove "puzzles/" prefix if present
-  let puzzleId = withoutExt;
-  if (withoutExt.startsWith("puzzles/")) {
-    puzzleId = withoutExt.slice(8);
-  }
-
-  // Validate it's a valid puzzle ID (numeric)
-  if (!/^\d+$/.test(puzzleId)) {
-    return null;
-  }
-
-  return `puzzles/${puzzleId}.yaml`;
-};
-
-/**
- * Handles Load Game button click.
- * Prompts user for puzzle ID and loads the puzzle if valid.
+ * Normalizes puzzle input and loads the puzzle by filename.
+ * Prompts user for puzzle ID, validates format, and loads.
  */
 const onLoadButtonClick = () => {
   const inputValue = prompt(
@@ -333,7 +251,7 @@ const onLoadButtonClick = () => {
     return; // User cancelled
   }
 
-  const normalized = normalizePuzzleInput(inputValue);
+  const normalized = normalizePuzzleId(inputValue);
   if (!normalized) {
     setStatus("Invalid puzzle ID format.", "error");
     return;
