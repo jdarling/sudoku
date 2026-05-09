@@ -9,6 +9,16 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.26]
+
+- Repositioned `Solve` back into the top control group and removed the separate lower `solve-row` layout
+- Updated mobile top controls to `Solve`, `New`, `Load` with `Solve` full-width on row 1 and `New`/`Load` half-width on row 2
+- Added a confirmation prompt before applying `Solve` to prevent accidental one-tap full-board solves
+
+## [1.12.25]
+
+- Moved `Solve` out of the top control cluster into its own lower `solve-row` to reduce accidental clicks near the number pad
+
 ## [1.12.24]
 
 - Added missing `try/catch` around `loadNewGame` random puzzle startup path so failures update user-visible status instead of only bubbling to init-level console logging

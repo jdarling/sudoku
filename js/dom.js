@@ -269,6 +269,14 @@ const onSolveButtonClick = () => {
   if (!state) {
     return;
   }
+
+  const shouldSolve = confirm(
+    "Reveal the full solution? This will fill the entire board.",
+  );
+  if (!shouldSolve) {
+    return;
+  }
+
   domHandlerDeps.applyState(solveBoard(state));
 };
 
