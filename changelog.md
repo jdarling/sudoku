@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.5]
+
+- Fixed `aria-hidden` accessibility warning: `modal.js` now records the focused element on open and restores focus on close via a `WeakMap`, so focus is never trapped inside a hidden modal
+
 ## [1.13.4]
 
 - Updated `readme.md`: corrected project structure, How to Play, and Features to reflect current UI and module layout
