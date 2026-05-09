@@ -10,19 +10,26 @@ The Sudoku app uses a modular theme system that separates layout (geometry, spac
 
 ### File Organization
 
-- `style/layout.css` — Structural styles (sizing, positioning, spacing) shared by all themes
+- `style/layout.css` — Structural styles (sizing, positioning, spacing, modal chrome) shared by all themes
 - `style/themes/default.css` — Okabe-Ito colorblind-safe light theme
 - `style/themes/dark.css` — Dark theme variant
+- `style/themes/terminal.css` — Green-on-black terminal theme
+- `style/themes/sepia.css` — Warm sepia/vintage theme
+- `style/themes/forest.css` — Forest green theme
+- `style/themes/ocean.css` — Ocean blue theme
+- `style/themes/sunset.css` — Warm sunset theme
+- `style/themes/high-contrast.css` — High contrast accessibility theme
+- `style/themes/cyberpunk.css` — Neon cyberpunk theme
 - `js/theme.js` — Theme management (switching, persistence)
 - `js/constants.js` — `AVAILABLE_THEMES` and `DEFAULT_THEME` constants
 
 ### Theme Switching Flow
 
-1. User selects a theme from the dropdown
-2. `app.js` calls `applyTheme(themeName)`
-3. `js/theme.js` swaps the stylesheet link to the new theme
+1. User opens the Options modal and selects a theme from the dropdown
+2. `onOptionsThemeChange` in `js/components/optionsmodal.js` calls `optionsModalDeps.applyTheme(themeName)`
+3. `js/theme.js` swaps the `<link data-theme-link>` stylesheet to the new theme file
 4. User preference is saved to `localStorage` (key: `sudoku-theme`)
-5. On page reload, the saved theme is restored
+5. On page reload, `initTheme()` restores the saved theme
 
 ## Color Specifications
 
@@ -202,42 +209,38 @@ input.cell.wrong {
   background: #yourhinthoverbg;
 }
 
-#theme-row {
-  color: #yourthemerowtext;
-}
-
-#theme-select {
-  border-color: #yourselectionborder;
-  background: #yourselectionbg;
-  color: #yourselectiontext;
-}
-
-#theme-select:hover {
-  border-color: #yourselectionhovreborder;
-}
-
 #version {
-  font-size: 11px;
   color: #yourversiontext;
-  font-family: system-ui, sans-serif;
-  margin-top: 0.25rem;
 }
 ```
+
+Modal variables are defined in the `body {}` block and control all three modals
+(load puzzle, confirm, options). Add these alongside your other `body` variables:
+
+```css
+body {
+  --load-modal-overlay: rgba(0, 0, 0, 0.55);   /* backdrop tint */
+  --load-modal-panel-bg: #yourpanelbg;           /* modal panel background */
+  --load-modal-panel-fg: #yourpanelfg;           /* modal panel text */
+  --load-modal-border: #yourborder;             /* panel border + table borders */
+  --load-modal-row-hover: #yourrowhover;        /* table row hover background */
+  --load-modal-row-selected: #yourrowselected;  /* selected row background */
+}
 
 ### Step 2: Register Theme
 
-Add your theme to `js/constants.js`:
+Add your theme name to `AVAILABLE_THEMES` in `js/constants.js`:
 
 ```javascript
-const AVAILABLE_THEMES = ["default", "dark", "yourtheme"];
+const AVAILABLE_THEMES = ["default", "dark", ..., "yourtheme"];
 ```
 
-### Step 3: Add Theme Option to Dropdown
+### Step 3: Add Theme Option to the Options Modal
 
-Update `index.html` theme selector:
+Add an `<option>` to the `#options-theme-select` in `index.html`:
 
 ```html
-<select id="theme-select">
+<select id="options-theme-select">
   <option value="default">Default</option>
   <option value="dark">Dark</option>
   <option value="yourtheme">Your Theme</option>

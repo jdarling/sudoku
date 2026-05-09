@@ -70,12 +70,6 @@ const applyTheme = (themeName) => {
   document.head.appendChild(newLink);
 
   saveTheme(themeName);
-
-  // Update theme select if it exists
-  const selectEl = document.getElementById("theme-select");
-  if (selectEl) {
-    selectEl.value = themeName;
-  }
 };
 
 /**
