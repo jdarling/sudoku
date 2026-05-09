@@ -13,6 +13,13 @@
 }
 
 body {
+  --load-modal-overlay: rgba(0, 0, 0, 0.55);
+  --load-modal-panel-bg: #ffffff;
+  --load-modal-panel-fg: #1a1a1a;
+  --load-modal-border: #bcbcbc;
+  --load-modal-row-hover: #f3f3f3;
+  --load-modal-row-selected: #deeaf6;
+
   font-family: Georgia, "Times New Roman", serif;
   min-height: 100vh;
   display: flex;
@@ -178,6 +185,93 @@ input.cell.given {
     transform: translateY(110vh) rotate(560deg);
     opacity: 0;
   }
+}
+
+#load-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 10px;
+  background: var(--load-modal-overlay);
+}
+
+#load-modal[aria-hidden="true"] {
+  display: none;
+}
+
+#load-modal-panel {
+  width: min(980px, 100%);
+  height: 100%;
+  max-height: calc(100vh - 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 10px;
+  background: var(--load-modal-panel-bg);
+  color: var(--load-modal-panel-fg);
+}
+
+#load-modal-title {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+#load-filter-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#load-modal-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 6px;
+}
+
+#load-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#load-modal-table th,
+#load-modal-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--load-modal-border);
+  font-size: 13px;
+}
+
+#load-modal-table tbody tr[data-filename] {
+  cursor: pointer;
+}
+
+#load-modal-table tbody tr[data-filename]:hover {
+  background: var(--load-modal-row-hover);
+}
+
+#load-modal-table tbody tr.is-selected {
+  background: var(--load-modal-row-selected);
+}
+
+#load-modal-status {
+  min-height: 20px;
+  font-size: 13px;
+  font-family: system-ui, sans-serif;
+}
+
+#load-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 #game-shell {

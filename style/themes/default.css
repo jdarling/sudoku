@@ -4,6 +4,13 @@
  */
 
 body {
+  --load-modal-overlay: rgba(20, 26, 36, 0.5);
+  --load-modal-panel-bg: #fffaf2;
+  --load-modal-panel-fg: #1a1a1a;
+  --load-modal-border: #b9b2a6;
+  --load-modal-row-hover: #f2ece1;
+  --load-modal-row-selected: #d8e7f6;
+
   background: #f5f0e8;
   color: #1a1a1a;
 }

@@ -218,10 +218,30 @@ const init = async () => {
     applyBoardStateFromHash,
   });
 
+  configureLoadModal({
+    listPuzzles: getPuzzles,
+    loadPuzzleByFilename,
+  });
+
   document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
     .getElementById("load-btn")
     .addEventListener("click", onLoadGameClick);
+  document
+    .getElementById("load-cancel-btn")
+    .addEventListener("click", onLoadModalCancelClick);
+  document
+    .getElementById("load-select-btn")
+    .addEventListener("click", onLoadModalSelectClick);
+  document
+    .getElementById("load-filter-input")
+    .addEventListener("input", onLoadModalFilterInput);
+  document
+    .getElementById("load-puzzle-table-body")
+    .addEventListener("click", onLoadModalTableClick);
+  document
+    .getElementById("load-puzzle-table-body")
+    .addEventListener("dblclick", onLoadModalTableDblClick);
   document
     .getElementById("check-btn")
     .addEventListener("click", onCheckButtonClick);
@@ -241,6 +261,7 @@ const init = async () => {
 
   window.addEventListener("popstate", onPopState);
   window.addEventListener("hashchange", onHashChange);
+  window.addEventListener("keydown", onLoadModalKeydown);
 };
 
 init().catch((error) => {

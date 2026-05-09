@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.3]
+
+- Replaced prompt-based `Load Game` flow with a full-screen modal selector showing all available puzzles
+- Modal includes a live filter by puzzle ID or filename, row selection, and `Cancel`/`Select` actions
+- Extracted modal logic into a `js/components/` folder: `modal.js` (generic open/close), `table.js` (filterable row rendering), `loadmodal.js` (load puzzle modal using both)
+
 ## [1.13.2]
 
 - Added seven new selectable themes: Terminal, Sepia/Vintage, Forest, Ocean/Water, Sunset, High Contrast, and Cyberpunk/Neon

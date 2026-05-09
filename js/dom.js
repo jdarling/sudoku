@@ -217,25 +217,12 @@ const onNewGameClick = () => {
 /**
  * Handles Load Game button click.
  */
-const onLoadGameClick = () => {
+const onLoadGameClick = async () => {
   if (!domHandlerDeps) {
     return;
   }
 
-  const inputValue = prompt(
-    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
-  );
-  if (inputValue === null) {
-    return;
-  }
-
-  const normalized = normalizePuzzleId(inputValue);
-  if (!normalized) {
-    domHandlerDeps.setStatus("Invalid puzzle ID format.", "error");
-    return;
-  }
-
-  domHandlerDeps.loadPuzzleByFilename(normalized);
+  await openLoadModal();
 };
 
 /**
