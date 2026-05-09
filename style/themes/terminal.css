@@ -65,6 +65,10 @@ input.cell.related-line {
   background: #1d5a2d;
 }
 
+input.cell.related-line-subtle {
+  background: #13331b;
+}
+
 input.cell.related {
   background: #13331b;
 }

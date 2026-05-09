@@ -9,6 +9,14 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.14.1]
+
+- Added `related-line-subtle` CSS class to all 8 theme files for consistent styling of subtle highlights
+- Themes updated: dark, ocean, forest, sepia, sunset, cyberpunk, terminal, high-contrast
+- Refactored STYLE_CONFIGS to use string-based feature lists for better maintainability
+- Fixed: buildStyles() now uses fixed-order includes() checks for correct precedence
+- Given cells styling moved to render-layer CSS class (not in style array)
+
 ## [1.14.0]
 
 - Added extended related cell highlighting with 5 modes:
