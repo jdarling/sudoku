@@ -10,7 +10,7 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = "1.13.1";
+const VERSION = "1.13.2";
 
 /**
  * Better status message lookup dictionary
@@ -46,7 +46,17 @@ const ARROW_MOVES = {
  * Available themes.
  * Add new themes to this array for registration.
  */
-const AVAILABLE_THEMES = ["default", "dark"];
+const AVAILABLE_THEMES = [
+  "default",
+  "dark",
+  "terminal",
+  "sepia",
+  "forest",
+  "ocean",
+  "sunset",
+  "high-contrast",
+  "cyberpunk",
+];
 
 /**
  * Default theme on first load.

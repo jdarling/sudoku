@@ -1,0 +1,138 @@
+/**
+ * Terminal theme.
+ * High-contrast monochrome-inspired palette with green accents.
+ */
+
+body {
+  background: #050705;
+  color: #a8ff8f;
+}
+
+h1 {
+  color: #b8ff9f;
+}
+
+#status {
+  color: #89d97d;
+}
+
+#status.win {
+  color: #74ffad;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #ff8a8a;
+}
+
+table {
+  border: 2.5px solid #9eff8b;
+}
+
+td {
+  border: 0.5px solid #2f5d36;
+}
+
+td:nth-child(3n) {
+  border-right-color: #9eff8b;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #9eff8b;
+}
+
+input.cell {
+  color: #b8ff9f;
+}
+
+input.cell.given {
+  background: #18321d;
+}
+
+input.cell.selected {
+  background: #2f8f4f;
+  color: #eaffea;
+}
+
+input.cell.related-line {
+  background: #1d5a2d;
+}
+
+input.cell.related {
+  background: #13331b;
+}
+
+input.cell.same-num {
+  background: #2fa56b;
+  color: #edfff0;
+}
+
+input.cell.wrong {
+  background: #5a2626;
+  color: #ffc7c7;
+}
+
+.num-btn {
+  border-color: #3f7946;
+  background: #112315;
+  color: #b8ff9f;
+}
+
+.num-btn:hover {
+  background: #17311d;
+  border-color: #67b96a;
+}
+
+.num-btn.erase {
+  color: #8cd58a;
+}
+
+.action-btn {
+  border-color: #3f7946;
+  background: #112315;
+  color: #b8ff9f;
+}
+
+.action-btn:hover {
+  background: #17311d;
+  border-color: #67b96a;
+}
+
+#check-btn {
+  border-color: #3cbf72;
+  color: #98ffbf;
+}
+
+#check-btn:hover {
+  background: #1c4e33;
+}
+
+#hint-btn {
+  border-color: #7cc86d;
+  color: #d7ff8f;
+}
+
+#hint-btn:hover {
+  background: #2b4a1d;
+}
+
+#version {
+  font-size: 11px;
+  color: #63b56b;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #89d97d;
+}
+
+#theme-select {
+  border-color: #3f7946;
+  background: #112315;
+  color: #b8ff9f;
+}
+
+#theme-select:hover {
+  border-color: #67b96a;
+}

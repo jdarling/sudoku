@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.13.2]
+
+- Added seven new selectable themes: Terminal, Sepia/Vintage, Forest, Ocean/Water, Sunset, High Contrast, and Cyberpunk/Neon
+- Registered all new themes in the theme selector and theme allowlist
+
 ## [1.13.1]
 
 - Increased win celebration confetti so win effects fill the full screen with a denser burst

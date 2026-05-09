@@ -1,0 +1,138 @@
+/**
+ * Cyberpunk/Neon theme.
+ * Deep dark base with bright cyan and magenta accents.
+ */
+
+body {
+  background: #110821;
+  color: #e8f8ff;
+}
+
+h1 {
+  color: #90f8ff;
+}
+
+#status {
+  color: #a8c9d8;
+}
+
+#status.win {
+  color: #6dffa8;
+  font-weight: 600;
+}
+
+#status.error {
+  color: #ff8ab8;
+}
+
+table {
+  border: 2.5px solid #66f0ff;
+}
+
+td {
+  border: 0.5px solid #5a4a86;
+}
+
+td:nth-child(3n) {
+  border-right-color: #66f0ff;
+}
+
+tr:nth-child(3n) td {
+  border-bottom-color: #66f0ff;
+}
+
+input.cell {
+  color: #e8f8ff;
+}
+
+input.cell.given {
+  background: #37295a;
+}
+
+input.cell.selected {
+  background: #00a1c6;
+  color: #ffffff;
+}
+
+input.cell.related-line {
+  background: #2b3f77;
+}
+
+input.cell.related {
+  background: #2a2d4d;
+}
+
+input.cell.same-num {
+  background: #e6469a;
+  color: #fff3fb;
+}
+
+input.cell.wrong {
+  background: #6e2e4f;
+  color: #ffc5de;
+}
+
+.num-btn {
+  border-color: #61d7e7;
+  background: #20153c;
+  color: #e8f8ff;
+}
+
+.num-btn:hover {
+  background: #2c1f4e;
+  border-color: #8bf0ff;
+}
+
+.num-btn.erase {
+  color: #c9dff0;
+}
+
+.action-btn {
+  border-color: #61d7e7;
+  background: #20153c;
+  color: #e8f8ff;
+}
+
+.action-btn:hover {
+  background: #2c1f4e;
+  border-color: #8bf0ff;
+}
+
+#check-btn {
+  border-color: #2fd3ff;
+  color: #99efff;
+}
+
+#check-btn:hover {
+  background: #17395a;
+}
+
+#hint-btn {
+  border-color: #f16bc1;
+  color: #ffc3e8;
+}
+
+#hint-btn:hover {
+  background: #4a1f47;
+}
+
+#version {
+  font-size: 11px;
+  color: #95aac4;
+  font-family: system-ui, sans-serif;
+  margin-top: 0.25rem;
+}
+
+#theme-row {
+  color: #a8c9d8;
+}
+
+#theme-select {
+  border-color: #61d7e7;
+  background: #20153c;
+  color: #e8f8ff;
+}
+
+#theme-select:hover {
+  border-color: #8bf0ff;
+}
