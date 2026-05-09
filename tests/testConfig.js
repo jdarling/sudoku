@@ -7,6 +7,7 @@
 
 const TEST_FILES = [
   "testharness.test.js",
+  "../js/constants.test.js",
   "../js/utils.test.js",
   "../js/solver.test.js",
   "../js/state.test.js",

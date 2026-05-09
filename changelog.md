@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.21]
+
+- Added `constants.test.js` as an intentional-blank test stub and registered it in shared test configuration
+
 ## [1.12.20]
 
 - Simplified puzzle-loading orchestration in app.js by replacing `loadFetchedRandomPuzzle` with a shared `loadFetchedPuzzle` path used by both `loadPuzzleByFilename` and `loadRandomPuzzle`
