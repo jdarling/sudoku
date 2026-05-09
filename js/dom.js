@@ -66,39 +66,6 @@ const updateHash = (board) => {
 };
 
 /**
- * Handles number key press (1-9).
- * @param {Object} state - Current game state
- * @param {number} num - Number pressed (1-9)
- * @returns {Object} New state or current state
- */
-const handleNumberKey = (state, num) => {
-  const newState = updateCellValue(state, state.selected, num);
-  if (newState.board.every((digit) => digit !== 0)) {
-    return checkSolution(newState, false);
-  }
-  return newState;
-};
-
-/**
- * Handles delete key (Backspace, Delete, or 0).
- * @param {Object} state - Current game state
- * @returns {Object} New state
- */
-const handleDeleteKey = (state) => {
-  return clearCellValue(state, state.selected);
-};
-
-/**
- * Handles arrow key navigation.
- * @param {Object} state - Current game state
- * @param {number} offset - Cell offset from arrow key
- * @returns {Object|null} New state or null if out of bounds
- */
-const handleArrowKey = (state, offset) => {
-  return moveSelection(state, offset);
-};
-
-/**
  * Shared dependency container for top-level DOM handlers.
  * @type {Object|null}
  */
@@ -155,7 +122,12 @@ const onCellKeydown = (event) => {
 
   if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
-    domHandlerDeps.applyState(handleNumberKey(state, parseInt(event.key, 10)));
+    const num = parseInt(event.key, 10);
+    const afterNum = updateCellValue(state, state.selected, num);
+    const resolved = afterNum.board.every((d) => d !== 0)
+      ? checkSolution(afterNum, false)
+      : afterNum;
+    domHandlerDeps.applyState(resolved);
     return;
   }
 
@@ -165,7 +137,7 @@ const onCellKeydown = (event) => {
     event.key === "0"
   ) {
     event.preventDefault();
-    domHandlerDeps.applyState(handleDeleteKey(state));
+    domHandlerDeps.applyState(clearCellValue(state, state.selected));
     return;
   }
 
@@ -174,7 +146,7 @@ const onCellKeydown = (event) => {
   }
 
   event.preventDefault();
-  const movedState = handleArrowKey(state, ARROW_MOVES[event.key]);
+  const movedState = moveSelection(state, ARROW_MOVES[event.key]);
   if (!movedState) {
     return;
   }
@@ -222,11 +194,15 @@ const onNumberButtonClick = (event) => {
 
   const num = parseInt(event.currentTarget.dataset.n, 10);
   if (num === 0) {
-    domHandlerDeps.applyState(handleDeleteKey(state));
+    domHandlerDeps.applyState(clearCellValue(state, state.selected));
     return;
   }
 
-  domHandlerDeps.applyState(handleNumberKey(state, num));
+  const afterNum = updateCellValue(state, state.selected, num);
+  const resolved = afterNum.board.every((d) => d !== 0)
+    ? checkSolution(afterNum, false)
+    : afterNum;
+  domHandlerDeps.applyState(resolved);
 };
 
 /**

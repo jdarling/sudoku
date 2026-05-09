@@ -9,6 +9,17 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.14]
+
+- Removed pure helper functions (handleNumberKey, handleDeleteKey, handleArrowKey) from dom.js; logic inlined directly into DOM event handlers where it belongs
+- dom.test.js, render.test.js, and theme.test.js are intentional-blank stubs — these modules are entirely browser-coupled and untestable outside a real browser
+- Registered render.test.js and theme.test.js in testConfig.js
+
+## [1.12.13]
+
+- Removed pure helper functions (handleNumberKey, handleDeleteKey, handleArrowKey) from dom.js; logic inlined directly into DOM event handlers where it belongs
+- dom.test.js is now an intentional-blank stub — dom.js is entirely browser-coupled and untestable outside a real browser
+
 ## [1.12.12]
 
 - Removed browser-interaction tests from dom.test.js (event handlers, prompt(), window.location are not testable outside the browser)
