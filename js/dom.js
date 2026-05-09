@@ -122,12 +122,7 @@ const onCellKeydown = (event) => {
 
   if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
-    const num = parseInt(event.key, 10);
-    const afterNum = placeNumber(state, state.selected, num);
-    const resolved = afterNum.board.every((d) => d !== 0)
-      ? checkSolution(afterNum, false)
-      : afterNum;
-    domHandlerDeps.applyState(resolved);
+    domHandlerDeps.applyState(applyNumber(state, parseInt(event.key, 10)));
     return;
   }
 
@@ -198,11 +193,7 @@ const onNumberButtonClick = (event) => {
     return;
   }
 
-  const afterNum = placeNumber(state, state.selected, num);
-  const resolved = afterNum.board.every((d) => d !== 0)
-    ? checkSolution(afterNum, false)
-    : afterNum;
-  domHandlerDeps.applyState(resolved);
+  domHandlerDeps.applyState(applyNumber(state, num));
 };
 
 /**

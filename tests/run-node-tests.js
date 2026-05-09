@@ -71,6 +71,7 @@ loadScript(path.join(__dirname, "../js/state.js"), [
   "encodeBoard",
   "decodeBoard",
   "clearCellValue",
+  "applyNumber",
   "moveSelection",
 ]);
 loadScript(path.join(__dirname, "../js/puzzles.js"), [

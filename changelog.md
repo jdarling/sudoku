@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.15]
+
+- Extracted duplicated number-placement logic from dom.js into `applyNumber(state, num)` in state.js
+- Both `onCellKeydown` and `onNumberButtonClick` now delegate to `applyNumber`
+- Added tests for `applyNumber` in state.test.js
+
 ## [1.12.14]
 
 - Removed `updateCellValue` alias from state.js; callers in dom.js now call `placeNumber` directly

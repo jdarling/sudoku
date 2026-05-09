@@ -37,6 +37,7 @@ const runStateTests = () => {
   let encodeBoard = resolveSymbol("encodeBoard");
   let decodeBoard = resolveSymbol("decodeBoard");
   let clearCellValue = resolveSymbol("clearCellValue");
+  let applyNumber = resolveSymbol("applyNumber");
   let moveSelection = resolveSymbol("moveSelection");
   let TOTAL_CELLS = resolveSymbol("TOTAL_CELLS");
 
@@ -335,6 +336,25 @@ const runStateTests = () => {
         state2.given[1] === false &&
         state2.given[2] === true,
     ).toBeTruthy();
+  });
+  test("applyNumber places number at selected cell", () => {
+    const state = { ...createStateFromPuzzle("0".repeat(81)), selected: 0 };
+    const next = applyNumber(state, 5);
+    return expect(next.board[0]).toBe(5);
+  });
+
+  test("applyNumber auto-checks solution when board is full", () => {
+    const solved = "534678912672195348198342567859761423426853791713924856961537284287419635345286179";
+    const almostDone = solved.slice(0, 80) + "0";
+    const state = { ...createStateFromPuzzle(almostDone), selected: 80 };
+    const next = applyNumber(state, 9);
+    return expect(next.statusType).toBe("win");
+  });
+
+  test("applyNumber does not mutate input state", () => {
+    const state = { ...createStateFromPuzzle("0".repeat(81)), selected: 3 };
+    applyNumber(state, 7);
+    return expect(state.board[3]).toBe(0);
   });
 };
 

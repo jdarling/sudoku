@@ -279,6 +279,20 @@ const decompressBoard = (compact) => {
 };
 
 /**
+ * Places a number at the selected cell and auto-checks if the board is complete.
+ * @param {Object} state - Current state
+ * @param {number} num - Number to place (1-9)
+ * @returns {Object} New state with number placed; win/error status if board is full
+ */
+const applyNumber = (state, num) => {
+  const next = placeNumber(state, state.selected, num);
+  if (next.board.every((d) => d !== 0)) {
+    return checkSolution(next, false);
+  }
+  return next;
+};
+
+/**
  * Encodes the board to a hash string (81 characters, one digit per cell).
  * @param {number[]} board - Board array with 81 elements
  * @returns {string} Encoded board string
