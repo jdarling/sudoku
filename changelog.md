@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.11]
+
+- Unified load status formatting path in app orchestration to use shared `formatPuzzleStatus` helper
+- Removed direct loaded-status template interpolation from `loadGame` for cleaner single-path status formatting
+
 ## [1.12.10]
 
 - Replaced closure-based DOM handler factories with top-level DOM handlers configured via `configureDomEventHandlers`

@@ -90,9 +90,7 @@ const loadGame = (puzzle, boardState) => {
   renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
   markWrongCells(currentState);
   setStatus(
-    formatString(STATUS_MESSAGES["Loaded puzzle"], {
-      puzzleName: currentPuzzleName,
-    }),
+    formatPuzzleStatus("Loaded puzzle", currentPuzzleName, STATUS_MESSAGES),
     "",
   );
   lastStatusType = "";
