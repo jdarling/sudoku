@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.18]
+
+- Refactored `loadRandomPuzzle` to use nested `try/catch`: outer catch handles `getRandomPuzzle` failures, inner catch handles `createStateFromPuzzle`/`updateQuery`/`loadGame` failures with puzzle-specific name extraction
+
 ## [1.12.17]
 
 - Fixed `applyBoardStateFromHash` to route through `updateState` instead of directly mutating `currentState` and manually re-rendering

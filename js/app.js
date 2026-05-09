@@ -168,9 +168,20 @@ const loadNewGame = async () => {
 const loadRandomPuzzle = async () => {
   try {
     const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
-    const boardState = createStateFromPuzzle(puzzle.puzzle);
-    updateQuery(puzzle.filename);
-    loadGame(puzzle, boardState);
+    try {
+      const boardState = createStateFromPuzzle(puzzle.puzzle);
+      updateQuery(puzzle.filename);
+      loadGame(puzzle, boardState);
+    } catch (error) {
+      const failedPuzzleName = extractPuzzleId(puzzle.filename);
+      setStatus(
+        formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+          puzzleName: failedPuzzleName,
+          errorMessage: error.message,
+        }),
+        "error",
+      );
+    }
   } catch (error) {
     setStatus(
       formatString(STATUS_MESSAGES["Failed to load puzzle"], {
