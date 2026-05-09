@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.16]
+
+- Fixed `loadRandomPuzzle` error path to use `formatString` + `STATUS_MESSAGES` consistently with all other error paths
+
 ## [1.12.15]
 
 - Extracted duplicated number-placement logic from dom.js into `applyNumber(state, num)` in state.js

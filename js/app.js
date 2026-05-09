@@ -177,7 +177,13 @@ const loadRandomPuzzle = async () => {
     updateQuery(puzzle.filename);
     loadGame(puzzle, boardState);
   } catch (error) {
-    setStatus(`Failed to load puzzle: ${error.message}`, "error");
+    setStatus(
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        puzzleName: extractPuzzleId(""),
+        errorMessage: error.message,
+      }),
+      "error",
+    );
   }
 };
 
