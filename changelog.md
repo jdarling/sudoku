@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.19]
+
+- Extracted random-puzzle post-fetch work into `loadFetchedRandomPuzzle(puzzle)` for clearer orchestration and named inner error handling
+
 ## [1.12.18]
 
 - Refactored `loadRandomPuzzle` to use nested `try/catch`: outer catch handles `getRandomPuzzle` failures, inner catch handles `createStateFromPuzzle`/`updateQuery`/`loadGame` failures with puzzle-specific name extraction

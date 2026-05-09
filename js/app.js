@@ -161,6 +161,28 @@ const loadNewGame = async () => {
 
 /**
  * Loads a random puzzle and updates the URL.
+ * Reports puzzle-specific errors for failures after puzzle fetch.
+ * @param {Object} puzzle - Loaded puzzle object
+ */
+const loadFetchedRandomPuzzle = (puzzle) => {
+  try {
+    const boardState = createStateFromPuzzle(puzzle.puzzle);
+    updateQuery(puzzle.filename);
+    loadGame(puzzle, boardState);
+  } catch (error) {
+    const failedPuzzleName = extractPuzzleId(puzzle.filename);
+    setStatus(
+      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        puzzleName: failedPuzzleName,
+        errorMessage: error.message,
+      }),
+      "error",
+    );
+  }
+};
+
+/**
+ * Loads a random puzzle and updates the URL.
  * Used by the "New Puzzle" button to always get a different puzzle.
  * Clears any board hash to start fresh.
  * @returns {Promise<void>}
@@ -168,20 +190,7 @@ const loadNewGame = async () => {
 const loadRandomPuzzle = async () => {
   try {
     const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
-    try {
-      const boardState = createStateFromPuzzle(puzzle.puzzle);
-      updateQuery(puzzle.filename);
-      loadGame(puzzle, boardState);
-    } catch (error) {
-      const failedPuzzleName = extractPuzzleId(puzzle.filename);
-      setStatus(
-        formatString(STATUS_MESSAGES["Failed to load puzzle"], {
-          puzzleName: failedPuzzleName,
-          errorMessage: error.message,
-        }),
-        "error",
-      );
-    }
+    loadFetchedRandomPuzzle(puzzle);
   } catch (error) {
     setStatus(
       formatString(STATUS_MESSAGES["Failed to load puzzle"], {
