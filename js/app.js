@@ -190,6 +190,27 @@ const onNumberButtonClick = (event) => {
 };
 
 /**
+ * Finalizes game load: renders grid, marks cells, displays status, clears hash.
+ * Common logic shared by all puzzle-loading functions.
+ * @param {Object} puzzle - Loaded puzzle object with name and filename
+ * @param {Object} boardState - The board state to apply
+ */
+const finalizeGameLoad = (puzzle, boardState) => {
+  currentState = boardState;
+  setCurrentPuzzleName(puzzle);
+  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  markWrongCells(currentState);
+  setStatus(
+    applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
+      puzzleName: currentPuzzleName,
+    }),
+    "",
+  );
+  lastStatusType = "";
+  updateHash(currentState.board);
+};
+
+/**
  * Loads a puzzle by filename and initializes game state.
  * Creates a fresh board state without restoring from URL hash.
  * This is used by the "Load Game" button for loading puzzles by ID.
@@ -199,20 +220,9 @@ const onNumberButtonClick = (event) => {
 const loadPuzzleByFilename = async (filename) => {
   try {
     const puzzle = await getPuzzle(filename);
-    currentState = createStateFromPuzzle(puzzle.puzzle);
-    setCurrentPuzzleName(puzzle);
+    const boardState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(filename);
-
-    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-    markWrongCells(currentState);
-    setStatus(
-      applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
-        puzzleName: currentPuzzleName,
-      }),
-      "",
-    );
-    lastStatusType = "";
-    updateHash(currentState.board);
+    finalizeGameLoad(puzzle, boardState);
   } catch (error) {
     const failedPuzzleName = getPuzzleNameFromFilename(filename);
     setStatus(
@@ -237,29 +247,17 @@ const loadNewGame = async () => {
   if (puzzleFromQuery) {
     try {
       const puzzle = await getPuzzle(puzzleFromQuery);
-      currentState = createStateFromPuzzle(puzzle.puzzle);
-      setCurrentPuzzleName(puzzle);
+      let boardState = createStateFromPuzzle(puzzle.puzzle);
 
       const boardHash = getBoardFromHash();
       if (boardHash) {
         const decodedBoard = decodeBoard(boardHash);
         if (decodedBoard) {
-          currentState = {
-            ...currentState,
-            board: decodedBoard,
-          };
+          boardState = { ...boardState, board: decodedBoard };
         }
       }
 
-      renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-      markWrongCells(currentState);
-      setStatus(
-        applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
-          puzzleName: currentPuzzleName,
-        }),
-        "",
-      );
-      lastStatusType = "";
+      finalizeGameLoad(puzzle, boardState);
     } catch (error) {
       const failedPuzzleName = getPuzzleNameFromFilename(puzzleFromQuery);
       setStatus(
@@ -274,40 +272,23 @@ const loadNewGame = async () => {
   }
 
   const puzzle = await getRandomPuzzle();
-  currentState = createStateFromPuzzle(puzzle.puzzle);
-  setCurrentPuzzleName(puzzle);
+  const boardState = createStateFromPuzzle(puzzle.puzzle);
   updateQuery(puzzle.filename);
-  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-  markWrongCells(currentState);
-  setStatus(
-    applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
-      puzzleName: currentPuzzleName,
-    }),
-    "",
-  );
-  lastStatusType = "";
+  finalizeGameLoad(puzzle, boardState);
 };
 
 /**
  * Loads a random puzzle and updates the URL.
- * Used by the "New Puzzle" button to always get a different puzzle. * Clears any board hash to start fresh. * @returns {Promise<void>}
+ * Used by the "New Puzzle" button to always get a different puzzle.
+ * Clears any board hash to start fresh.
+ * @returns {Promise<void>}
  */
 const loadRandomPuzzle = async () => {
   try {
     const puzzle = await getRandomPuzzle();
-    currentState = createStateFromPuzzle(puzzle.puzzle);
-    setCurrentPuzzleName(puzzle);
+    const boardState = createStateFromPuzzle(puzzle.puzzle);
     updateQuery(puzzle.filename);
-    renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
-    markWrongCells(currentState);
-    setStatus(
-      applyStatusTemplate(STATUS_MESSAGES["Loaded puzzle"], {
-        puzzleName: currentPuzzleName,
-      }),
-      "",
-    );
-    lastStatusType = "";
-    updateHash(currentState.board);
+    finalizeGameLoad(puzzle, boardState);
   } catch (error) {
     setStatus(`Failed to load puzzle: ${error.message}`, "error");
   }
