@@ -11,7 +11,7 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ## [1.13.1]
 
-- Doubled win celebration confetti burst density to make solved-puzzle feedback easier to notice
+- Increased win celebration confetti so win effects fill the full screen with a denser burst
 
 ## [1.13.0]
 
