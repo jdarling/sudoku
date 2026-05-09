@@ -10,18 +10,18 @@ const BOX_SIZE = 3;
  * Increment patch for bug fixes, minor for new features, major for breaking changes.
  * Resetting: minor reset resets patch; major reset resets both minor and patch.
  */
-const VERSION = "1.13.5";
+const VERSION = '1.14.0';
 
 /**
  * Better status message lookup dictionary
  */
 const STATUS_MESSAGES = {
-  "All values are correct": 'All values for "{puzzleName}" are correct!',
-  "Some cells are incorrect": 'Some values for "{puzzleName}" are incorrect.',
-  "Puzzle solved!": 'Puzzle "{puzzleName}" solved!',
-  "Puzzle is unsolveable": 'Puzzle "{puzzleName}" is unsolveable.',
-  "Loaded puzzle": 'Loaded puzzle "{puzzleName}".',
-  "Failed to load puzzle":
+  'All values are correct': 'All values for "{puzzleName}" are correct!',
+  'Some cells are incorrect': 'Some values for "{puzzleName}" are incorrect.',
+  'Puzzle solved!': 'Puzzle "{puzzleName}" solved!',
+  'Puzzle is unsolveable': 'Puzzle "{puzzleName}" is unsolveable.',
+  'Loaded puzzle': 'Loaded puzzle "{puzzleName}".',
+  'Failed to load puzzle':
     'Failed to load puzzle "{puzzleName}": {errorMessage}',
 };
 
@@ -31,7 +31,7 @@ const STATUS_MESSAGES = {
  * The first 27 cells (3x3 block) are encoded in the URL for state persistence.
  */
 const ENCODING_CHARS =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 /**
  * Arrow key to offset mapping.
  */
@@ -47,18 +47,39 @@ const ARROW_MOVES = {
  * Add new themes to this array for registration.
  */
 const AVAILABLE_THEMES = [
-  "default",
-  "dark",
-  "terminal",
-  "sepia",
-  "forest",
-  "ocean",
-  "sunset",
-  "high-contrast",
-  "cyberpunk",
+  'default',
+  'dark',
+  'terminal',
+  'sepia',
+  'forest',
+  'ocean',
+  'sunset',
+  'high-contrast',
+  'cyberpunk',
 ];
 
 /**
  * Default theme on first load.
  */
-const DEFAULT_THEME = "default";
+const DEFAULT_THEME = 'default';
+
+/**
+ * Style configuration for highlight modes.
+ * Each mode is a list of style features to apply.
+ * Features: 'same value rows', 'same value cols', 'same value boxes', 'selected row', 'selected col', 'selected box', 'same value'.
+ * styleSelectedCell and styleGivenCells are always applied.
+ */
+const STYLE_CONFIGS = {
+  none: [],
+  same: ['same value'],
+  minimal: ['selected row', 'selected col'],
+  'related-box': ['selected box', 'selected row', 'selected col', 'same value'],
+  'related-all': [
+    'same value rows',
+    'same value cols',
+    'same value boxes',
+    'selected row',
+    'selected col',
+    'same value',
+  ],
+};

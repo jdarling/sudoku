@@ -131,6 +131,18 @@
               <option value="cyberpunk">Cyberpunk/Neon</option>
             </select>
           </div>
+          <div class="options-field">
+            <label for="options-highlight-select"
+              >Related Cell Highlighting</label
+            >
+            <select id="options-highlight-select">
+              <option value="none">None</option>
+              <option value="same">Same Number</option>
+              <option value="minimal">Minimal (Row/Column)</option>
+              <option value="related-box">Related Box</option>
+              <option value="related-all">Related All</option>
+            </select>
+          </div>
           <div id="options-modal-actions">
             <button class="action-btn" id="options-close-btn" type="button">
               Close
@@ -162,16 +174,18 @@
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/solver.js"></script>
+    <script src="js/styler.js"></script>
     <script src="js/state.js"></script>
+    <script src="js/dom.js"></script>
     <script src="js/render.js"></script>
     <script src="js/puzzles.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/options.js"></script>
     <script src="js/components/modal.js"></script>
     <script src="js/components/table.js"></script>
     <script src="js/components/loadmodal.js"></script>
     <script src="js/components/confirmmodal.js"></script>
     <script src="js/components/optionsmodal.js"></script>
-    <script src="js/dom.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

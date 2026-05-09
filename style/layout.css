@@ -352,6 +352,17 @@ input.cell.given {
   color: var(--load-modal-panel-fg);
 }
 
+#options-highlight-select {
+  padding: 6px 8px;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: system-ui, sans-serif;
+  cursor: pointer;
+  background: var(--load-modal-panel-bg);
+  color: var(--load-modal-panel-fg);
+}
+
 #options-modal-actions {
   display: flex;
   gap: 8px;

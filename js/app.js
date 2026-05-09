@@ -5,12 +5,19 @@
 let currentState = null;
 
 /**
+ * Module-level options, loaded from localStorage on init.
+ * Updated immutably when the user changes any option.
+ * @type {Object}
+ */
+let currentOptions = createDefaultOptions();
+
+/**
  * Module-level active puzzle name for status messaging.
  * @type {string}
  */
-let currentPuzzleName = "";
-let currentPuzzleFilename = "";
-let lastStatusType = "";
+let currentPuzzleName = '';
+let currentPuzzleFilename = '';
+let lastStatusType = '';
 
 /**
  * Stores the active puzzle display name from loaded metadata.
@@ -22,7 +29,7 @@ const setCurrentPuzzleName = (puzzle) => {
     return;
   }
 
-  currentPuzzleName = extractPuzzleId(puzzle ? puzzle.filename : "");
+  currentPuzzleName = extractPuzzleId(puzzle ? puzzle.filename : '');
 };
 
 /**
@@ -31,7 +38,13 @@ const setCurrentPuzzleName = (puzzle) => {
  */
 const updateState = (newState) => {
   currentState = newState;
-  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  renderGrid(
+    currentState,
+    currentOptions.highlightMode,
+    onCellFocus,
+    onCellKeydown,
+    onCellInput,
+  );
   markWrongCells(currentState);
   setStatus(
     formatPuzzleStatus(currentState.status, currentPuzzleName, STATUS_MESSAGES),
@@ -39,14 +52,14 @@ const updateState = (newState) => {
   );
 
   const enteredWin =
-    currentState.statusType === "win" &&
-    currentState.status === "Puzzle solved!" &&
-    lastStatusType !== "win";
+    currentState.statusType === 'win' &&
+    currentState.status === 'Puzzle solved!' &&
+    lastStatusType !== 'win';
   if (enteredWin) {
     launchWinCelebration();
   }
 
-  lastStatusType = currentState.statusType || "";
+  lastStatusType = currentState.statusType || '';
   updateHash(currentState.board);
   if (currentState.selected >= 0) {
     focusCell(currentState.selected);
@@ -80,15 +93,21 @@ const applyBoardStateFromHash = (decodedBoard) => {
  */
 const loadGame = (puzzle, boardState) => {
   currentState = boardState;
-  currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
+  currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : '';
   setCurrentPuzzleName(puzzle);
-  renderGrid(currentState, onCellFocus, onCellKeydown, onCellInput);
+  renderGrid(
+    currentState,
+    currentOptions.highlightMode,
+    onCellFocus,
+    onCellKeydown,
+    onCellInput,
+  );
   markWrongCells(currentState);
   setStatus(
-    formatPuzzleStatus("Loaded puzzle", currentPuzzleName, STATUS_MESSAGES),
-    "",
+    formatPuzzleStatus('Loaded puzzle', currentPuzzleName, STATUS_MESSAGES),
+    '',
   );
-  lastStatusType = "";
+  lastStatusType = '';
   updateHash(currentState.board);
 };
 
@@ -116,11 +135,11 @@ const loadPuzzleByFilename = async (filename) => {
   } catch (error) {
     const failedPuzzleName = extractPuzzleId(filename);
     setStatus(
-      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+      formatString(STATUS_MESSAGES['Failed to load puzzle'], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
-      "error",
+      'error',
     );
   }
 };
@@ -151,11 +170,11 @@ const loadNewGame = async () => {
     } catch (error) {
       const failedPuzzleName = extractPuzzleId(puzzleFromQuery);
       setStatus(
-        formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+        formatString(STATUS_MESSAGES['Failed to load puzzle'], {
           puzzleName: failedPuzzleName,
           errorMessage: error.message,
         }),
-        "error",
+        'error',
       );
     }
     return;
@@ -166,11 +185,11 @@ const loadNewGame = async () => {
     loadFetchedPuzzle(puzzle);
   } catch (error) {
     setStatus(
-      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
-        puzzleName: extractPuzzleId(""),
+      formatString(STATUS_MESSAGES['Failed to load puzzle'], {
+        puzzleName: extractPuzzleId(''),
         errorMessage: error.message,
       }),
-      "error",
+      'error',
     );
   }
 };
@@ -182,20 +201,41 @@ const loadNewGame = async () => {
  * @returns {Promise<void>}
  */
 const loadRandomPuzzle = async () => {
-  let failedPuzzleName = extractPuzzleId("");
+  let failedPuzzleName = extractPuzzleId('');
   try {
     const puzzle = await getRandomPuzzle(currentPuzzleFilename || null);
     failedPuzzleName = extractPuzzleId(puzzle.filename);
     loadFetchedPuzzle(puzzle);
   } catch (error) {
     setStatus(
-      formatString(STATUS_MESSAGES["Failed to load puzzle"], {
+      formatString(STATUS_MESSAGES['Failed to load puzzle'], {
         puzzleName: failedPuzzleName,
         errorMessage: error.message,
       }),
-      "error",
+      'error',
     );
   }
+};
+
+/**
+ * Gets the current highlight mode.
+ * @returns {string} Current highlight mode
+ */
+const getHighlightMode = () => {
+  return currentOptions.highlightMode;
+};
+
+/**
+ * Applies a new highlight mode, updates the game state, and persists to options.
+ * @param {string} mode - Highlight mode to apply
+ */
+const applyHighlightMode = (mode) => {
+  if (!currentState) {
+    return;
+  }
+  currentOptions = updateOption(currentOptions, 'highlightMode', mode);
+  saveOptions(currentOptions);
+  updateState(currentState);
 };
 
 /**
@@ -203,9 +243,11 @@ const loadRandomPuzzle = async () => {
  * @returns {Promise<void>}
  */
 const init = async () => {
+  currentOptions = loadOptions();
   initTheme();
   renderVersion();
   await loadNewGame();
+  updateState(currentState);
 
   configureDomEventHandlers({
     getState: getCurrentState,
@@ -224,64 +266,69 @@ const init = async () => {
 
   configureOptionsModal({
     applyTheme,
+    getHighlightMode,
+    applyHighlightMode,
   });
 
-  document.getElementById("new-btn").addEventListener("click", onNewGameClick);
+  document.getElementById('new-btn').addEventListener('click', onNewGameClick);
   document
-    .getElementById("load-btn")
-    .addEventListener("click", onLoadGameClick);
+    .getElementById('load-btn')
+    .addEventListener('click', onLoadGameClick);
   document
-    .getElementById("load-cancel-btn")
-    .addEventListener("click", onLoadModalCancelClick);
+    .getElementById('load-cancel-btn')
+    .addEventListener('click', onLoadModalCancelClick);
   document
-    .getElementById("load-select-btn")
-    .addEventListener("click", onLoadModalSelectClick);
+    .getElementById('load-select-btn')
+    .addEventListener('click', onLoadModalSelectClick);
   document
-    .getElementById("load-filter-input")
-    .addEventListener("input", onLoadModalFilterInput);
+    .getElementById('load-filter-input')
+    .addEventListener('input', onLoadModalFilterInput);
   document
-    .getElementById("load-puzzle-table-body")
-    .addEventListener("click", onLoadModalTableClick);
+    .getElementById('load-puzzle-table-body')
+    .addEventListener('click', onLoadModalTableClick);
   document
-    .getElementById("load-puzzle-table-body")
-    .addEventListener("dblclick", onLoadModalTableDblClick);
+    .getElementById('load-puzzle-table-body')
+    .addEventListener('dblclick', onLoadModalTableDblClick);
   document
-    .getElementById("check-btn")
-    .addEventListener("click", onCheckButtonClick);
+    .getElementById('check-btn')
+    .addEventListener('click', onCheckButtonClick);
   document
-    .getElementById("hint-btn")
-    .addEventListener("click", onHintButtonClick);
+    .getElementById('hint-btn')
+    .addEventListener('click', onHintButtonClick);
   document
-    .getElementById("solve-btn")
-    .addEventListener("click", onSolveButtonClick);
+    .getElementById('solve-btn')
+    .addEventListener('click', onSolveButtonClick);
   document
-    .getElementById("options-btn")
-    .addEventListener("click", onOptionsClick);
+    .getElementById('options-btn')
+    .addEventListener('click', onOptionsClick);
   document
-    .getElementById("options-close-btn")
-    .addEventListener("click", onOptionsCloseClick);
+    .getElementById('options-close-btn')
+    .addEventListener('click', onOptionsCloseClick);
   document
-    .getElementById("options-theme-select")
-    .addEventListener("change", onOptionsThemeChange);
+    .getElementById('options-theme-select')
+    .addEventListener('change', onOptionsThemeChange);
+  document
+    .getElementById('options-highlight-select')
+    .addEventListener('change', onOptionsHighlightModeChange);
 
-  document.querySelectorAll(".num-btn").forEach((btn) => {
-    btn.addEventListener("click", onNumberButtonClick);
+  document.querySelectorAll('.num-btn').forEach((btn) => {
+    btn.addEventListener('click', onNumberButtonClick);
   });
 
   document
-    .getElementById("confirm-yes-btn")
-    .addEventListener("click", onConfirmYesClick);
+    .getElementById('confirm-yes-btn')
+    .addEventListener('click', onConfirmYesClick);
   document
-    .getElementById("confirm-no-btn")
-    .addEventListener("click", onConfirmNoClick);
+    .getElementById('confirm-no-btn')
+    .addEventListener('click', onConfirmNoClick);
 
-  window.addEventListener("popstate", onPopState);
-  window.addEventListener("hashchange", onHashChange);
-  window.addEventListener("keydown", onLoadModalKeydown);
-  window.addEventListener("keydown", onConfirmModalKeydown);
-  window.addEventListener("keydown", onOptionsModalKeydown);
+  window.addEventListener('popstate', onPopState);
+  window.addEventListener('hashchange', onHashChange);
+  window.addEventListener('keydown', onLoadModalKeydown);
+  window.addEventListener('keydown', onConfirmModalKeydown);
+  window.addEventListener('keydown', onOptionsModalKeydown);
 };
 
 init().catch((error) => {
-  console.error("Failed to initialize game:", error);
+  console.error('Failed to initialize game:', error);
 });

@@ -4,20 +4,31 @@
  */
 
 /**
+ * Detects touch-first/coarse-pointer devices where soft keyboard should stay hidden.
+ * @returns {boolean} True when using a coarse pointer device
+ */
+const isCoarsePointerDevice = () => {
+  if (typeof window === 'undefined' || !window.matchMedia) {
+    return false;
+  }
+  return window.matchMedia('(pointer: coarse)').matches;
+};
+
+/**
  * Extracts puzzle filename from URL query parameter.
  * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml
  * @returns {string|null} Puzzle filename or null if puzzle param is empty
  */
 const getPuzzleFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
-  const puzzle = params.get("puzzle");
+  const puzzle = params.get('puzzle');
   if (!puzzle) {
     return null;
   }
-  if (!puzzle.includes("/")) {
+  if (!puzzle.includes('/')) {
     return `puzzles/${puzzle}.yaml`;
   }
-  if (!puzzle.includes(".yaml")) {
+  if (!puzzle.includes('.yaml')) {
     return `${puzzle}.yaml`;
   }
   return puzzle;
@@ -29,10 +40,10 @@ const getPuzzleFromQuery = () => {
  */
 const getBoardFromHash = () => {
   const hash = window.location.hash;
-  if (!hash.includes("board=")) {
+  if (!hash.includes('board=')) {
     return null;
   }
-  const encoded = hash.split("board=")[1];
+  const encoded = hash.split('board=')[1];
   return encoded || null;
 };
 
@@ -42,11 +53,11 @@ const getBoardFromHash = () => {
  */
 const updateQuery = (filename) => {
   const params = new URLSearchParams(window.location.search);
-  const shortName = filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
-  params.set("puzzle", shortName);
+  const shortName = filename.replace(/\.yaml$/, '').replace(/^puzzles\//, '');
+  params.set('puzzle', shortName);
   window.history.replaceState(
     null,
-    "",
+    '',
     `?${params.toString()}${window.location.hash}`,
   );
 };
@@ -60,7 +71,7 @@ const updateHash = (board) => {
   const encoded = encodeBoard(board);
   window.history.replaceState(
     null,
-    "",
+    '',
     `${window.location.pathname}${window.location.search}#board=${encoded}`,
   );
 };
@@ -120,16 +131,16 @@ const onCellKeydown = (event) => {
     return;
   }
 
-  if (event.key >= "1" && event.key <= "9") {
+  if (event.key >= '1' && event.key <= '9') {
     event.preventDefault();
     domHandlerDeps.applyState(applyNumber(state, parseInt(event.key, 10)));
     return;
   }
 
   if (
-    event.key === "Backspace" ||
-    event.key === "Delete" ||
-    event.key === "0"
+    event.key === 'Backspace' ||
+    event.key === 'Delete' ||
+    event.key === '0'
   ) {
     event.preventDefault();
     domHandlerDeps.applyState(clearCellValue(state, state.selected));
@@ -169,7 +180,7 @@ const onCellInput = (event) => {
   }
 
   const numValue =
-    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
+    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ''), 10) || 0;
   domHandlerDeps.applyState(placeNumber(state, cellIndex, numValue));
 };
 
@@ -205,7 +216,7 @@ const onNewGameClick = () => {
   }
 
   openConfirmModal(
-    "Start a new game? Your current progress will be lost.",
+    'Start a new game? Your current progress will be lost.',
     () => domHandlerDeps.loadRandomPuzzle(),
   );
 };
@@ -262,7 +273,7 @@ const onSolveButtonClick = () => {
   }
 
   openConfirmModal(
-    "Reveal the full solution? This will fill the entire board.",
+    'Reveal the full solution? This will fill the entire board.',
     () => domHandlerDeps.applyState(solveBoard(state)),
   );
 };
@@ -286,7 +297,7 @@ const onHashChange = () => {
   }
 
   const state = domHandlerDeps.getState();
-  if (!state || state.statusType === "win") {
+  if (!state || state.statusType === 'win') {
     return;
   }
 

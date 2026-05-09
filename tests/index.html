@@ -193,6 +193,7 @@
     <script src="../js/constants.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/solver.js"></script>
+    <script src="../js/styler.js"></script>
     <script src="../js/state.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="../js/puzzles.js"></script>
@@ -206,7 +207,7 @@
        */
       const loadTestFiles = () => {
         const testFiles = TEST_FILES.map((filePath) => {
-          if (filePath.startsWith("../")) {
+          if (filePath.startsWith('../')) {
             return filePath;
           }
           return `./${filePath}`;
@@ -219,7 +220,7 @@
             return;
           }
 
-          const script = document.createElement("script");
+          const script = document.createElement('script');
           script.src = testFiles[filesLoaded];
           script.onload = () => {
             filesLoaded += 1;
@@ -243,19 +244,19 @@
        * @param {Object} summary - Test summary from runAllRegisteredTests
        */
       const renderCollapsibleResults = (summary) => {
-        const container = document.getElementById("test-results");
+        const container = document.getElementById('test-results');
         if (!container) return;
 
-        const resultsDiv = document.createElement("div");
-        resultsDiv.className = "test-results";
+        const resultsDiv = document.createElement('div');
+        resultsDiv.className = 'test-results';
 
         // File sections - each file in the registry
         summary.files.forEach((file) => {
-          const fileSection = document.createElement("details");
-          fileSection.className = "file-section";
+          const fileSection = document.createElement('details');
+          fileSection.className = 'file-section';
           fileSection.open = false; // Collapsed by default
 
-          const fileSummary = document.createElement("summary");
+          const fileSummary = document.createElement('summary');
           fileSummary.innerHTML = `
             <span class="file-name">${file.fileName}</span>
             <span class="file-stats">
@@ -266,13 +267,13 @@
           fileSection.appendChild(fileSummary);
 
           // Tests directly under file (no function/suite grouping)
-          const testList = document.createElement("div");
-          testList.className = "test-list";
+          const testList = document.createElement('div');
+          testList.className = 'test-list';
 
           if (file.tests && Array.isArray(file.tests)) {
             file.tests.forEach((test) => {
-              const testItem = document.createElement("div");
-              testItem.className = `test-item ${test.pass ? "pass" : "fail"}`;
+              const testItem = document.createElement('div');
+              testItem.className = `test-item ${test.pass ? 'pass' : 'fail'}`;
               testItem.textContent = test.message;
               testList.appendChild(testItem);
             });
@@ -285,10 +286,10 @@
         container.appendChild(resultsDiv);
 
         // Summary at bottom
-        const summaryDiv = document.createElement("div");
-        summaryDiv.className = `test-summary ${summary.totalFailed === 0 ? "all-pass" : "has-fail"}`;
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = `test-summary ${summary.totalFailed === 0 ? 'all-pass' : 'has-fail'}`;
         summaryDiv.innerHTML = `
-          <span class="summary-text">${summary.totalPassed}/${summary.total} tests passed${summary.totalFailed > 0 ? ` (${summary.totalFailed} failed)` : ""}</span>
+          <span class="summary-text">${summary.totalPassed}/${summary.total} tests passed${summary.totalFailed > 0 ? ` (${summary.totalFailed} failed)` : ''}</span>
           <span class="summary-actions">
             <button onclick="expandAll()">Expand All</button>
             <button onclick="collapseAll()">Collapse All</button>
@@ -300,7 +301,7 @@
        * Expand all collapsible sections.
        */
       const expandAll = () => {
-        document.querySelectorAll("details").forEach((detail) => {
+        document.querySelectorAll('details').forEach((detail) => {
           detail.open = true;
         });
       };
@@ -309,7 +310,7 @@
        * Collapse all collapsible sections.
        */
       const collapseAll = () => {
-        document.querySelectorAll("details").forEach((detail) => {
+        document.querySelectorAll('details').forEach((detail) => {
           detail.open = false;
         });
       };

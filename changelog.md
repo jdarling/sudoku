@@ -9,6 +9,21 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.14.0]
+
+- Added extended related cell highlighting with 5 modes:
+  - `none`: Only the selected cell is highlighted
+  - `same`: Cells containing the same number as the selected cell are highlighted
+  - `minimal`: Row and column of the selected cell (cross pattern)
+  - `related-box`: Row, column, and box of selected cell + all cells with the same number
+  - `related-all`: Row, column, and box of selected cell + row, column, and box of ALL cells with the same number
+- Users can toggle highlight modes from the Options modal (default: `related-box`)
+- Updated `js/state.js`: added `highlightMode` field defaulting to 'related-box' and `setHighlightMode()` pure function
+- Updated `js/render.js`: refactored `getCellHighlight()` to support 5 modes, added `getCellsWithSameNumber()` helper
+- Extended Options modal (`js/components/optionsmodal.js`) with highlight mode selector dropdown
+- Updated `js/options.js` default options to use `related-box` mode
+- Related cell highlighting respects current board state for accurate "same number" matching
+
 ## [1.13.5]
 
 - Fixed `aria-hidden` accessibility warning: `modal.js` now records the focused element on open and restores focus on close via a `WeakMap`, so focus is never trapped inside a hidden modal

@@ -39,10 +39,10 @@ Perfect for contributors learning the codebase. These features involve simple ad
   ```javascript
   const fetchLatestPuzzles = async () => {
     try {
-      const response = await fetch("data/puzzles.json", {
-        cache: "no-store", // Always bypass cache
+      const response = await fetch('data/puzzles.json', {
+        cache: 'no-store', // Always bypass cache
       });
-      if (!response.ok) throw new Error("Fetch failed");
+      if (!response.ok) throw new Error('Fetch failed');
       return await response.json();
     } catch (error) {
       // Fall back to previously cached list
@@ -174,17 +174,17 @@ Already implemented. Okabe-Ito colorblind-safe dark palette.
 - Glow effects on highlights and selections
 - Bold, sharp contrast
 
-**Implementation Notes (Core Settings Panel):**
+**Implementation Notes (Core Options Panel):**
 
-- Create `js/settings.js` module with pure functions:
-  - `createDefaultSettings()` → settings object
-  - `loadSettings()` → load from localStorage
-  - `saveSettings(settings)` → persist to localStorage
-  - `updateSetting(settings, key, value)` → immutable update
-- Add `#settings-modal` to `index.html` (initially hidden, shown on Settings button click)
-- Add `onSettingsChange()` handler in `js/app.js` to update game state + re-render
-- Store settings separately from game state (not in currentState object)
-- Add Settings button to `#top-controls` or `#theme-row`
+- Create `js/options.js` module with pure functions:
+  - `createDefaultOptions()` → options object
+  - `loadOptions()` → load from localStorage
+  - `saveOptions(options)` → persist to localStorage
+  - `updateOption(options, key, value)` → immutable update
+- Add `#options-modal` to `index.html` (initially hidden, shown on Options button click)
+- Add `onOptionsChange()` handler in `js/app.js` to update game state + re-render
+- Store options separately from game state (not in currentState object)
+- Add Options button to `#top-controls` or `#theme-row`
 
 **Theme Implementation Pattern:**
 
@@ -329,7 +329,7 @@ Advanced work requiring significant architectural additions or new systems. Thes
 - Generate YAML output matching `data/samples.yaml` format:
   ```yaml
   difficulty: Medium
-  name: "My Puzzle"
+  name: 'My Puzzle'
   clues: |
     ..3.2...8.....
     ...
@@ -495,8 +495,8 @@ Advanced work requiring significant architectural additions or new systems. Thes
 
 - Register service worker in `js/app.js` on `init()`:
   ```javascript
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("js/sw.js");
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('js/sw.js');
   }
   ```
 - Cache bust on version upgrade (include VERSION in cache key)

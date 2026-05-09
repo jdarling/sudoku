@@ -1,53 +1,18 @@
 /**
- * Determines the highlight class for a cell based on selection state.
+ * Gets the highlight style for a cell from a pre-computed styles array.
  * @param {number} cellIndex - Cell position (0-80)
- * @param {number} selectedNum - Number in the currently selected cell
- * @param {Set<number>} relatedCells - Set of cells in the same row/col/box
- * @param {number} selected - Currently selected cell index
- * @param {number[]} board - Board state
+ * @param {(string|null)[]} boardStyles - Array of 81 pre-computed styles
  * @returns {string|null} CSS class name or null
  */
-const getCellHighlight = (
-  cellIndex,
-  selectedNum,
-  relatedCells,
-  selected,
-  board,
-) => {
-  if (cellIndex === selected) {
-    return "selected";
-  }
-  if (selectedNum && selectedNum === board[cellIndex]) {
-    return "same-num";
-  }
-  if (!relatedCells.has(cellIndex)) {
-    return null;
-  }
-  const selRow = Math.floor(selected / GRID_SIZE);
-  const selCol = selected % GRID_SIZE;
-  const cellRow = Math.floor(cellIndex / GRID_SIZE);
-  const cellCol = cellIndex % GRID_SIZE;
-  if (cellRow === selRow || cellCol === selCol) {
-    return "related-line";
-  }
-  return "related";
-};
-
-/**
- * Detects touch-first/coarse-pointer devices where soft keyboard should stay hidden.
- * @returns {boolean} True when using a coarse pointer device
- */
-const isCoarsePointerDevice = () => {
-  if (typeof window === "undefined" || !window.matchMedia) {
-    return false;
-  }
-  return window.matchMedia("(pointer: coarse)").matches;
+const getCellStyle = (cellIndex, boardStyles) => {
+  return boardStyles[cellIndex];
 };
 
 /**
  * Creates a table cell element for a given board position.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)
+ * @param {(string|null)[]} boardStyles - Pre-computed styles array
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
@@ -56,6 +21,7 @@ const isCoarsePointerDevice = () => {
 const createCell = (
   state,
   cellIndex,
+  boardStyles,
   onCellFocus,
   onCellKeydown,
   onCellInput,
@@ -63,46 +29,36 @@ const createCell = (
   const row = Math.floor(cellIndex / GRID_SIZE);
   const col = cellIndex % GRID_SIZE;
 
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "cell";
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'cell';
   input.maxLength = 1;
-  input.value = state.board[cellIndex] || "";
+  input.value = state.board[cellIndex] || '';
   input.dataset.cellIndex = cellIndex;
-  input.inputMode = "none";
-  input.setAttribute("autocomplete", "off");
-  input.setAttribute("autocorrect", "off");
-  input.setAttribute("autocapitalize", "off");
-  input.setAttribute("spellcheck", "false");
-  input.setAttribute("aria-label", `Row ${row + 1}, column ${col + 1}`);
+  input.inputMode = 'none';
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('autocorrect', 'off');
+  input.setAttribute('autocapitalize', 'off');
+  input.setAttribute('spellcheck', 'false');
+  input.setAttribute('aria-label', `Row ${row + 1}, column ${col + 1}`);
 
   if (state.given[cellIndex] || isCoarsePointerDevice()) {
     input.readOnly = true;
   }
-
   if (state.given[cellIndex]) {
-    input.classList.add("given");
+    input.classList.add('given');
   }
 
-  const relatedCells =
-    state.selected >= 0 ? getRelated(state.selected) : new Set();
-  const selectedNum = state.selected >= 0 ? state.board[state.selected] : 0;
-  const highlight = getCellHighlight(
-    cellIndex,
-    selectedNum,
-    relatedCells,
-    state.selected,
-    state.board,
-  );
-  if (highlight) {
-    input.classList.add(highlight);
+  const style = getCellStyle(cellIndex, boardStyles);
+  if (style) {
+    input.classList.add(style);
   }
 
-  input.addEventListener("focus", onCellFocus);
-  input.addEventListener("keydown", onCellKeydown);
-  input.addEventListener("input", onCellInput);
+  input.addEventListener('focus', onCellFocus);
+  input.addEventListener('keydown', onCellKeydown);
+  input.addEventListener('input', onCellInput);
 
-  const td = document.createElement("td");
+  const td = document.createElement('td');
   td.appendChild(input);
   return td;
 };
@@ -111,16 +67,31 @@ const createCell = (
  * Creates a table row element for a given board row.
  * @param {Object} state - Current state
  * @param {number} row - Row index (0-8)
+ * @param {(string|null)[]} boardStyles - Pre-computed styles array
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
  * @returns {HTMLTableRowElement} Configured tr element
  */
-const createRow = (state, row, onCellFocus, onCellKeydown, onCellInput) => {
-  const tr = document.createElement("tr");
+const createRow = (
+  state,
+  row,
+  boardStyles,
+  onCellFocus,
+  onCellKeydown,
+  onCellInput,
+) => {
+  const tr = document.createElement('tr');
   for (let col = 0; col < GRID_SIZE; col++) {
     tr.appendChild(
-      createCell(state, idx(row, col), onCellFocus, onCellKeydown, onCellInput),
+      createCell(
+        state,
+        idx(row, col),
+        boardStyles,
+        onCellFocus,
+        onCellKeydown,
+        onCellInput,
+      ),
     );
   }
   return tr;
@@ -129,17 +100,39 @@ const createRow = (state, row, onCellFocus, onCellKeydown, onCellInput) => {
 /**
  * Renders the sudoku grid.
  * @param {Object} state - Current state
+ * @param {string} highlightMode - Active highlight mode from options
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
  */
-const renderGrid = (state, onCellFocus, onCellKeydown, onCellInput) => {
-  const gridEl = document.getElementById("grid");
-  gridEl.innerHTML = "";
+const renderGrid = (
+  state,
+  highlightMode,
+  onCellFocus,
+  onCellKeydown,
+  onCellInput,
+) => {
+  const gridEl = document.getElementById('grid');
+  gridEl.innerHTML = '';
+
+  // Build styles array once for entire board
+  const boardStyles = buildStyles(
+    state.board,
+    state.selected,
+    highlightMode || 'related-box',
+    state.given,
+  );
 
   for (let row = 0; row < GRID_SIZE; row++) {
     gridEl.appendChild(
-      createRow(state, row, onCellFocus, onCellKeydown, onCellInput),
+      createRow(
+        state,
+        row,
+        boardStyles,
+        onCellFocus,
+        onCellKeydown,
+        onCellInput,
+      ),
     );
   }
 };
@@ -149,13 +142,13 @@ const renderGrid = (state, onCellFocus, onCellKeydown, onCellInput) => {
  * @param {Object} state - Current state
  */
 const markWrongCells = (state) => {
-  const inputs = document.querySelectorAll(".cell");
+  const inputs = document.querySelectorAll('.cell');
   inputs.forEach((input) => {
-    input.classList.remove("wrong");
+    input.classList.remove('wrong');
   });
   const wrongCells = state.hinting ? getHintCells(state) : getWrongCells(state);
   wrongCells.forEach((i) => {
-    inputs[i].classList.add("wrong");
+    inputs[i].classList.add('wrong');
   });
 };
 
@@ -165,9 +158,9 @@ const markWrongCells = (state) => {
  * @param {string} type - Status type (e.g., 'win', 'error')
  */
 const setStatus = (msg, type) => {
-  const statusEl = document.getElementById("status");
+  const statusEl = document.getElementById('status');
   statusEl.textContent = msg;
-  statusEl.className = type || "";
+  statusEl.className = type || '';
 };
 
 /**
@@ -175,17 +168,17 @@ const setStatus = (msg, type) => {
  * @returns {HTMLDivElement|null} Confetti layer element
  */
 const getConfettiLayer = () => {
-  if (typeof document === "undefined") {
+  if (typeof document === 'undefined') {
     return null;
   }
 
-  let layer = document.getElementById("confetti-layer");
+  let layer = document.getElementById('confetti-layer');
   if (layer) {
     return layer;
   }
 
-  layer = document.createElement("div");
-  layer.id = "confetti-layer";
+  layer = document.createElement('div');
+  layer.id = 'confetti-layer';
   document.body.appendChild(layer);
   return layer;
 };
@@ -195,8 +188,8 @@ const getConfettiLayer = () => {
  * @param {HTMLElement} layer - Confetti layer element
  */
 const createConfettiPiece = (layer) => {
-  const piece = document.createElement("span");
-  piece.className = "confetti-piece";
+  const piece = document.createElement('span');
+  piece.className = 'confetti-piece';
   piece.style.left = `${Math.random() * 100}vw`;
   piece.style.top = `${Math.random() * 100}vh`;
   piece.style.backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 85%, 58%)`;
@@ -205,7 +198,7 @@ const createConfettiPiece = (layer) => {
   piece.style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
   layer.appendChild(piece);
 
-  piece.addEventListener("animationend", () => {
+  piece.addEventListener('animationend', () => {
     piece.remove();
   });
 };
@@ -215,7 +208,7 @@ const createConfettiPiece = (layer) => {
  * @returns {number} Number of pieces to emit
  */
 const getWinConfettiPieceCount = () => {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return 700;
   }
 
@@ -243,7 +236,7 @@ const launchWinCelebration = () => {
  * Renders the version number in the version footer element.
  */
 const renderVersion = () => {
-  const el = document.getElementById("version");
+  const el = document.getElementById('version');
   if (el) {
     el.textContent = `v${VERSION}`;
   }
@@ -260,7 +253,7 @@ const focusCell = (cellIndex) => {
   if (isCoarsePointerDevice()) {
     return;
   }
-  const inputs = document.querySelectorAll(".cell");
+  const inputs = document.querySelectorAll('.cell');
   if (inputs[cellIndex]) {
     inputs[cellIndex].focus();
   }
