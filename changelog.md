@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.6]
+
+- Simplified app.js method names: finalizeGameLoad → loadGame, formatStatusWithPuzzleName → formatPuzzleStatus
+- Removed redundant renderStatus wrapper for cleaner call stack
+- Improved code readability with no functional changes
+
 ## [1.12.5]
 
 - Consolidated puzzle-loading logic into shared finalizeGameLoad helper
