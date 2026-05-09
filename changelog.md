@@ -9,6 +9,11 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.22]
+
+- Added Node test runner flags in `tests/run-node-tests.js`: `--report-only-failures`, `--report-status`, and `--help`
+- Added runner flag usage examples to `tests/README.md`
+
 ## [1.12.21]
 
 - Added `constants.test.js` as an intentional-blank test stub and registered it in shared test configuration

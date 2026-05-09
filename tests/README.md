@@ -28,6 +28,19 @@ Node:
 node tests/run-node-tests.js
 ```
 
+Optional Node flags:
+
+```bash
+# Print only failed test messages plus summary
+node tests/run-node-tests.js --report-only-failures
+
+# Print normal report plus one-line PASS/FAIL status
+node tests/run-node-tests.js --report-status
+
+# Combine both for compact failure output with status line
+node tests/run-node-tests.js --report-only-failures --report-status
+```
+
 Browser:
 
 1. Run the app server as usual.
