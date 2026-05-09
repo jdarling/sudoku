@@ -40,18 +40,18 @@ const renderTableRows = (tbodyEl, rows, getKey, getCells, selectedKey) => {
     return;
   }
 
-  tbodyEl.innerHTML = '';
+  tbodyEl.innerHTML = "";
 
   for (const row of rows) {
     const key = getKey(row);
-    const tr = document.createElement('tr');
+    const tr = document.createElement("tr");
     tr.dataset.key = key;
     if (key === selectedKey) {
-      tr.classList.add('is-selected');
+      tr.classList.add("is-selected");
     }
 
     for (const cellText of getCells(row)) {
-      const td = document.createElement('td');
+      const td = document.createElement("td");
       td.textContent = cellText;
       tr.appendChild(td);
     }

@@ -14,6 +14,9 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 - Replaced prompt-based `Load Game` flow with a full-screen modal selector showing all available puzzles
 - Modal includes a live filter by puzzle ID or filename, row selection, and `Cancel`/`Select` actions
 - Extracted modal logic into a `js/components/` folder: `modal.js` (generic open/close), `table.js` (filterable row rendering), `loadmodal.js` (load puzzle modal using both)
+- Replaced native `confirm()` dialogs for New Game and Solve with a styled Yes/No modal (`js/components/confirmmodal.js`)
+- Confirm modal uses the same CSS variables and visual chrome as the load modal; Escape → No, Enter → Yes
+- Moved theme selection into an Options modal (`js/components/optionsmodal.js`); replaced the inline theme row with an Options button
 
 ## [1.13.2]
 

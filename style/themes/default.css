@@ -124,7 +124,7 @@ input.cell.wrong {
 
 #version {
   font-size: 11px;
-  color: #bbb;
+  color: #666;
   font-family: system-ui, sans-serif;
   margin-top: 0.25rem;
 }

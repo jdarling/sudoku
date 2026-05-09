@@ -12,7 +12,7 @@ const openModal = (modalEl) => {
   if (!modalEl) {
     return;
   }
-  modalEl.setAttribute('aria-hidden', 'false');
+  modalEl.setAttribute("aria-hidden", "false");
 };
 
 /**
@@ -23,7 +23,7 @@ const closeModal = (modalEl) => {
   if (!modalEl) {
     return;
   }
-  modalEl.setAttribute('aria-hidden', 'true');
+  modalEl.setAttribute("aria-hidden", "true");
 };
 
 /**
@@ -35,5 +35,5 @@ const isModalOpen = (modalEl) => {
   if (!modalEl) {
     return false;
   }
-  return modalEl.getAttribute('aria-hidden') !== 'true';
+  return modalEl.getAttribute("aria-hidden") !== "true";
 };

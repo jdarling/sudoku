@@ -21,13 +21,13 @@ let loadModalFilenames = [];
  * Active filter text entered by the user.
  * @type {string}
  */
-let loadModalFilterText = '';
+let loadModalFilterText = "";
 
 /**
  * Filename of the currently highlighted row.
  * @type {string}
  */
-let loadModalSelectedFilename = '';
+let loadModalSelectedFilename = "";
 
 /**
  * Registers dependencies used by load modal handlers.
@@ -43,7 +43,7 @@ const configureLoadModal = (deps) => {
  * Returns the modal DOM element.
  * @returns {HTMLElement|null}
  */
-const getLoadModalEl = () => document.getElementById('load-modal');
+const getLoadModalEl = () => document.getElementById("load-modal");
 
 /**
  * Gets all interactive load modal DOM elements.
@@ -51,10 +51,10 @@ const getLoadModalEl = () => document.getElementById('load-modal');
  */
 const getLoadModalElements = () => {
   const modal = getLoadModalEl();
-  const filterInput = document.getElementById('load-filter-input');
-  const tableBody = document.getElementById('load-puzzle-table-body');
-  const status = document.getElementById('load-modal-status');
-  const selectBtn = document.getElementById('load-select-btn');
+  const filterInput = document.getElementById("load-filter-input");
+  const tableBody = document.getElementById("load-puzzle-table-body");
+  const status = document.getElementById("load-modal-status");
+  const selectBtn = document.getElementById("load-select-btn");
   if (!modal || !filterInput || !tableBody || !status || !selectBtn) {
     return null;
   }
@@ -77,18 +77,18 @@ const renderLoadModal = () => {
   );
 
   if (!filtered.includes(loadModalSelectedFilename)) {
-    loadModalSelectedFilename = '';
+    loadModalSelectedFilename = "";
   }
 
   if (filtered.length === 0) {
-    elements.tableBody.innerHTML = '';
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
+    elements.tableBody.innerHTML = "";
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
     td.colSpan = 2;
-    td.textContent = 'No puzzles match your filter.';
+    td.textContent = "No puzzles match your filter.";
     tr.appendChild(td);
     elements.tableBody.appendChild(tr);
-    elements.status.textContent = '0 puzzles shown';
+    elements.status.textContent = "0 puzzles shown";
     elements.selectBtn.disabled = true;
     return;
   }
@@ -102,7 +102,7 @@ const renderLoadModal = () => {
   );
 
   elements.status.textContent = `${filtered.length} puzzles shown`;
-  elements.selectBtn.disabled = loadModalSelectedFilename === '';
+  elements.selectBtn.disabled = loadModalSelectedFilename === "";
 };
 
 /**
@@ -120,14 +120,14 @@ const openLoadModal = async () => {
   }
 
   loadModalFilenames = [];
-  loadModalFilterText = '';
-  loadModalSelectedFilename = '';
+  loadModalFilterText = "";
+  loadModalSelectedFilename = "";
 
   openModal(elements.modal);
-  elements.filterInput.value = '';
-  elements.status.textContent = 'Loading puzzles...';
+  elements.filterInput.value = "";
+  elements.status.textContent = "Loading puzzles...";
   elements.selectBtn.disabled = true;
-  elements.tableBody.innerHTML = '';
+  elements.tableBody.innerHTML = "";
 
   try {
     const filenames = await loadModalDeps.listPuzzles();
@@ -145,8 +145,8 @@ const openLoadModal = async () => {
 const closeLoadModal = () => {
   const modal = getLoadModalEl();
   closeModal(modal);
-  loadModalFilterText = '';
-  loadModalSelectedFilename = '';
+  loadModalFilterText = "";
+  loadModalSelectedFilename = "";
 };
 
 /**
@@ -154,21 +154,38 @@ const closeLoadModal = () => {
  * @param {Event} event - Input event
  */
 const onLoadModalFilterInput = (event) => {
-  loadModalFilterText = event.target.value || '';
+  loadModalFilterText = event.target.value || "";
   renderLoadModal();
 };
 
 /**
  * Handles single-click row selection in the load modal table.
+ * Updates selection state and CSS class in-place so dblclick can fire correctly.
+ * A full re-render replaces the tr elements, which prevents the browser from
+ * recognising the two clicks as a double-click on the same target.
  * @param {Event} event - Click event
  */
 const onLoadModalTableClick = (event) => {
-  const row = event.target.closest('tr[data-key]');
+  const row = event.target.closest("tr[data-key]");
   if (!row) {
     return;
   }
+
+  const tbody = row.closest("tbody");
+  if (tbody) {
+    const prev = tbody.querySelector("tr.is-selected");
+    if (prev) {
+      prev.classList.remove("is-selected");
+    }
+  }
+  row.classList.add("is-selected");
+
   loadModalSelectedFilename = row.dataset.key;
-  renderLoadModal();
+
+  const selectBtn = document.getElementById("load-select-btn");
+  if (selectBtn) {
+    selectBtn.disabled = false;
+  }
 };
 
 /**
@@ -176,7 +193,7 @@ const onLoadModalTableClick = (event) => {
  * @param {Event} event - Dblclick event
  */
 const onLoadModalTableDblClick = (event) => {
-  const row = event.target.closest('tr[data-key]');
+  const row = event.target.closest("tr[data-key]");
   if (!row || !loadModalDeps) {
     return;
   }
@@ -215,18 +232,20 @@ const onLoadModalKeydown = (event) => {
     return;
   }
 
-  if (event.key === 'Escape') {
+  if (event.key === "Escape") {
     event.preventDefault();
     closeLoadModal();
     return;
   }
 
-  if (event.key !== 'Enter') {
+  if (event.key !== "Enter") {
     return;
   }
 
-  const activeTag = document.activeElement ? document.activeElement.tagName : '';
-  if (activeTag === 'INPUT') {
+  const activeTag = document.activeElement
+    ? document.activeElement.tagName
+    : "";
+  if (activeTag === "INPUT") {
     return;
   }
 

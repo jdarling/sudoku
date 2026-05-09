@@ -204,14 +204,10 @@ const onNewGameClick = () => {
     return;
   }
 
-  const shouldStartNewGame = confirm(
+  openConfirmModal(
     "Start a new game? Your current progress will be lost.",
+    () => domHandlerDeps.loadRandomPuzzle(),
   );
-  if (!shouldStartNewGame) {
-    return;
-  }
-
-  domHandlerDeps.loadRandomPuzzle();
 };
 
 /**
@@ -265,25 +261,10 @@ const onSolveButtonClick = () => {
     return;
   }
 
-  const shouldSolve = confirm(
+  openConfirmModal(
     "Reveal the full solution? This will fill the entire board.",
+    () => domHandlerDeps.applyState(solveBoard(state)),
   );
-  if (!shouldSolve) {
-    return;
-  }
-
-  domHandlerDeps.applyState(solveBoard(state));
-};
-
-/**
- * Handles theme selector change.
- * @param {Event} event - Change event
- */
-const onThemeChange = (event) => {
-  if (!domHandlerDeps) {
-    return;
-  }
-  domHandlerDeps.applyTheme(event.target.value);
 };
 
 /**
