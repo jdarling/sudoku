@@ -54,71 +54,6 @@ const updateState = (newState) => {
 };
 
 /**
- * Handles cell focus event.
- * @param {Event} event - Focus event
- */
-const onCellFocus = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (cellIndex === currentState.selected) {
-    return;
-  }
-  updateState(selectCell(currentState, cellIndex));
-};
-
-/**
- * Handles cell keydown event.
- * @param {Event} event - Keydown event
- */
-const onCellKeydown = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (currentState.given[cellIndex]) {
-    return;
-  }
-
-  if (event.key >= "1" && event.key <= "9") {
-    event.preventDefault();
-    const newState = handleNumberKey(currentState, parseInt(event.key, 10));
-    updateState(newState);
-    return;
-  }
-
-  if (
-    event.key === "Backspace" ||
-    event.key === "Delete" ||
-    event.key === "0"
-  ) {
-    event.preventDefault();
-    const newState = handleDeleteKey(currentState);
-    updateState(newState);
-    return;
-  }
-
-  if (!ARROW_MOVES[event.key]) {
-    return;
-  }
-
-  event.preventDefault();
-  const newState = handleArrowKey(currentState, ARROW_MOVES[event.key]);
-  if (newState) {
-    updateState(newState);
-  }
-};
-
-/**
- * Handles cell input event.
- * @param {Event} event - Input event
- */
-const onCellInput = (event) => {
-  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
-  if (currentState.given[cellIndex]) {
-    return;
-  }
-  const numValue =
-    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
-  updateState(placeNumber(currentState, cellIndex, numValue));
-};
-
-/**
  * Returns current application state.
  * @returns {Object|null} Current state
  */
@@ -257,33 +192,16 @@ const init = async () => {
   renderVersion();
   await loadNewGame();
 
-  const onNewGameClick = createOnNewGameClick(loadRandomPuzzle);
-  const onLoadGameClick = createOnLoadGameClick(
+  configureDomEventHandlers({
+    getState: getCurrentState,
+    applyState: updateState,
     setStatus,
+    applyTheme,
+    loadRandomPuzzle,
     loadPuzzleByFilename,
-  );
-  const onCheckButtonClick = createOnCheckButtonClick(
-    getCurrentState,
-    updateState,
-  );
-  const onHintButtonClick = createOnHintButtonClick(
-    getCurrentState,
-    updateState,
-  );
-  const onSolveButtonClick = createOnSolveButtonClick(
-    getCurrentState,
-    updateState,
-  );
-  const onThemeChange = createOnThemeChange(applyTheme);
-  const onNumberButtonClick = createOnNumberButtonClick(
-    getCurrentState,
-    updateState,
-  );
-  const onPopState = createOnPopState(loadNewGame);
-  const onHashChange = createOnHashChange(
-    getCurrentState,
+    loadNewGame,
     applyBoardStateFromHash,
-  );
+  });
 
   document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document

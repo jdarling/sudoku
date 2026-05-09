@@ -9,6 +9,13 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.12.10]
+
+- Replaced closure-based DOM handler factories with top-level DOM handlers configured via `configureDomEventHandlers`
+- Moved remaining app cell event handlers into `js/dom.js` (`onCellFocus`, `onCellKeydown`, `onCellInput`)
+- Updated app init to register named DOM handlers with no inline listener lambdas
+- Added `js/dom.test.js` and wired it into browser/node runners for custom DOM handler logic coverage
+
 ## [1.12.9]
 
 - Moved init-registered UI/window event handlers to `js/dom.js` as named top-level handler factories

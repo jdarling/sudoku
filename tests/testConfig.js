@@ -11,6 +11,7 @@ const TEST_FILES = [
   "../js/solver.test.js",
   "../js/state.test.js",
   "../js/puzzles.test.js",
+  "../js/dom.test.js",
   "../js/app.test.js",
 ];
 

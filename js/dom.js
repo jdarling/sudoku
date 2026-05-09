@@ -99,157 +99,255 @@ const handleArrowKey = (state, offset) => {
 };
 
 /**
- * Creates a click handler for keypad buttons.
- * @param {Function} getState - Returns current state
- * @param {Function} applyState - Applies a new state
- * @returns {Function} Click handler
+ * Shared dependency container for top-level DOM handlers.
+ * @type {Object|null}
  */
-const createOnNumberButtonClick = (getState, applyState) => {
-  return (event) => {
-    const state = getState();
-    if (!state || state.selected < 0) {
-      return;
-    }
+let domHandlerDeps = null;
 
-    const num = parseInt(event.currentTarget.dataset.n, 10);
-    if (num === 0) {
-      applyState(handleDeleteKey(state));
-      return;
-    }
-
-    applyState(handleNumberKey(state, num));
-  };
+/**
+ * Registers dependencies used by DOM event handlers.
+ * @param {Object} deps - Dependency functions from app orchestration
+ */
+const configureDomEventHandlers = (deps) => {
+  domHandlerDeps = deps;
 };
 
 /**
- * Creates click handler for New Game.
- * @param {Function} loadRandomPuzzleFn - New game loader
- * @returns {Function} Click handler
+ * Handles cell focus event.
+ * @param {Event} event - Focus event
  */
-const createOnNewGameClick = (loadRandomPuzzleFn) => {
-  return () => {
-    loadRandomPuzzleFn();
-  };
+const onCellFocus = (event) => {
+  if (!domHandlerDeps) {
+    return;
+  }
+
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
+
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (cellIndex === state.selected) {
+    return;
+  }
+
+  domHandlerDeps.applyState(selectCell(state, cellIndex));
 };
 
 /**
- * Creates click handler for Load Game prompt flow.
- * @param {Function} setStatusFn - Status renderer
- * @param {Function} loadPuzzleByFilenameFn - Puzzle loader
- * @returns {Function} Click handler
+ * Handles cell keydown event.
+ * @param {Event} event - Keydown event
  */
-const createOnLoadGameClick = (setStatusFn, loadPuzzleByFilenameFn) => {
-  return () => {
-    const inputValue = prompt(
-      "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
-    );
-    if (inputValue === null) {
-      return;
-    }
+const onCellKeydown = (event) => {
+  if (!domHandlerDeps) {
+    return;
+  }
 
-    const normalized = normalizePuzzleId(inputValue);
-    if (!normalized) {
-      setStatusFn("Invalid puzzle ID format.", "error");
-      return;
-    }
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
 
-    loadPuzzleByFilenameFn(normalized);
-  };
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (state.given[cellIndex]) {
+    return;
+  }
+
+  if (event.key >= "1" && event.key <= "9") {
+    event.preventDefault();
+    domHandlerDeps.applyState(handleNumberKey(state, parseInt(event.key, 10)));
+    return;
+  }
+
+  if (
+    event.key === "Backspace" ||
+    event.key === "Delete" ||
+    event.key === "0"
+  ) {
+    event.preventDefault();
+    domHandlerDeps.applyState(handleDeleteKey(state));
+    return;
+  }
+
+  if (!ARROW_MOVES[event.key]) {
+    return;
+  }
+
+  event.preventDefault();
+  const movedState = handleArrowKey(state, ARROW_MOVES[event.key]);
+  if (!movedState) {
+    return;
+  }
+
+  domHandlerDeps.applyState(movedState);
 };
 
 /**
- * Creates click handler for Check button.
- * @param {Function} getState - Returns current state
- * @param {Function} applyState - Applies a new state
- * @returns {Function} Click handler
+ * Handles cell input event.
+ * @param {Event} event - Input event
  */
-const createOnCheckButtonClick = (getState, applyState) => {
-  return () => {
-    const state = getState();
-    if (!state) {
-      return;
-    }
-    applyState(checkSolution(state, true));
-  };
+const onCellInput = (event) => {
+  if (!domHandlerDeps) {
+    return;
+  }
+
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
+
+  const cellIndex = parseInt(event.currentTarget.dataset.cellIndex, 10);
+  if (state.given[cellIndex]) {
+    return;
+  }
+
+  const numValue =
+    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
+  domHandlerDeps.applyState(placeNumber(state, cellIndex, numValue));
 };
 
 /**
- * Creates click handler for Hint button.
- * @param {Function} getState - Returns current state
- * @param {Function} applyState - Applies a new state
- * @returns {Function} Click handler
+ * Handles number pad button click.
+ * @param {Event} event - Click event
  */
-const createOnHintButtonClick = (getState, applyState) => {
-  return () => {
-    const state = getState();
-    if (!state) {
-      return;
-    }
-    applyState(hintBoard(state));
-  };
+const onNumberButtonClick = (event) => {
+  if (!domHandlerDeps) {
+    return;
+  }
+
+  const state = domHandlerDeps.getState();
+  if (!state || state.selected < 0) {
+    return;
+  }
+
+  const num = parseInt(event.currentTarget.dataset.n, 10);
+  if (num === 0) {
+    domHandlerDeps.applyState(handleDeleteKey(state));
+    return;
+  }
+
+  domHandlerDeps.applyState(handleNumberKey(state, num));
 };
 
 /**
- * Creates click handler for Solve button.
- * @param {Function} getState - Returns current state
- * @param {Function} applyState - Applies a new state
- * @returns {Function} Click handler
+ * Handles New Game button click.
  */
-const createOnSolveButtonClick = (getState, applyState) => {
-  return () => {
-    const state = getState();
-    if (!state) {
-      return;
-    }
-    applyState(solveBoard(state));
-  };
+const onNewGameClick = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  domHandlerDeps.loadRandomPuzzle();
 };
 
 /**
- * Creates change handler for theme selector.
- * @param {Function} applyThemeFn - Theme applicator
- * @returns {Function} Change handler
+ * Handles Load Game button click.
  */
-const createOnThemeChange = (applyThemeFn) => {
-  return (event) => {
-    applyThemeFn(event.target.value);
-  };
+const onLoadGameClick = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+
+  const inputValue = prompt(
+    "Enter puzzle ID (e.g., 001, puzzles/001, or puzzles/001.yaml):",
+  );
+  if (inputValue === null) {
+    return;
+  }
+
+  const normalized = normalizePuzzleId(inputValue);
+  if (!normalized) {
+    domHandlerDeps.setStatus("Invalid puzzle ID format.", "error");
+    return;
+  }
+
+  domHandlerDeps.loadPuzzleByFilename(normalized);
 };
 
 /**
- * Creates popstate handler for URL navigation.
- * @param {Function} loadNewGameFn - URL-aware game loader
- * @returns {Function} Event handler
+ * Handles Check button click.
  */
-const createOnPopState = (loadNewGameFn) => {
-  return () => {
-    loadNewGameFn();
-  };
+const onCheckButtonClick = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
+  domHandlerDeps.applyState(checkSolution(state, true));
 };
 
 /**
- * Creates hashchange handler for board restore.
- * @param {Function} getState - Returns current state
- * @param {Function} applyBoardStateFromHash - Applies decoded board to current state
- * @returns {Function} Event handler
+ * Handles Hint button click.
  */
-const createOnHashChange = (getState, applyBoardStateFromHash) => {
-  return () => {
-    const state = getState();
-    if (!state || state.statusType === "win") {
-      return;
-    }
+const onHintButtonClick = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
+  domHandlerDeps.applyState(hintBoard(state));
+};
 
-    const boardHash = getBoardFromHash();
-    if (!boardHash) {
-      return;
-    }
+/**
+ * Handles Solve button click.
+ */
+const onSolveButtonClick = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  const state = domHandlerDeps.getState();
+  if (!state) {
+    return;
+  }
+  domHandlerDeps.applyState(solveBoard(state));
+};
 
-    const decodedBoard = decodeBoard(boardHash);
-    if (!decodedBoard) {
-      return;
-    }
+/**
+ * Handles theme selector change.
+ * @param {Event} event - Change event
+ */
+const onThemeChange = (event) => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  domHandlerDeps.applyTheme(event.target.value);
+};
 
-    applyBoardStateFromHash(decodedBoard);
-  };
+/**
+ * Handles browser popstate event.
+ */
+const onPopState = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+  domHandlerDeps.loadNewGame();
+};
+
+/**
+ * Handles browser hashchange event.
+ */
+const onHashChange = () => {
+  if (!domHandlerDeps) {
+    return;
+  }
+
+  const state = domHandlerDeps.getState();
+  if (!state || state.statusType === "win") {
+    return;
+  }
+
+  const boardHash = getBoardFromHash();
+  if (!boardHash) {
+    return;
+  }
+
+  const decodedBoard = decodeBoard(boardHash);
+  if (!decodedBoard) {
+    return;
+  }
+
+  domHandlerDeps.applyBoardStateFromHash(decodedBoard);
 };

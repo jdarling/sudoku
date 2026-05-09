@@ -80,6 +80,21 @@ loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "getPuzzle",
   "getRandomPuzzle",
 ]);
+loadScript(path.join(__dirname, "../js/dom.js"), [
+  "configureDomEventHandlers",
+  "onCellFocus",
+  "onCellKeydown",
+  "onCellInput",
+  "onNumberButtonClick",
+  "onNewGameClick",
+  "onLoadGameClick",
+  "onCheckButtonClick",
+  "onHintButtonClick",
+  "onSolveButtonClick",
+  "onThemeChange",
+  "onPopState",
+  "onHashChange",
+]);
 
 clearTestRegistry();
 
