@@ -131,6 +131,108 @@
               <option value="cyberpunk">Cyberpunk/Neon</option>
             </select>
           </div>
+          <div class="options-field">
+            <label>Related Cell Highlighting</label>
+            <div id="options-highlight-presets">
+              <button class="action-btn" id="preset-none-btn" type="button">
+                None
+              </button>
+              <button class="action-btn" id="preset-same-btn" type="button">
+                Same
+              </button>
+              <button class="action-btn" id="preset-minimal-btn" type="button">
+                Minimal
+              </button>
+              <button
+                class="action-btn"
+                id="preset-related-block-btn"
+                type="button"
+              >
+                Related Block
+              </button>
+              <button
+                class="action-btn"
+                id="preset-related-all-btn"
+                type="button"
+              >
+                Related All
+              </button>
+            </div>
+            <div id="options-highlight-features">
+              <label class="feature-option" for="feature-same-value-rows">
+                <input
+                  id="feature-same-value-rows"
+                  type="checkbox"
+                  value="same value rows"
+                />
+                Same Value Rows
+              </label>
+              <label class="feature-option" for="feature-same-value-cols">
+                <input
+                  id="feature-same-value-cols"
+                  type="checkbox"
+                  value="same value cols"
+                />
+                Same Value Cols
+              </label>
+              <label class="feature-option" for="feature-same-value-blocks">
+                <input
+                  id="feature-same-value-blocks"
+                  type="checkbox"
+                  value="same value blocks"
+                />
+                Same Value Blocks
+              </label>
+              <label class="feature-option" for="feature-selected-row">
+                <input
+                  id="feature-selected-row"
+                  type="checkbox"
+                  value="selected row"
+                />
+                Selected Row
+              </label>
+              <label class="feature-option" for="feature-selected-col">
+                <input
+                  id="feature-selected-col"
+                  type="checkbox"
+                  value="selected col"
+                />
+                Selected Col
+              </label>
+              <label class="feature-option" for="feature-selected-block">
+                <input
+                  id="feature-selected-block"
+                  type="checkbox"
+                  value="selected block"
+                />
+                Selected Block
+              </label>
+              <label class="feature-option" for="feature-same-value">
+                <input
+                  id="feature-same-value"
+                  type="checkbox"
+                  value="same value"
+                />
+                Same Value Cells
+              </label>
+              <label class="feature-option" for="feature-immediate-errors">
+                <input
+                  id="feature-immediate-errors"
+                  type="checkbox"
+                  value="immediate errors"
+                />
+                Immediate Errors
+              </label>
+              <label class="feature-option" for="feature-error-cells">
+                <input
+                  id="feature-error-cells"
+                  type="checkbox"
+                  value="error cells"
+                />
+                Error Cells
+              </label>
+            </div>
+          </div>
           <div id="options-modal-actions">
             <button class="action-btn" id="options-close-btn" type="button">
               Close
@@ -162,16 +264,18 @@
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/solver.js"></script>
+    <script src="js/styler.js"></script>
     <script src="js/state.js"></script>
+    <script src="js/dom.js"></script>
     <script src="js/render.js"></script>
     <script src="js/puzzles.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/options.js"></script>
     <script src="js/components/modal.js"></script>
     <script src="js/components/table.js"></script>
     <script src="js/components/loadmodal.js"></script>
     <script src="js/components/confirmmodal.js"></script>
     <script src="js/components/optionsmodal.js"></script>
-    <script src="js/dom.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

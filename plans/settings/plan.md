@@ -17,7 +17,7 @@ keeps game state pure and makes settings easy to load before the game initialize
 localStorage["sudoku-settings"]  →  settings object
          │
          ▼
-  js/settings.js          Pure functions: load, save, update
+  js/options.js           Pure functions: load, save, update
          │
          ▼
   js/app.js               onSettingsChange() → updateState() → re-render
@@ -25,20 +25,20 @@ localStorage["sudoku-settings"]  →  settings object
 
 ---
 
-## Module API (`js/settings.js`)
+## Module API (`js/options.js`)
 
 All pure functions:
 
 ```javascript
-const createDefaultSettings = () => ({
-  highlightMode: 'all',       // off | cross-only | minimal | all
-  theme: 'default',           // default | dark | terminal | sepia | ...
-  autoCheck: false,           // highlight errors automatically
+const createDefaultOptions = () => ({
+  highlightMode: 'related-box',  // none | same | minimal | related-box | related-all
+  theme: 'default',               // default | dark | terminal | sepia | ...
+  autoCheck: false,               // highlight errors automatically
 })
 
-const loadSettings = () => { ... }     // read from localStorage, merge with defaults
-const saveSettings = (settings) => { ... }  // write to localStorage
-const updateSetting = (settings, key, value) => ({ ...settings, [key]: value })
+const loadOptions = () => { ... }     // read from localStorage, merge with defaults
+const saveOptions = (options) => { ... }  // write to localStorage
+const updateOption = (options, key, value) => ({ ...options, [key]: value })
 ```
 
 ---
@@ -58,6 +58,7 @@ const updateSetting = (settings, key, value) => ({ ...settings, [key]: value })
 ## localStorage Migration
 
 Currently `sudoku-theme` is stored as a standalone key. When Settings Panel ships:
+
 - Read `sudoku-theme` as fallback for users upgrading from old version
 - Write theme into `sudoku-settings` going forward
 - Remove `sudoku-theme` after migrating
@@ -70,47 +71,56 @@ Each theme is a separate CSS file in `style/themes/`. They all follow the same c
 variable structure as `default.css` and `dark.css`. Implement independently in any order.
 
 ### Already Implemented
+
 - `default.css` — Light, Okabe-Ito colorblind-safe
 - `dark.css` — Dark, Okabe-Ito colorblind-safe
 
 ### To Implement
 
 **Terminal**
+
 - Black background, bright green or amber text
 - Monospace font for cells (optional)
 - High contrast; colorblind-safe accent colors
 
 **Sepia / Vintage**
+
 - Cream/off-white background, warm brown tones
 - Muted highlights in sepia variants
 - Optional subtle texture via CSS pattern
 
 **Forest**
+
 - Warm green background, wood brown accents
 - Forest greens for highlights
 - Colorblind-safe standards maintained
 
 **Ocean / Water**
+
 - Light blue background, deeper blue contrast
 - Teal highlights
 - Optional subtle gradient for water feel
 
 **Sunset**
+
 - Orange → pink → purple gradient-inspired palette
 - Warm highlights and accents
 - Maintain contrast for playability
 
 **High Contrast**
+
 - Pure black and white with bold primary colors
 - Thickest borders for clarity
 - No subtle highlights; all states visually distinct
 
 **Cyberpunk / Neon**
+
 - Dark background with neon accents (cyan, magenta, electric blue)
 - Glow effects on selected/highlighted cells
 - Bold, sharp contrast
 
 ### Adding a New Theme (Pattern)
+
 1. Copy `style/themes/default.css` as a starting point
 2. Rename and update all color values
 3. Add the theme name to the `<select>` in `index.html` and the settings modal

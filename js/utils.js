@@ -29,10 +29,10 @@ const formatString = (template, values) => {
  */
 const extractPuzzleId = (filename) => {
   if (!filename) {
-    return "unknown";
+    return 'unknown';
   }
 
-  return filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
+  return filename.replace(/\.yaml$/, '').replace(/^puzzles\//, '');
 };
 
 /**
@@ -42,7 +42,7 @@ const extractPuzzleId = (filename) => {
  * @returns {string|null} Normalized filename or null if invalid
  */
 const normalizePuzzleId = (inputValue) => {
-  if (!inputValue || typeof inputValue !== "string") {
+  if (!inputValue || typeof inputValue !== 'string') {
     return null;
   }
 
@@ -52,12 +52,12 @@ const normalizePuzzleId = (inputValue) => {
   }
 
   let withoutExt = trimmed;
-  if (trimmed.endsWith(".yaml")) {
+  if (trimmed.endsWith('.yaml')) {
     withoutExt = trimmed.slice(0, -5);
   }
 
   let puzzleId = withoutExt;
-  if (withoutExt.startsWith("puzzles/")) {
+  if (withoutExt.startsWith('puzzles/')) {
     puzzleId = withoutExt.slice(8);
   }
 
@@ -86,4 +86,32 @@ const formatPuzzleStatus = (statusMessage, puzzleName, statusMessages) => {
   }
 
   return statusMessage;
+};
+
+/**
+ * Resolves a style config key to a canonical STYLE_CONFIGS key.
+ * @param {string} preset - Preset key or alias
+ * @returns {string} Canonical key
+ */
+const resolveStyleConfigKey = (preset) => {
+  if (typeof preset !== 'string') {
+    return 'Related Block';
+  }
+  if (STYLE_CONFIGS[preset]) {
+    return preset;
+  }
+  if (STYLE_CONFIG_ALIASES[preset]) {
+    return STYLE_CONFIG_ALIASES[preset];
+  }
+  return 'Related Block';
+};
+
+/**
+ * Returns style features for a preset key with alias and fallback support.
+ * @param {string} preset - Preset key or alias
+ * @returns {string[]} Feature list for the resolved preset
+ */
+const getStyleConfigFeatures = (preset) => {
+  const key = resolveStyleConfigKey(preset);
+  return STYLE_CONFIGS[key] || STYLE_CONFIGS['Related Block'];
 };

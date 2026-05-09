@@ -4,15 +4,15 @@
  * @returns {Object} Initial state object
  */
 const createStateFromPuzzle = (puzzleStr) => {
-  const board = puzzleStr.split("").map(Number);
+  const board = puzzleStr.split('').map(Number);
   const given = board.map((digit) => digit !== 0);
   return {
     puzzle: [...board],
     board,
     given,
     selected: -1,
-    status: "",
-    statusType: "",
+    status: '',
+    statusType: '',
     hinting: false,
   };
 };
@@ -28,6 +28,48 @@ const selectCell = (state, cellIndex) => {
     ...state,
     selected: cellIndex,
   };
+};
+
+/**
+ * Checks if two cells are in the same 3x3 box.
+ * @param {number} cellIdx1 - First cell index (0-80)
+ * @param {number} cellIdx2 - Second cell index (0-80)
+ * @returns {boolean} True if cells are in the same box
+ */
+const isInBox = (cellIdx1, cellIdx2) => {
+  const row1 = Math.floor(cellIdx1 / GRID_SIZE);
+  const col1 = cellIdx1 % GRID_SIZE;
+  const row2 = Math.floor(cellIdx2 / GRID_SIZE);
+  const col2 = cellIdx2 % GRID_SIZE;
+  return (
+    Math.floor(row1 / BOX_SIZE) === Math.floor(row2 / BOX_SIZE) &&
+    Math.floor(col1 / BOX_SIZE) === Math.floor(col2 / BOX_SIZE)
+  );
+};
+
+/**
+ * Gets the highlight style for a specific cell using the styler module.
+ * Pure function: can be tested independently.
+ * Accesses given array from state to apply fixed cell styling.
+ * @param {number} cellIndex - Cell index (0-80)
+ * @param {number} selectedIndex - Selected cell index (-1 if none)
+ * @param {number[]} boardState - Current board state
+ * @param {Set<number>} relatedCells - Set of related cells to selected (unused; included for backwards compatibility)
+ * @param {string} highlightMode - Highlight mode
+ * @param {boolean[]} given - Array indicating which cells are fixed
+ * @returns {string|null} CSS class name or null
+ */
+const getCellHighlightClass = (
+  cellIndex,
+  selectedIndex,
+  boardState,
+  relatedCells,
+  highlightMode = 'related-block',
+  given = null,
+) => {
+  const features = getStyleConfigFeatures(highlightMode);
+  const styles = buildStyles(boardState, selectedIndex, features, given);
+  return styles[cellIndex];
 };
 
 /**
@@ -70,8 +112,8 @@ const placeNumber = (state, cellIndex, num) => {
   return {
     ...state,
     board: newBoard,
-    status: "",
-    statusType: "",
+    status: '',
+    statusType: '',
     hinting: false,
   };
 };
@@ -89,8 +131,8 @@ const solveBoard = (state) => {
     return {
       ...state,
       selected: -1,
-      status: "Puzzle is unsolveable",
-      statusType: "error",
+      status: 'Puzzle is unsolveable',
+      statusType: 'error',
     };
   }
 
@@ -98,8 +140,8 @@ const solveBoard = (state) => {
     ...state,
     board: solution,
     selected: -1,
-    status: "Puzzle solved!",
-    statusType: "win",
+    status: 'Puzzle solved!',
+    statusType: 'win',
   };
   return solvedState;
 };
@@ -141,8 +183,8 @@ const checkSolution = (state, showErrors) => {
     }
     return {
       ...state,
-      status: "Some cells are incorrect",
-      statusType: "error",
+      status: 'Some cells are incorrect',
+      statusType: 'error',
     };
   }
 
@@ -153,8 +195,8 @@ const checkSolution = (state, showErrors) => {
     }
     return {
       ...state,
-      status: "Some cells are incorrect",
-      statusType: "error",
+      status: 'Some cells are incorrect',
+      statusType: 'error',
     };
   }
 
@@ -162,8 +204,8 @@ const checkSolution = (state, showErrors) => {
   if (isComplete) {
     return {
       ...state,
-      status: "Puzzle solved!",
-      statusType: "win",
+      status: 'Puzzle solved!',
+      statusType: 'win',
     };
   }
 
@@ -173,8 +215,8 @@ const checkSolution = (state, showErrors) => {
 
   return {
     ...state,
-    status: "All values are correct",
-    statusType: "win",
+    status: 'All values are correct',
+    statusType: 'win',
   };
 };
 
@@ -253,7 +295,7 @@ const getWrongCells = (state) => {
 const compressBoard = (board) => {
   // Treat the 81 digits as one massive BigInt
   let val = BigInt(board);
-  let result = "";
+  let result = '';
 
   // log64(10^81) ≈ 44.8, so 45 characters is the minimum possible
   for (let i = 0; i < 45; i++) {
@@ -275,7 +317,7 @@ const decompressBoard = (compact) => {
   }
 
   // Restore as string, padding with leading zeros to maintain 81 chars
-  return val.toString().padStart(81, "0");
+  return val.toString().padStart(81, '0');
 };
 
 /**
@@ -298,7 +340,7 @@ const applyNumber = (state, num) => {
  * @returns {string} Encoded board string
  */
 const encodeBoard = (board) => {
-  return compressBoard(board.map((digit) => digit.toString()).join(""));
+  return compressBoard(board.map((digit) => digit.toString()).join(''));
 };
 
 /**
@@ -321,5 +363,5 @@ const decodeBoard = (encodedBoard) => {
   if (!decoded || decoded.length !== TOTAL_CELLS || !/^\d+$/.test(decoded)) {
     return null;
   }
-  return decoded.split("").map((char) => parseInt(char, 10));
+  return decoded.split('').map((char) => parseInt(char, 10));
 };
