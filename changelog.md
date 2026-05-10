@@ -9,6 +9,19 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.15.1]
+
+- Added 50 new puzzles across all difficulty levels: 10 easy, 12 medium, 11 hard, 10 unfair, 10 extreme
+- Updated `data/puzzles.json` to index all 53 puzzles (original 3 + 50 new)
+- Fixed URL query parameter parsing for difficulty-level puzzle paths (e.g., `?puzzle=unfair%2F031`)
+- URL-encoded difficulty paths now correctly resolve to `puzzles/[difficulty]/[number].yaml`
+
+## [1.15.0]
+
+- Reorganized puzzles into subdirectories based on difficulty levels: `easy/`, `medium/`, `hard/`, `unfair/`, `extreme/`
+- Updated puzzle loader to handle subdirectory-based puzzle organization
+- Updated `data/puzzles.json` to reference puzzles in their difficulty-level directories
+
 ## [1.14.2]
 
 - Terminology shift from "box" to "block" for highlight logic APIs and config features

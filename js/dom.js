@@ -16,7 +16,7 @@ const isCoarsePointerDevice = () => {
 
 /**
  * Extracts puzzle filename from URL query parameter.
- * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml
+ * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml, ?puzzle=easy/001
  * @returns {string|null} Puzzle filename or null if puzzle param is empty
  */
 const getPuzzleFromQuery = () => {
@@ -24,6 +24,13 @@ const getPuzzleFromQuery = () => {
   const puzzle = params.get('puzzle');
   if (!puzzle) {
     return null;
+  }
+  const DIFFICULTY_LEVELS = ['easy', 'medium', 'hard', 'unfair', 'extreme'];
+  const startsWithDifficulty = DIFFICULTY_LEVELS.some((level) =>
+    puzzle.startsWith(`${level}/`),
+  );
+  if (startsWithDifficulty && !puzzle.includes('puzzles/')) {
+    return `puzzles/${puzzle}${puzzle.includes('.yaml') ? '' : '.yaml'}`;
   }
   if (!puzzle.includes('/')) {
     return `puzzles/${puzzle}.yaml`;
