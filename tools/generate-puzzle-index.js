@@ -270,8 +270,12 @@ const main = () => {
   }
 
   writeIndex(entries);
-  const relativeOutput = path.relative(ROOT_DIR, OUTPUT_FILE).replace(/\\/g, "/");
-  console.log(`Generated ${entries.length} puzzle index entries -> ${relativeOutput}`);
+  const relativeOutput = path
+    .relative(ROOT_DIR, OUTPUT_FILE)
+    .replace(/\\/g, "/");
+  console.log(
+    `Generated ${entries.length} puzzle index entries -> ${relativeOutput}`,
+  );
 };
 
 try {

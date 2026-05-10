@@ -257,6 +257,61 @@ input.cell.given {
   justify-content: flex-end;
 }
 
+#url-load-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--load-modal-overlay);
+}
+
+#url-load-modal[aria-hidden="true"] {
+  display: none;
+}
+
+#url-load-modal-panel {
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 10px;
+  background: var(--load-modal-panel-bg);
+  color: var(--load-modal-panel-fg);
+}
+
+#url-load-modal-panel label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+#url-load-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 5px;
+  background: var(--load-modal-panel-bg);
+  color: var(--load-modal-panel-fg);
+}
+
+#url-load-error {
+  font-size: 0.85rem;
+  color: #c0392b;
+  min-height: 1.2em;
+}
+
+#url-load-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 #confirm-modal {
   position: fixed;
   inset: 0;
@@ -372,7 +427,7 @@ input.cell.given {
   font-weight: 500;
 }
 
-.feature-option input[type='checkbox'] {
+.feature-option input[type="checkbox"] {
   margin: 0;
 }
 

@@ -107,6 +107,7 @@ const loadGame = (puzzle, boardState) => {
   );
   lastStatusType = "";
   updateHash(currentState.board);
+  window.scrollTo(0, 0);
 };
 
 /**
@@ -172,6 +173,17 @@ const loadPuzzleByFilename = async (filename) => {
  */
 const loadNewGame = async () => {
   const incomingToken = getPuzzleFromQuery();
+  const incomingUrl = getUrlPuzzleFromQuery();
+
+  if (incomingUrl) {
+    try {
+      await loadPuzzleFromUrl(incomingUrl);
+    } catch (error) {
+      showUnknownPuzzleFallback(incomingUrl);
+    }
+    return;
+  }
+
   if (incomingToken) {
     try {
       const indexEntries = await getPuzzleIndex();
@@ -223,6 +235,22 @@ const loadNewGame = async () => {
       "error",
     );
   }
+};
+
+/**
+ * Loads a puzzle from an arbitrary URL and updates state and URL.
+ * Handles indexed and unindexed puzzles differently for URL provenance.
+ * Error messages are surfaced via status, not thrown.
+ * @param {string} puzzleUrl - Validated absolute URL to a .yaml puzzle file
+ * @returns {Promise<void>}
+ */
+const loadPuzzleFromUrl = async (puzzleUrl) => {
+  const { puzzle } = await fetchPuzzleFromUrl(puzzleUrl);
+
+  const boardState = createStateFromPuzzle(puzzle.puzzle);
+  closeLoadModal();
+  loadGame(puzzle, boardState);
+  setAppQuery(buildPuzzleQueryString({ puzzleUrl }));
 };
 
 /**
@@ -308,12 +336,30 @@ const init = async () => {
     loadPuzzleByFilename,
   });
 
+  configureUrlLoadModal({
+    loadPuzzleFromUrl,
+  });
+
   configureOptionsModal({
     applyTheme,
     getHighlightFeatures,
     applyHighlightFeatures,
     applyHighlightPreset,
   });
+
+  document.getElementById("load-url-btn").addEventListener("click", () => {
+    closeLoadModal();
+    openUrlLoadModal();
+  });
+  document
+    .getElementById("url-load-confirm-btn")
+    .addEventListener("click", onUrlLoadConfirmClick);
+  document
+    .getElementById("url-load-cancel-btn")
+    .addEventListener("click", onUrlLoadCancelClick);
+  document
+    .getElementById("url-load-input")
+    .addEventListener("input", onUrlLoadInput);
 
   document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
@@ -372,6 +418,7 @@ const init = async () => {
 
   window.addEventListener("popstate", onPopState);
   window.addEventListener("hashchange", onHashChange);
+  window.addEventListener("keydown", onUrlLoadModalKeydown);
   window.addEventListener("keydown", onLoadModalKeydown);
   window.addEventListener("keydown", onConfirmModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);

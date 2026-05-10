@@ -176,8 +176,11 @@ loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "sanitizePuzzleToken",
   "findPuzzleMatches",
   "buildPuzzleSearchText",
+  "validatePuzzleUrl",
+  "validatePuzzleDoc",
 ]);
 loadScript(path.join(__dirname, "../js/dom.js"), [
+  "buildPuzzleQueryString",
   "configureDomEventHandlers",
   "onCellFocus",
   "onCellKeydown",

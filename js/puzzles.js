@@ -271,6 +271,120 @@ const findPuzzleMatches = (token, entries) => {
 };
 
 /**
+ * Validates a URL string for use as a puzzle URL load source.
+ * Enforces: valid URL, http/https scheme only, .yaml path suffix,
+ * no hash fragment, no query parameters.
+ * @param {string} rawUrl - URL string to validate
+ * @returns {string|null} Validation error message or null when valid
+ */
+const validatePuzzleUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== "string" || !rawUrl.trim()) {
+    return "URL is required.";
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(rawUrl.trim());
+  } catch (_error) {
+    return "Not a valid URL.";
+  }
+
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return "URL must use http or https.";
+  }
+
+  if (!parsed.pathname.endsWith(".yaml")) {
+    return "URL must point to a .yaml file.";
+  }
+
+  if (parsed.hash) {
+    return "URL must not contain a hash fragment.";
+  }
+
+  if (parsed.search) {
+    return "URL must not contain query parameters.";
+  }
+
+  return null;
+};
+
+/**
+ * Validates a parsed YAML puzzle document against required schema fields.
+ * Requires name, level (or difficulty), and parseable puzzle board.
+ * @param {Object} doc - Parsed YAML document
+ * @returns {boolean} True when document meets minimum schema
+ */
+const validatePuzzleDoc = (doc) => {
+  if (!doc || typeof doc !== "object") {
+    return false;
+  }
+
+  const hasName = typeof doc.name === "string" && doc.name.trim().length > 0;
+  const hasLevel =
+    (typeof doc.level === "string" && doc.level.trim().length > 0) ||
+    (typeof doc.difficulty === "string" && doc.difficulty.trim().length > 0);
+
+  if (!hasName || !hasLevel) {
+    return false;
+  }
+
+  if (!doc.puzzle) {
+    return false;
+  }
+
+  try {
+    const str = parsePuzzleDoc(doc);
+    return typeof str === "string" && str.length === 81;
+  } catch (_error) {
+    return false;
+  }
+};
+
+/**
+ * Fetches and parses a puzzle YAML from an arbitrary URL.
+ * Returns the puzzle object and matching index entry (if any) on success,
+ * or throws with a clean user-facing error message.
+ * @param {string} puzzleUrl - Validated absolute URL to a .yaml puzzle file
+ * @param {Object[]} indexEntries - Current metadata index entries for indexed-match lookup
+ * @returns {Promise<{puzzle: Object, indexEntry: Object|null}>}
+ */
+const fetchPuzzleFromUrl = async (puzzleUrl) => {
+  let text;
+  try {
+    const response = await fetch(puzzleUrl);
+    if (!response.ok) {
+      throw new Error("fetch failed");
+    }
+    text = await response.text();
+  } catch (_error) {
+    throw new Error("Can't load puzzle from URL.");
+  }
+
+  let doc;
+  try {
+    doc = jsyaml.load(text);
+  } catch (_error) {
+    throw new Error("Invalid puzzle file URL.");
+  }
+
+  if (!validatePuzzleDoc(doc)) {
+    throw new Error("Invalid puzzle file URL.");
+  }
+
+  const puzzleStr = parsePuzzleDoc(doc);
+  const puzzle = {
+    filename: puzzleUrl,
+    name: doc.name,
+    author: doc.author || "",
+    difficulty: doc.difficulty || doc.level || "",
+    puzzle: puzzleStr,
+    sourceUrl: puzzleUrl,
+  };
+
+  return { puzzle };
+};
+
+/**
  * Fetches a random puzzle.
  * Currently selects from the local index — replace this implementation
  * with an API call (e.g. GET /api/puzzles/random) when a backend is available,

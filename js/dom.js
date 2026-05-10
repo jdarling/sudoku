@@ -22,8 +22,50 @@ const isCoarsePointerDevice = () => {
  */
 const getPuzzleFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
-  const puzzle = params.get("puzzle");
-  return puzzle || null;
+  return params.get("puzzle") || null;
+};
+
+/**
+ * Extracts the puzzleUrl query parameter from the current URL.
+ * @returns {string|null} Raw URL string or null if not present
+ */
+const getUrlPuzzleFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("puzzleUrl") || null;
+};
+
+/**
+ * Builds a query string for the app URL from a puzzle identity.
+ * Exactly one of puzzleId or puzzleUrl should be provided.
+ * Returns an empty string when neither is provided.
+ * @param {Object} opts
+ * @param {string|null} [opts.puzzleId] - Canonical puzzle id (e.g. '004')
+ * @param {string|null} [opts.puzzleUrl] - Absolute URL to a remote puzzle file
+ * @returns {string} Query string including leading '?', or ''
+ */
+const buildPuzzleQueryString = ({ puzzleId = null, puzzleUrl = null } = {}) => {
+  if (puzzleId) {
+    return `?puzzle=${encodeURIComponent(puzzleId)}`;
+  }
+  if (puzzleUrl) {
+    const params = new URLSearchParams();
+    params.set("puzzleUrl", puzzleUrl);
+    return `?${params.toString()}`;
+  }
+  return "";
+};
+
+/**
+ * Replaces the browser URL query while preserving the current hash.
+ * Single point of truth for all URL query updates.
+ * @param {string} queryString - Value returned by buildPuzzleQueryString
+ */
+const setAppQuery = (queryString) => {
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${queryString}${window.location.hash}`,
+  );
 };
 
 /**
@@ -44,13 +86,7 @@ const getBoardFromHash = () => {
  * @param {string} canonicalId - Canonical puzzle id (e.g., "004")
  */
 const updateQuery = (canonicalId) => {
-  const params = new URLSearchParams(window.location.search);
-  params.set("puzzle", canonicalId);
-  window.history.replaceState(
-    null,
-    "",
-    `?${params.toString()}${window.location.hash}`,
-  );
+  setAppQuery(buildPuzzleQueryString({ puzzleId: canonicalId }));
 };
 
 /**

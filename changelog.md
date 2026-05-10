@@ -9,6 +9,24 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.3]
+
+- Added "Load URL" button to the Load Puzzle modal that opens a dedicated URL load dialog
+- Added URL load dialog (`#url-load-modal`) with a URL input field, inline live validation error display, Cancel and Load buttons
+- Load button is disabled until the entered URL passes validation (must be `http`/`https`, end in `.yaml`, no hash fragment, no query parameters)
+- On successful load the puzzle content is fetched from the supplied URL and the browser URL is set to `?puzzleUrl=<url>`; the puzzle identity is never remapped to an indexed entry
+- Opening the URL load dialog automatically closes the Load Puzzle list modal
+- Fetch failures and invalid YAML/schema errors are shown inline in the dialog; the board is not changed on error
+- Page scrolls to top after every puzzle load, including URL loads
+- Reloading the page with `?puzzleUrl=<url>` in the address bar restores the URL-loaded puzzle
+- Added pure `buildPuzzleQueryString({ puzzleId, puzzleUrl })` to `dom.js` — returns the correct `?puzzle=` or `?puzzleUrl=` string; used by all load paths
+- Added `setAppQuery(queryString)` as the single `replaceState` call site in `dom.js`; `updateQuery` rewritten to use it — fixes param accumulation bug where `?puzzleUrl=x` + normal load would produce `?puzzleUrl=x&puzzle=y`
+- Added `getUrlPuzzleFromQuery()` to `dom.js` for reading `?puzzleUrl=` on startup
+- Added `validatePuzzleUrl(rawUrl)` pure function in `puzzles.js` — returns an error string or `null` for a valid URL
+- Added `validatePuzzleDoc(doc)` pure function in `puzzles.js` — checks a parsed YAML document has `name`, `level`/`difficulty`, and a parseable `puzzle` board
+- Added `fetchPuzzleFromUrl(puzzleUrl)` in `puzzles.js` — fetches, parses, validates, and returns `{puzzle}` or throws a user-facing error
+- Added unit tests for `buildPuzzleQueryString` (6 cases) in `dom.test.js` and `validatePuzzleUrl` (8 cases) and `validatePuzzleDoc` (6 cases) in `puzzles.test.js`; Node suite now passes `167/167`
+
 ## [1.16.2]
 
 - Added metadata-first puzzle index generation via `node tools/generate-puzzle-index.js`; `data/puzzles.json` is now generated from YAML files with entries containing `id`, `path`, `name`, `level`, `author`, and `description`

@@ -33,6 +33,8 @@ const runPuzzleTests = () => {
   let sanitizePuzzleToken = resolveSymbol("sanitizePuzzleToken");
   let findPuzzleMatches = resolveSymbol("findPuzzleMatches");
   let buildPuzzleSearchText = resolveSymbol("buildPuzzleSearchText");
+  let validatePuzzleUrl = resolveSymbol("validatePuzzleUrl");
+  let validatePuzzleDoc = resolveSymbol("validatePuzzleDoc");
 
   setTestFile("puzzles.js");
 
@@ -492,6 +494,141 @@ const runPuzzleTests = () => {
         text.includes("practice board") &&
         text.includes("puzzles/easy/004.yaml"),
     ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl returns null for valid https .yaml URL", () => {
+    return expect(validatePuzzleUrl("https://example.com/puzzle.yaml")).toBe(
+      null,
+    );
+  });
+
+  test("validatePuzzleUrl returns null for valid http .yaml URL", () => {
+    return expect(validatePuzzleUrl("http://example.com/puzzle.yaml")).toBe(
+      null,
+    );
+  });
+
+  test("validatePuzzleUrl rejects javascript: scheme", () => {
+    return expect(
+      validatePuzzleUrl("javascript:alert(1)") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects non-.yaml path", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.json") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects URL with hash fragment", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.yaml#section") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects URL with query parameters", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.yaml?v=1") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects empty string", () => {
+    return expect(validatePuzzleUrl("") !== null).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects non-URL string", () => {
+    return expect(validatePuzzleUrl("not a url") !== null).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns true for valid rows doc", () => {
+    const doc = {
+      name: "Test Puzzle",
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns true when level field is used instead of difficulty", () => {
+    const doc = {
+      name: "Test Puzzle",
+      level: "medium",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns false when name is missing", () => {
+    const doc = {
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false when level and difficulty are both missing", () => {
+    const doc = {
+      name: "Test",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false when puzzle is missing", () => {
+    const doc = { name: "Test", difficulty: "easy" };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false for null input", () => {
+    return expect(validatePuzzleDoc(null)).toBeFalsy();
   });
 };
 
