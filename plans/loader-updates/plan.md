@@ -8,8 +8,8 @@ ID-to-file maps. Define five explicit mechanics:
 1. What happens when an unknown/invalid puzzle id is passed in
 2. How puzzle ids should work in URLs going forward
 3. How puzzle metadata index is generated for loader UX and resolution
-4. How a user can supply a direct YAML file path to load any puzzle file
-5. How a user can enter a raw Sudoku board directly to play without a file
+4. How a user can load a puzzle by URL from the Load Puzzle screen
+5. How a user can paste or type a raw Sudoku board to play without a file
 
 ---
 
@@ -180,40 +180,50 @@ Use low, explicit exit codes:
 3. `3`: schema/validation failure (required metadata missing or invalid)
 4. `4`: input/output failure (file read/write issues)
 
-## Mechanic 4 — Direct YAML File Path Loading
+## Mechanic 4 — Load URL From Load Puzzle Screen
 
-The user explicitly supplies a path to a puzzle YAML file, bypassing the index. This supports
-loading any valid puzzle file, including custom files not indexed in `data/puzzles.json`.
+The user opens a URL dialog from the Load Puzzle screen and pastes a puzzle URL.
+This supports loading a YAML puzzle file even when it is not in `data/puzzles.json`.
 
-### Entry points
+### Load Puzzle screen entry points
 
-1. **Load Puzzle modal** — a "Load from path" text field the user can type or paste a path into
-2. **URL parameter** — `?puzzle=puzzles/easy/001.yaml` that resolves to an unindexed file after
-   Mechanic 2 exact-id matching fails (the path remains after sanitization)
+The Load Puzzle screen includes two explicit actions:
 
-### Path rules
+1. **Enter Board** button
+2. **Load URL** button
 
-1. Path must remain within the `puzzles/` root; any token with traversal segments is rejected after
-   sanitization (same algorithm as Mechanic 2)
-2. Path must end with `.yaml` (before sanitization strips it for matching; re-appended for fetch)
-3. Absolute filesystem paths are not accepted; only root-relative paths under `puzzles/` are valid
+The visual treatment of these actions must match the current product identity (typography, spacing,
+button styling, and tone) so they read as first-class game actions, not utility/debug controls.
+
+### Load URL dialog rules (initial iteration)
+
+1. Input must parse as a valid URL
+2. URL path must end with `.yaml`
+3. URL must not contain a hash fragment (`#`)
+4. URL must not contain query parameters (`?`); expected URL shape is just a YAML file URL
+5. Additional URL validation rules can be expanded in later iterations
 
 ### Load behavior
 
-1. Fetch the YAML file at the sanitized path
-2. Validate fetched content against puzzle schema (required: at least `name`, `level`, board givens)
-3. If valid and the puzzle is in the index, treat as an exact indexed match and apply Mechanic 2
+1. User clicks **Load URL** to open dialog
+2. User pastes/types URL
+3. **Load** button is disabled until URL satisfies dialog rules
+4. On Load: fetch YAML from the supplied URL
+5. Validate fetched content against puzzle schema (required: at least `name`, `level`, board givens)
+6. If valid and the puzzle is in the index, treat as an exact indexed match and apply Mechanic 2
    canonical URL rewrite using the indexed id
-4. If valid but not indexed, load as playable puzzle and rewrite URL to path form:
-   `?puzzle=puzzles/<relative-path>.yaml`
-5. If file not found (HTTP 404), apply Mechanic 1 behavior: blank board + `Can't load puzzle "<path>".`
-6. If file found but schema invalid, show `Invalid puzzle file "<path".` and render blank board
+7. If valid but unindexed, load as playable puzzle and keep URL provenance via:
+   `?puzzleUrl=<encoded-url>`
+8. If file not found or fetch fails, show `Can't load puzzle from URL.` and keep the current play
+   screen unchanged
+9. If file is found but schema is invalid, show `Invalid puzzle file URL.` and keep current play
+   screen unchanged
+10. On **Cancel**, close dialog and return to the same play screen state without changing board/URL
 
 ### Security
 
-- Sanitize path before fetch (same algorithm as Mechanic 2 token sanitization)
-- Reject any path that still contains `/..` after sanitization
-- Only fetch paths that begin with `puzzles/` after sanitization
+- Reject `javascript:` and other non-network schemes
+- Keep strict no-hash/no-query URL policy in this first iteration
 - Do not expose raw fetch errors to the UI; always map to the defined error messages
 
 ---
@@ -225,32 +235,35 @@ webpage, newspaper, or any other source — without needing a YAML file.
 
 ### Entry point
 
-A dedicated **Enter Board** action (button or menu item) that opens a board-entry modal with a
-text input field.
+Use the **Enter Board** button on the Load Puzzle screen to open a board-entry dialog with a
+textarea.
 
 ### Accepted input formats
 
-1. **81-character digit string** — `530070000600195000...` where `0` means empty
-2. **Dot notation** — `5.3..7....` where `.` means empty
-3. **Whitespace-delimited** — 9 rows of 9 values, separated by spaces and/or newlines
+1. Single-line or multi-line text is accepted
+2. Characters `1`-`9` are givens
+3. Any other character is treated as empty
 
-Parser normalises all three forms into an 81-element cell array before validation.
+Parser normalizes input into an 81-cell board model before validation.
 
 ### Validation rules
 
 1. Parsed cell count must equal exactly 81
-2. Each cell value must be `0`–`9` or `.`
-3. Given cells (non-zero) must not conflict within any row, column, or 3×3 box
-4. Board must have at least one given cell (all-empty is not a valid puzzle input)
-5. If any rule fails, show inline error in the modal and do not load
+2. Given cells must not conflict within any row, column, or 3x3 box
+3. Board must have at least one given cell (all-empty is not a valid puzzle input)
+4. **Load** button stays disabled until input is valid
+5. If invalid, show inline error in the dialog and do not load
 
 ### Load behavior
 
-1. Parse and validate the input
-2. Create puzzle state from given cells; no file, no index entry, no id
-3. Close modal and render board ready to play
-4. Rewrite URL to: `?board=<81-char-string>` using digit notation (`0` for empty)
-5. Board hash is cleared (user is starting fresh, not restoring progress)
+1. User clicks **Enter Board** to open dialog
+2. User types/pastes puzzle text
+3. Parse and validate; enable **Load** only when valid
+4. On Load: create puzzle state from given cells; no file, no index entry, no id
+5. Close dialog and render board ready to play
+6. Rewrite URL to: `?board=<81-char-string>` using digit notation (`0` for empty)
+7. Board hash is cleared (user is starting fresh, not restoring progress)
+8. On **Cancel**, close dialog and return to same play screen state unchanged
 
 ### URL format for entered boards
 
@@ -262,9 +275,9 @@ Parser normalises all three forms into an 81-element cell array before validatio
 ### Module ownership
 
 - Parsing and validation: pure functions in `js/puzzles.js`
-- Modal UI: new component `js/components/boardentrymodal.js` (or extend existing modal)
+- Modal UI: extend loader-related UI with **Load URL** dialog and **Enter Board** dialog
 - Orchestration: handler in `js/app.js`
-- URL read/write: `js/dom.js` extended to parse `?board=` parameter
+- URL read/write: `js/dom.js` extended to parse `?board=` and `?puzzleUrl=` parameters
 
 ---
 
@@ -328,15 +341,22 @@ Suggested output:
 6. No module violates architecture boundaries
 7. Generated puzzle index contains `id`, `path`, `name`, `level`, `author`, `description` for every puzzle
 8. Loader can prefill filter from incoming URL token and present matching selectable rows
-9. URL token sanitization strips `puzzles/`, `.yaml`, and traversal segments before matching
-10. Generator exits with code `2` on id collisions and prints collision warning lines
-11. A user can supply a direct path to any YAML file under `puzzles/` to load it outside the index
-12. A direct path load validates the YAML schema before rendering; invalid files show an error message
-13. A user can enter a raw 81-cell board string to play any puzzle without a file
-14. Entered boards are parsed from digit, dot, or whitespace-delimited notation
-15. Entered boards are validated for count, value range, and given-cell conflicts before loading
-16. A successfully entered board rewrites the URL to `?board=<81-char-string>` for shareability
-17. A `?board=` URL parameter on startup loads the board directly without requiring a puzzle file
+9. Loader filtering uses case-insensitive substring match across all fields rendered in each row
+10. URL token sanitization strips `puzzles/`, `.yaml`, and traversal segments before matching
+11. Generator exits with code `2` on id collisions and prints collision warning lines
+12. Load Puzzle screen exposes two first-class actions: `Enter Board` and `Load URL`
+13. Visual styling of both actions must follow existing product identity and interaction patterns
+14. A user can supply a valid YAML URL via Load URL and load it even when unindexed
+15. Load URL input validates URL structure, `.yaml` suffix, and disallows hash/query in v1
+16. A URL load validates puzzle YAML schema before rendering; invalid URLs/files show an error message
+17. Canceling Load URL returns user to current play screen without mutating board/URL
+18. A user can enter a raw board in single-line or multi-line text to play without a file
+19. Board parsing treats `1`-`9` as givens and all other characters as empty cells
+20. Entered boards are validated for 81-cell count and given-cell conflicts before loading
+21. Enter Board `Load` button is enabled only when input is valid
+22. Canceling Enter Board returns user to current play screen without mutating board/URL
+23. A successfully entered board rewrites the URL to `?board=<81-char-string>` for shareability
+24. A `?board=` URL parameter on startup loads the board directly without requiring a puzzle file
 
 ---
 
@@ -374,14 +394,18 @@ Cover:
 - stale board hash cleared on `not-found`
 - load modal opens with prefilled filter for non-exact token
 - canceling loader after non-exact token renders blank board + error message
-- direct path load of indexed file rewrites URL to canonical id
-- direct path load of unindexed file rewrites URL to path form
-- direct path to missing file applies Mechanic 1 behavior
-- direct path to schema-invalid file shows invalid file error
-- direct path with traversal segments is rejected
+- loader filter performs case-insensitive substring matching across all rendered row fields
+- Load Puzzle screen renders `Enter Board` and `Load URL` actions with product-consistent styling
+- Load URL dialog keeps Load disabled until URL passes initial validation rules
+- Load URL cancel returns to previous play screen unchanged
+- valid URL load of indexed puzzle rewrites URL to canonical id
+- valid URL load of unindexed puzzle rewrites URL to `?puzzleUrl=<encoded-url>`
+- invalid URL (hash/query/wrong extension) shows inline error and prevents loading
+- URL fetch/schema failures preserve current play screen state
 - `?board=` on startup loads entered board without puzzle file
 - entered board URL form is `?board=<81-char-string>`
-- board entry modal validates count, value range, and conflicts
+- Enter Board dialog treats `1`-`9` as givens and all other chars as empty
+- Enter Board Load remains disabled until 81 cells and conflict-free givens
 - invalid board input shows inline error and does not load
 
 ### Generator tests
@@ -486,6 +510,7 @@ Notes:
 
 - open Load Puzzle modal
 - prefill filter input with original incoming token (not sanitized token)
+- filter mode is case-insensitive substring match across all fields rendered in each loader row
 
 2. Modal outcomes:
 
@@ -654,7 +679,7 @@ These concrete scenarios validate behavior end-to-end. Use these to verify imple
 4. Match exact path: empty string does not match any path
 5. Non-exact → open Load Puzzle modal
 6. Prefill filter with original token: `../../../etc/passwd`
-7. Filter renders matches: none (no puzzle id or name contains that string)
+7. Filter renders matches: none (no rendered row field contains that string)
 8. User cancels (no selection available)
 
 **Output:**
@@ -758,74 +783,75 @@ These concrete scenarios validate behavior end-to-end. Use these to verify imple
 
 ---
 
-### Scenario 10: Direct YAML file path load of unindexed puzzle
+### Scenario 10: Load URL dialog loads an unindexed YAML URL
 
-**Input:** User types `puzzles/custom/my-puzzle.yaml` into the Load from path field in the modal.
+**Input:** User clicks `Load URL`, then enters `https://example.com/puzzles/custom/my-puzzle.yaml`.
 
-**Assumptions:** File exists on the server and contains valid puzzle YAML. No index entry for this path.
+**Assumptions:** URL is reachable, returns valid puzzle YAML, and has no index entry.
 
 **Flow:**
 
-1. Sanitize path: no traversal, starts with `puzzles/`, ends with `.yaml` — passes
-2. Fetch `puzzles/custom/my-puzzle.yaml`
+1. Validate URL: valid URL, path ends in `.yaml`, no hash/query — passes
+2. Fetch URL
 3. Parse YAML, validate schema: required fields present — valid
-4. Check index: no entry with this path — treat as unindexed
+4. Check index: no entry with this source — treat as unindexed
 5. Load puzzle state from given cells
 
 **Output:**
 
 - Render puzzle ready to play
-- Rewrite URL to `?puzzle=puzzles/custom/my-puzzle.yaml`
+- Rewrite URL to `?puzzleUrl=https%3A%2F%2Fexample.com%2Fpuzzles%2Fcustom%2Fmy-puzzle.yaml`
 
 ---
 
-### Scenario 11: Direct YAML file path load with traversal rejected
+### Scenario 11: Load URL dialog rejects URL with forbidden query/hash
 
-**Input:** User types `puzzles/../../secrets.yaml` into the Load from path field.
+**Input:** User enters `https://example.com/puzzles/001.yaml?mode=1#part`.
 
 **Flow:**
 
-1. Sanitize path: remove `../../` segments → `secrets.yaml`
-2. Does not start with `puzzles/` after sanitization — rejected
+1. Validate URL: hash exists and query exists — fails rules
+2. Keep Load button disabled
 
 **Output:**
 
-- Show error: `Can't load puzzle "puzzles/../../secrets.yaml".`
-- Render blank board; modal closed or input cleared
+- Show inline validation error in dialog
+- Current play screen remains unchanged until user cancels or edits input
 
 ---
 
-### Scenario 12: Manual board entry — valid 81-character string
+### Scenario 12: Enter Board dialog loads valid multi-line input
 
-**Input:** User opens Enter Board modal and pastes:
-`530070000600195000098000060800060003400803001700020006060000280000419005000080079`
+**Input:** User clicks `Enter Board` and pastes multi-line text containing digits and separators.
 
 **Flow:**
 
-1. Parse: 81 characters, all digits — valid length and values
-2. Validate: check each given cell against row/column/box — no conflicts
-3. At least one given cell present — valid
+1. Parse: digits `1`-`9` become givens; every other character becomes empty
+2. Normalize to 81 cells
+3. Validate conflicts in row/column/box — no conflicts
+4. Load button becomes enabled
 
 **Output:**
 
-- Close modal
+- User clicks Load, then dialog closes
 - Render board with given cells pre-filled
 - Rewrite URL to `?board=530070000600195000098000060800060003400803001700020006060000280000419005000080079`
 
 ---
 
-### Scenario 13: Manual board entry — invalid input (wrong length)
+### Scenario 13: Enter Board cancel returns to same play screen
 
-**Input:** User types `53007` (only 5 characters) in the Enter Board modal.
+**Input:** User opens `Enter Board`, types any partial text, then clicks Cancel.
 
 **Flow:**
 
-1. Parse: 5 characters — fails 81-cell count check
+1. Dialog is open over current game state
+2. User cancels without loading
 
 **Output:**
 
-- Show inline error: `Board must contain exactly 81 cells.`
-- Modal stays open; board not loaded
+- Dialog closes
+- Board, status, and URL remain exactly as they were before opening Enter Board
 
 ---
 
@@ -836,7 +862,7 @@ Each mechanic ships as its own patch release, in order:
 1. Mechanic 1 — Unknown puzzle ID behavior
 2. Mechanic 2 — URL puzzle ID rules and sanitization
 3. Mechanic 3 — Puzzle index generator
-4. Mechanic 4 — Direct YAML file path loading
+4. Mechanic 4 — Load URL from Load Puzzle screen
 5. Mechanic 5 — Manual board entry
 
 Hotfix patches may land between any two mechanic patches; that is expected and fine.
@@ -861,12 +887,13 @@ Exact version numbers are determined at the start of each mechanic, not in advan
 5. Implement puzzle metadata index generator
 6. Add token sanitization utility for URL puzzle ids
 7. Integrate loader data source with generated index
-8. Add direct path load handler in `js/app.js` with schema validation
-9. Add `getBoardFromQuery()` to `js/dom.js` for `?board=` parameter
-10. Add board string parser and validator in `js/puzzles.js` (pure functions)
-11. Add board-entry modal component and wire handler in `js/app.js`
-12. Add/expand tests in puzzles/dom/app and generator test modules
-13. Run Node harness: `node tests/run-node-tests.js --report-only-failures --report-status`
+8. Add Load Puzzle screen actions: `Enter Board` and `Load URL`, styled to match product identity
+9. Add URL dialog validation + load handler in `js/app.js` for YAML URL input
+10. Add `getBoardFromQuery()` and `getPuzzleUrlFromQuery()` in `js/dom.js`
+11. Add board parser/validator in `js/puzzles.js` (1-9 givens, all else empty)
+12. Add Enter Board dialog and wire handlers in `js/app.js`
+13. Add/expand tests in puzzles/dom/app and generator test modules
+14. Run Node harness: `node tests/run-node-tests.js --report-only-failures --report-status`
 
 ---
 
@@ -882,10 +909,10 @@ Exact version numbers are determined at the start of each mechanic, not in advan
   - Mitigation: index-driven matching avoids hardcoded path rules
 - Risk: index generator drifts from YAML schema changes
   - Mitigation: schema validation and failing fast in generator pipeline
-- Risk: direct path load allows fetching arbitrary files on the server
-  - Mitigation: sanitization enforces `puzzles/` prefix; rejected if traversal remains after sanitization
+- Risk: URL-based loading could fetch unintended or unsafe resources
+  - Mitigation: URL dialog enforces valid URL + `.yaml` + no hash/query, with strict scheme allowlist
 - Risk: entered board strings could be malformed or ambiguous
-  - Mitigation: strict 81-cell count, value-range check, and conflict detection before load; clear inline error shown on failure
+  - Mitigation: parser maps non-digits to empty, then enforces 81-cell count and conflict-free givens
 - Risk: `?board=` parameter conflicts with `?puzzle=` parameter in future URLs
   - Mitigation: parameters are mutually exclusive; startup reads `?puzzle=` first and only falls back to `?board=` when `?puzzle=` is absent
 
@@ -902,11 +929,13 @@ Exact version numbers are determined at the start of each mechanic, not in advan
 7. Canceling loader after non-exact token shows blank board + `Can't load puzzle "<id>".`
 8. On id collisions, generator prints `WARNING: ID collisions <id> on puzzles [list of puzzle files]` and exits with code `2`
 9. Test suite passes with added coverage for matcher and generator behavior
-10. Supplying a path like `puzzles/easy/001.yaml` to the Load from path input loads the file and rewrites URL to canonical id if indexed, or path form if not
-11. Supplying a path with traversal segments (for example `../../../etc/passwd`) is rejected and renders blank board with error
-12. Supplying a path to a missing YAML file shows `Can't load puzzle "<path>".` and blank board
-13. Supplying a path to a YAML file with missing required fields shows `Invalid puzzle file "<path>".` and blank board
-14. The Enter Board action accepts an 81-character digit string and loads it as a playable puzzle
-15. Entering an invalid board string (wrong count, bad values, conflicting givens) shows an inline error and does not load
-16. A successfully entered board rewrites the URL to `?board=<81-char-string>`
-17. Visiting a `?board=<81-char-string>` URL loads the entered board without a file
+10. Load Puzzle screen displays `Enter Board` and `Load URL` as first-class, style-consistent actions
+11. `Load URL` requires a valid URL ending in `.yaml`, with no hash and no query parameters
+12. `Load URL` keeps Load disabled until input is valid; Cancel returns to the previous play screen unchanged
+13. Valid YAML URL load rewrites URL to canonical id if indexed, or `?puzzleUrl=<encoded-url>` if unindexed
+14. URL fetch/schema failures show mapped error messaging and preserve previous play screen state
+15. Enter Board accepts single-line or multi-line text and treats only `1`-`9` as givens
+16. Enter Board keeps Load disabled until the normalized board is exactly 81 cells and conflict-free
+17. Enter Board Cancel returns to previous play screen unchanged
+18. A successfully entered board rewrites the URL to `?board=<81-char-string>`
+19. Visiting a `?board=<81-char-string>` URL loads the entered board without a file
