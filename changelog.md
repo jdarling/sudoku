@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.0]
+
+- Added unknown puzzle-link fallback behavior that shows `Can't load puzzle "<id>".`, renders a blank interactive board, and clears stale board hash state
+
 ## [1.15.1]
 
 - Added 50 new puzzles across all difficulty levels: 10 easy, 12 medium, 11 hard, 10 unfair, 10 extreme
