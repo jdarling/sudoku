@@ -81,7 +81,7 @@ const applyBoardStateFromHash = (decodedBoard) => {
   if (!currentState) {
     return;
   }
-  updateState({ ...currentState, board: decodedBoard });
+  updateState(applyDecodedBoard(currentState, decodedBoard));
 };
 
 /**
@@ -115,7 +115,11 @@ const loadGame = (puzzle, boardState) => {
  */
 const loadFetchedPuzzle = (puzzle) => {
   const boardState = createStateFromPuzzle(puzzle.puzzle);
-  updateQuery(puzzle.filename);
+  const canonicalId = puzzle.filename
+    .split("/")
+    .pop()
+    .replace(/\.yaml$/, "");
+  updateQuery(canonicalId);
   loadGame(puzzle, boardState);
 };
 
@@ -161,33 +165,48 @@ const loadPuzzleByFilename = async (filename) => {
 
 /**
  * Loads a new puzzle and initializes game state.
- * Checks URL query parameter first; if present, loads that puzzle.
+ * Checks URL query parameter first; if present, matches against puzzle index.
  * If a board hash exists in the URL, restores that board state (for URL-based persistence).
  * Otherwise loads a random puzzle and updates the URL.
  * @returns {Promise<void>}
  */
 const loadNewGame = async () => {
-  const puzzleFromQuery = getPuzzleFromQuery();
-  if (puzzleFromQuery) {
+  const incomingToken = getPuzzleFromQuery();
+  if (incomingToken) {
     try {
-      const puzzle = await getPuzzle(puzzleFromQuery);
-      let boardState = createStateFromPuzzle(puzzle.puzzle);
+      const filenames = await getPuzzles();
+      const { exactMatch, filtered } = findPuzzleMatches(
+        incomingToken,
+        filenames,
+      );
 
-      const boardHash = getBoardFromHash();
-      if (boardHash) {
-        const decodedBoard = decodeBoard(boardHash);
-        if (decodedBoard) {
-          boardState = { ...boardState, board: decodedBoard };
+      if (exactMatch) {
+        const puzzle = await getPuzzle(exactMatch);
+        let boardState = createStateFromPuzzle(puzzle.puzzle);
+
+        const boardHash = getBoardFromHash();
+        if (boardHash) {
+          const decodedBoard = decodeBoard(boardHash);
+          boardState = applyDecodedBoard(boardState, decodedBoard);
+        }
+
+        loadGame(puzzle, boardState);
+        const canonicalId = exactMatch
+          .split("/")
+          .pop()
+          .replace(/\.yaml$/, "");
+        updateQuery(canonicalId);
+      } else {
+        const selectedFilename = await openLoadModalForSelection(incomingToken);
+        if (!selectedFilename) {
+          showUnknownPuzzleFallback(incomingToken);
+        } else {
+          await loadPuzzleByFilename(selectedFilename);
         }
       }
-
-      loadGame(puzzle, boardState);
     } catch (error) {
-      const incomingToken = new URLSearchParams(window.location.search).get(
-        "puzzle",
-      );
-      const fallbackToken = incomingToken || extractPuzzleId(puzzleFromQuery);
-      showUnknownPuzzleFallback(fallbackToken);
+      console.error("[loadNewGame] error:", error);
+      showUnknownPuzzleFallback(incomingToken);
     }
     return;
   }
@@ -273,8 +292,6 @@ const init = async () => {
   currentOptions = loadOptions();
   initTheme();
   renderVersion();
-  await loadNewGame();
-  updateState(currentState);
 
   configureDomEventHandlers({
     getState: getCurrentState,
@@ -358,6 +375,9 @@ const init = async () => {
   window.addEventListener("keydown", onLoadModalKeydown);
   window.addEventListener("keydown", onConfirmModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);
+
+  await loadNewGame();
+  updateState(currentState);
 };
 
 init().catch((error) => {

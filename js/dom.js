@@ -15,30 +15,15 @@ const isCoarsePointerDevice = () => {
 };
 
 /**
- * Extracts puzzle filename from URL query parameter.
- * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml, ?puzzle=easy/001
- * @returns {string|null} Puzzle filename or null if puzzle param is empty
+ * Extracts puzzle token from URL query parameter.
+ * Returns the raw token without path inference or file extension handling.
+ * Token sanitization and file resolution happens at the resolver layer.
+ * @returns {string|null} Raw puzzle token or null if puzzle param is empty
  */
 const getPuzzleFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   const puzzle = params.get("puzzle");
-  if (!puzzle) {
-    return null;
-  }
-  const DIFFICULTY_LEVELS = ["easy", "medium", "hard", "unfair", "extreme"];
-  const startsWithDifficulty = DIFFICULTY_LEVELS.some((level) =>
-    puzzle.startsWith(`${level}/`),
-  );
-  if (startsWithDifficulty && !puzzle.includes("puzzles/")) {
-    return `puzzles/${puzzle}${puzzle.includes(".yaml") ? "" : ".yaml"}`;
-  }
-  if (!puzzle.includes("/")) {
-    return `puzzles/${puzzle}.yaml`;
-  }
-  if (!puzzle.includes(".yaml")) {
-    return `${puzzle}.yaml`;
-  }
-  return puzzle;
+  return puzzle || null;
 };
 
 /**
@@ -55,13 +40,12 @@ const getBoardFromHash = () => {
 };
 
 /**
- * Updates URL query parameter with current puzzle filename.
- * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
+ * Updates URL query parameter with the canonical puzzle id.
+ * @param {string} canonicalId - Canonical puzzle id (e.g., "004")
  */
-const updateQuery = (filename) => {
+const updateQuery = (canonicalId) => {
   const params = new URLSearchParams(window.location.search);
-  const shortName = filename.replace(/\.yaml$/, "").replace(/^puzzles\//, "");
-  params.set("puzzle", shortName);
+  params.set("puzzle", canonicalId);
   window.history.replaceState(
     null,
     "",

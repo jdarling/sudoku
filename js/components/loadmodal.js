@@ -30,6 +30,13 @@ let loadModalFilterText = "";
 let loadModalSelectedFilename = "";
 
 /**
+ * Resolve function for the active openLoadModalForSelection promise.
+ * Null when the modal was not opened in selection mode.
+ * @type {Function|null}
+ */
+let loadModalResolve = null;
+
+/**
  * Registers dependencies used by load modal handlers.
  * @param {Object} deps - Dependency functions from app orchestration
  * @param {Function} deps.listPuzzles - Returns Promise<string[]> of filenames
@@ -107,9 +114,10 @@ const renderLoadModal = () => {
 
 /**
  * Opens the load modal and fetches the available puzzle list.
+ * @param {string} [prefillFilter] - Optional filter text to prefill
  * @returns {Promise<void>}
  */
-const openLoadModal = async () => {
+const openLoadModal = async (prefillFilter = "") => {
   if (!loadModalDeps) {
     return;
   }
@@ -120,11 +128,11 @@ const openLoadModal = async () => {
   }
 
   loadModalFilenames = [];
-  loadModalFilterText = "";
+  loadModalFilterText = prefillFilter || "";
   loadModalSelectedFilename = "";
 
   openModal(elements.modal);
-  elements.filterInput.value = "";
+  elements.filterInput.value = prefillFilter || "";
   elements.status.textContent = "Loading puzzles...";
   elements.selectBtn.disabled = true;
   elements.tableBody.innerHTML = "";
@@ -137,6 +145,19 @@ const openLoadModal = async () => {
   } catch (error) {
     elements.status.textContent = `Failed to load puzzle list: ${error.message}`;
   }
+};
+
+/**
+ * Opens the load modal in selection mode.
+ * Resolves with the selected filename, or null if the user cancels.
+ * @param {string} [prefillFilter] - Optional filter text to prefill
+ * @returns {Promise<string|null>}
+ */
+const openLoadModalForSelection = (prefillFilter = "") => {
+  return new Promise((resolve) => {
+    loadModalResolve = resolve;
+    openLoadModal(prefillFilter);
+  });
 };
 
 /**
@@ -194,11 +215,20 @@ const onLoadModalTableClick = (event) => {
  */
 const onLoadModalTableDblClick = (event) => {
   const row = event.target.closest("tr[data-key]");
-  if (!row || !loadModalDeps) {
+  if (!row) {
     return;
   }
   const selectedFilename = row.dataset.key;
   closeLoadModal();
+  if (loadModalResolve) {
+    const resolve = loadModalResolve;
+    loadModalResolve = null;
+    resolve(selectedFilename);
+    return;
+  }
+  if (!loadModalDeps) {
+    return;
+  }
   loadModalDeps.loadPuzzleByFilename(selectedFilename);
 };
 
@@ -207,17 +237,31 @@ const onLoadModalTableDblClick = (event) => {
  */
 const onLoadModalCancelClick = () => {
   closeLoadModal();
+  if (loadModalResolve) {
+    const resolve = loadModalResolve;
+    loadModalResolve = null;
+    resolve(null);
+  }
 };
 
 /**
  * Handles the Select button — loads the currently highlighted puzzle.
  */
 const onLoadModalSelectClick = () => {
-  if (!loadModalDeps || !loadModalSelectedFilename) {
+  if (!loadModalSelectedFilename) {
     return;
   }
   const selectedFilename = loadModalSelectedFilename;
   closeLoadModal();
+  if (loadModalResolve) {
+    const resolve = loadModalResolve;
+    loadModalResolve = null;
+    resolve(selectedFilename);
+    return;
+  }
+  if (!loadModalDeps) {
+    return;
+  }
   loadModalDeps.loadPuzzleByFilename(selectedFilename);
 };
 
@@ -235,6 +279,11 @@ const onLoadModalKeydown = (event) => {
   if (event.key === "Escape") {
     event.preventDefault();
     closeLoadModal();
+    if (loadModalResolve) {
+      const resolve = loadModalResolve;
+      loadModalResolve = null;
+      resolve(null);
+    }
     return;
   }
 

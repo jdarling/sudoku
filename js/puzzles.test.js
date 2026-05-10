@@ -29,6 +29,8 @@ const runPuzzleTests = () => {
   let getPuzzles = resolveSymbol("getPuzzles");
   let getPuzzle = resolveSymbol("getPuzzle");
   let getRandomPuzzle = resolveSymbol("getRandomPuzzle");
+  let sanitizePuzzleToken = resolveSymbol("sanitizePuzzleToken");
+  let findPuzzleMatches = resolveSymbol("findPuzzleMatches");
 
   setTestFile("puzzles.js");
 
@@ -224,6 +226,94 @@ const runPuzzleTests = () => {
 
     const puzzle = await getRandomPuzzle("puzzles/001.yaml");
     return expect(puzzle.filename).toBe("puzzles/001.yaml");
+  });
+
+  test("sanitizePuzzleToken returns empty string for falsy input", () => {
+    return expect(sanitizePuzzleToken("")).toBe("");
+  });
+
+  test("sanitizePuzzleToken strips .yaml suffix", () => {
+    return expect(sanitizePuzzleToken("004.yaml")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken strips puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("puzzles/004.yaml")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken strips difficulty subdir and puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("puzzles/easy/004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("sanitizePuzzleToken strips easy/ prefix without puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("easy/004.yaml")).toBe("easy/004");
+  });
+
+  test("sanitizePuzzleToken removes path traversal segments", () => {
+    return expect(sanitizePuzzleToken("../004")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken removes internal path traversal", () => {
+    return expect(sanitizePuzzleToken("puzzles/../easy/004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("sanitizePuzzleToken URL-decodes encoded input", () => {
+    return expect(sanitizePuzzleToken("puzzles%2Feasy%2F004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("findPuzzleMatches returns no match for empty index", () => {
+    const result = findPuzzleMatches("004", []);
+    return expect(
+      result.exactMatch === null && result.filtered.length === 0,
+    ).toBeTruthy();
+  });
+
+  test("findPuzzleMatches exact match by canonical id", () => {
+    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
+    const result = findPuzzleMatches("004", filenames);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches exact match by legacy path token", () => {
+    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
+    const result = findPuzzleMatches("easy/004", filenames);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches exact match for full legacy path", () => {
+    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
+    const result = findPuzzleMatches("puzzles/easy/004.yaml", filenames);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches returns no exact match for unknown token", () => {
+    const filenames = ["puzzles/easy/004.yaml"];
+    const result = findPuzzleMatches("999", filenames);
+    return expect(result.exactMatch === null).toBeTruthy();
+  });
+
+  test("findPuzzleMatches returns filtered candidates for partial token", () => {
+    const filenames = [
+      "puzzles/easy/004.yaml",
+      "puzzles/medium/011.yaml",
+      "puzzles/hard/021.yaml",
+    ];
+    const result = findPuzzleMatches("easy", filenames);
+    return expect(
+      result.filtered.length === 1 &&
+        result.filtered[0] === "puzzles/easy/004.yaml",
+    ).toBeTruthy();
+  });
+
+  test("findPuzzleMatches returns empty filtered for completely unknown token", () => {
+    const filenames = ["puzzles/easy/004.yaml"];
+    const result = findPuzzleMatches("xyzzy", filenames);
+    return expect(result.filtered.length === 0).toBeTruthy();
   });
 };
 

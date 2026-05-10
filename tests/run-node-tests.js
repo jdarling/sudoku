@@ -3,15 +3,15 @@
  * Loads test files from testConfig.js for consistency with browser runner.
  */
 
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
-const { TEST_FILES } = require('./testConfig.js');
+const fs = require("fs");
+const path = require("path");
+const vm = require("vm");
+const { TEST_FILES } = require("./testConfig.js");
 const {
   clearTestRegistry,
   runAllRegisteredTests,
   printTestResults,
-} = require('./testharness.js');
+} = require("./testharness.js");
 
 /**
  * Parses CLI flags for test output reporting modes.
@@ -21,9 +21,9 @@ const {
 const parseRunnerArgs = (argv) => {
   const argSet = new Set(argv);
   return {
-    reportOnlyFailures: argSet.has('--report-only-failures'),
-    reportStatus: argSet.has('--report-status'),
-    showHelp: argSet.has('--help') || argSet.has('-h'),
+    reportOnlyFailures: argSet.has("--report-only-failures"),
+    reportStatus: argSet.has("--report-status"),
+    showHelp: argSet.has("--help") || argSet.has("-h"),
   };
 };
 
@@ -31,16 +31,16 @@ const parseRunnerArgs = (argv) => {
  * Prints usage text for runner flags.
  */
 const printUsage = () => {
-  console.log('Usage: node tests/run-node-tests.js [options]');
-  console.log('');
-  console.log('Options:');
+  console.log("Usage: node tests/run-node-tests.js [options]");
+  console.log("");
+  console.log("Options:");
   console.log(
-    '  --report-only-failures  Print only failed test messages and summary',
+    "  --report-only-failures  Print only failed test messages and summary",
   );
   console.log(
-    '  --report-status         Print one-line PASS/FAIL status summary',
+    "  --report-status         Print one-line PASS/FAIL status summary",
   );
-  console.log('  -h, --help              Show this help text');
+  console.log("  -h, --help              Show this help text");
 };
 
 /**
@@ -55,14 +55,14 @@ const printFailureOnlyResults = (summary) => {
     }
 
     console.log(`\n${file.fileName}`);
-    console.log('='.repeat(40));
+    console.log("=".repeat(40));
     failedTests.forEach((test) => {
       console.log(test.message);
     });
     console.log(`${file.failed}/${file.total} failed`);
   });
 
-  console.log('\n' + '='.repeat(40));
+  console.log("\n" + "=".repeat(40));
   if (summary.totalFailed === 0) {
     console.log(
       `No failures. ${summary.totalPassed}/${summary.total} tests passed`,
@@ -71,7 +71,7 @@ const printFailureOnlyResults = (summary) => {
     console.log(`${summary.totalFailed}/${summary.total} tests failed`);
     console.log(`${summary.totalPassed}/${summary.total} tests passed`);
   }
-  console.log('='.repeat(40) + '\n');
+  console.log("=".repeat(40) + "\n");
 };
 
 /**
@@ -79,7 +79,7 @@ const printFailureOnlyResults = (summary) => {
  * @param {Object} summary - Test summary
  */
 const printStatusLine = (summary) => {
-  const status = summary.totalFailed > 0 ? 'FAIL' : 'PASS';
+  const status = summary.totalFailed > 0 ? "FAIL" : "PASS";
   console.log(
     `STATUS: ${status} (${summary.totalPassed}/${summary.total} passed, ${summary.totalFailed} failed)`,
   );
@@ -92,10 +92,10 @@ const printStatusLine = (summary) => {
  * @param {string[]} exportNames - Symbols to copy to globalThis
  */
 const loadScript = (scriptPath, exportNames) => {
-  const source = fs.readFileSync(scriptPath, 'utf8');
+  const source = fs.readFileSync(scriptPath, "utf8");
   const expose = exportNames
     .map((name) => `globalThis.${name} = ${name};`)
-    .join('\n');
+    .join("\n");
   vm.runInThisContext(`${source}\n${expose}`, {
     filename: scriptPath,
   });
@@ -107,84 +107,87 @@ globalThis.jsyaml = {
   load: (text) => JSON.parse(text),
 };
 
-loadScript(path.join(__dirname, '../js/constants.js'), [
-  'GRID_SIZE',
-  'TOTAL_CELLS',
-  'BOX_SIZE',
-  'VERSION',
-  'STATUS_MESSAGES',
-  'ENCODING_CHARS',
-  'ARROW_MOVES',
-  'AVAILABLE_THEMES',
-  'DEFAULT_THEME',
-  'STYLE_CONFIGS',
+loadScript(path.join(__dirname, "../js/constants.js"), [
+  "GRID_SIZE",
+  "TOTAL_CELLS",
+  "BOX_SIZE",
+  "VERSION",
+  "STATUS_MESSAGES",
+  "ENCODING_CHARS",
+  "ARROW_MOVES",
+  "AVAILABLE_THEMES",
+  "DEFAULT_THEME",
+  "STYLE_CONFIGS",
 ]);
-loadScript(path.join(__dirname, '../js/utils.js'), [
-  'formatString',
-  'extractPuzzleId',
-  'normalizePuzzleId',
-  'formatPuzzleStatus',
+loadScript(path.join(__dirname, "../js/utils.js"), [
+  "formatString",
+  "extractPuzzleId",
+  "normalizePuzzleId",
+  "formatPuzzleStatus",
 ]);
-loadScript(path.join(__dirname, '../js/solver.js'), [
-  'idx',
-  'isValid',
-  'solve',
-  'getRelated',
+loadScript(path.join(__dirname, "../js/solver.js"), [
+  "idx",
+  "isValid",
+  "solve",
+  "getRelated",
 ]);
-loadScript(path.join(__dirname, '../js/styler.js'), [
-  'getCellsWithSameNumber',
-  'styleCell',
-  'styleRow',
-  'styleCol',
-  'styleBlock',
-  'styleSameValueRows',
-  'styleSameValueCols',
-  'styleSameValueBlocks',
-  'styleSameValueCells',
-  'styleSelectedRow',
-  'styleSelectedCol',
-  'styleSelectedBlock',
-  'styleSelectedCell',
-  'styleGivenCells',
-  'buildStyles',
+loadScript(path.join(__dirname, "../js/styler.js"), [
+  "getCellsWithSameNumber",
+  "styleCell",
+  "styleRow",
+  "styleCol",
+  "styleBlock",
+  "styleSameValueRows",
+  "styleSameValueCols",
+  "styleSameValueBlocks",
+  "styleSameValueCells",
+  "styleSelectedRow",
+  "styleSelectedCol",
+  "styleSelectedBlock",
+  "styleSelectedCell",
+  "styleGivenCells",
+  "buildStyles",
 ]);
-loadScript(path.join(__dirname, '../js/state.js'), [
-  'createStateFromPuzzle',
-  'selectCell',
-  'placeNumber',
-  'solveBoard',
-  'hasBoardConflicts',
-  'checkSolution',
-  'hintBoard',
-  'getHintCells',
-  'getWrongCells',
-  'encodeBoard',
-  'decodeBoard',
-  'clearCellValue',
-  'applyNumber',
-  'moveSelection',
-  'isInBox',
-  'getCellHighlightClass',
+loadScript(path.join(__dirname, "../js/state.js"), [
+  "createStateFromPuzzle",
+  "selectCell",
+  "placeNumber",
+  "solveBoard",
+  "hasBoardConflicts",
+  "checkSolution",
+  "hintBoard",
+  "getHintCells",
+  "getWrongCells",
+  "encodeBoard",
+  "decodeBoard",
+  "applyDecodedBoard",
+  "clearCellValue",
+  "applyNumber",
+  "moveSelection",
+  "isInBox",
+  "getCellHighlightClass",
 ]);
-loadScript(path.join(__dirname, '../js/puzzles.js'), [
-  'parsePuzzleDoc',
-  'getPuzzles',
-  'getPuzzle',
-  'getRandomPuzzle',
+loadScript(path.join(__dirname, "../js/puzzles.js"), [
+  "parsePuzzleDoc",
+  "getPuzzles",
+  "getPuzzle",
+  "getRandomPuzzle",
+  "sanitizePuzzleToken",
+  "findPuzzleMatches",
 ]);
-loadScript(path.join(__dirname, '../js/dom.js'), [
-  'configureDomEventHandlers',
-  'onCellFocus',
-  'onCellKeydown',
-  'onCellInput',
-  'onNumberButtonClick',
-  'onNewGameClick',
-  'onLoadGameClick',
-  'onCheckButtonClick',
-  'onHintButtonClick',
-  'onSolveButtonClick',
-  'onPopState',
-  'onHashChange',
+loadScript(path.join(__dirname, "../js/dom.js"), [
+  "configureDomEventHandlers",
+  "onCellFocus",
+  "onCellKeydown",
+  "onCellInput",
+  "onNumberButtonClick",
+  "onNewGameClick",
+  "onLoadGameClick",
+  "onCheckButtonClick",
+  "onHintButtonClick",
+  "onSolveButtonClick",
+  "onPopState",
+  "onHashChange",
 ]);
 
 clearTestRegistry();

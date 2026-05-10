@@ -69,6 +69,69 @@ const getPuzzle = async (filename) => {
 };
 
 /**
+ * Sanitizes a puzzle token for matching.
+ * Strips puzzles/ prefix, .yaml suffix, URL-decodes, and removes path traversal segments.
+ * @param {string} token - Raw puzzle token from URL or user input
+ * @returns {string} Sanitized token safe for matching
+ */
+const sanitizePuzzleToken = (token) => {
+  if (!token || typeof token !== "string") {
+    return "";
+  }
+
+  let sanitized = token.trim();
+  sanitized = decodeURIComponent(sanitized);
+  sanitized = sanitized.replace(/^puzzles[\/\\]/, "");
+  sanitized = sanitized.replace(/\.yaml$/, "");
+  sanitized = sanitized.replace(/\\/g, "/");
+  sanitized = sanitized.replace(/^\//, "");
+  sanitized = sanitized.replace(/\/\.\.\//g, "/");
+  sanitized = sanitized.replace(/^\.\.\//, "");
+  sanitized = sanitized.replace(/\/\.\//, "/");
+  sanitized = sanitized.replace(/^\.\//, "");
+
+  return sanitized;
+};
+
+/**
+ * Finds puzzle matches for a given token against the puzzle index.
+ * Returns an exact match if the token matches a puzzle ID exactly,
+ * and a list of filtered candidates for non-exact tokens.
+ * @param {string} token - Raw puzzle token
+ * @param {string[]} filenames - Array of puzzle filenames from index
+ * @returns {Object} { exactMatch: filename|null, filtered: [filenames] }
+ */
+const findPuzzleMatches = (token, filenames) => {
+  if (!token || !filenames || filenames.length === 0) {
+    return { exactMatch: null, filtered: [] };
+  }
+
+  const sanitized = sanitizePuzzleToken(token);
+  if (!sanitized) {
+    return { exactMatch: null, filtered: [] };
+  }
+
+  const tokenLower = sanitized.toLowerCase();
+  let exactMatch = null;
+  const filtered = [];
+
+  filenames.forEach((filename) => {
+    const basename = filename.replace(/^puzzles\//, "").replace(/\.yaml$/, "");
+    const basenameForId = basename.split("/").pop();
+
+    if (basenameForId === tokenLower || basename === tokenLower) {
+      exactMatch = filename;
+    }
+
+    if (basename.toLowerCase().includes(tokenLower)) {
+      filtered.push(filename);
+    }
+  });
+
+  return { exactMatch, filtered };
+};
+
+/**
  * Fetches a random puzzle.
  * Currently selects from the local index — replace this implementation
  * with an API call (e.g. GET /api/puzzles/random) when a backend is available,

@@ -4,15 +4,15 @@
  * @returns {Object} Initial state object
  */
 const createStateFromPuzzle = (puzzleStr) => {
-  const board = puzzleStr.split('').map(Number);
+  const board = puzzleStr.split("").map(Number);
   const given = board.map((digit) => digit !== 0);
   return {
     puzzle: [...board],
     board,
     given,
     selected: -1,
-    status: '',
-    statusType: '',
+    status: "",
+    statusType: "",
     hinting: false,
   };
 };
@@ -64,7 +64,7 @@ const getCellHighlightClass = (
   selectedIndex,
   boardState,
   relatedCells,
-  highlightMode = 'related-block',
+  highlightMode = "related-block",
   given = null,
 ) => {
   const features = getStyleConfigFeatures(highlightMode);
@@ -112,8 +112,8 @@ const placeNumber = (state, cellIndex, num) => {
   return {
     ...state,
     board: newBoard,
-    status: '',
-    statusType: '',
+    status: "",
+    statusType: "",
     hinting: false,
   };
 };
@@ -131,8 +131,8 @@ const solveBoard = (state) => {
     return {
       ...state,
       selected: -1,
-      status: 'Puzzle is unsolveable',
-      statusType: 'error',
+      status: "Puzzle is unsolveable",
+      statusType: "error",
     };
   }
 
@@ -140,8 +140,8 @@ const solveBoard = (state) => {
     ...state,
     board: solution,
     selected: -1,
-    status: 'Puzzle solved!',
-    statusType: 'win',
+    status: "Puzzle solved!",
+    statusType: "win",
   };
   return solvedState;
 };
@@ -183,8 +183,8 @@ const checkSolution = (state, showErrors) => {
     }
     return {
       ...state,
-      status: 'Some cells are incorrect',
-      statusType: 'error',
+      status: "Some cells are incorrect",
+      statusType: "error",
     };
   }
 
@@ -195,8 +195,8 @@ const checkSolution = (state, showErrors) => {
     }
     return {
       ...state,
-      status: 'Some cells are incorrect',
-      statusType: 'error',
+      status: "Some cells are incorrect",
+      statusType: "error",
     };
   }
 
@@ -204,8 +204,8 @@ const checkSolution = (state, showErrors) => {
   if (isComplete) {
     return {
       ...state,
-      status: 'Puzzle solved!',
-      statusType: 'win',
+      status: "Puzzle solved!",
+      statusType: "win",
     };
   }
 
@@ -215,8 +215,8 @@ const checkSolution = (state, showErrors) => {
 
   return {
     ...state,
-    status: 'All values are correct',
-    statusType: 'win',
+    status: "All values are correct",
+    statusType: "win",
   };
 };
 
@@ -295,7 +295,7 @@ const getWrongCells = (state) => {
 const compressBoard = (board) => {
   // Treat the 81 digits as one massive BigInt
   let val = BigInt(board);
-  let result = '';
+  let result = "";
 
   // log64(10^81) ≈ 44.8, so 45 characters is the minimum possible
   for (let i = 0; i < 45; i++) {
@@ -317,7 +317,7 @@ const decompressBoard = (compact) => {
   }
 
   // Restore as string, padding with leading zeros to maintain 81 chars
-  return val.toString().padStart(81, '0');
+  return val.toString().padStart(81, "0");
 };
 
 /**
@@ -340,16 +340,9 @@ const applyNumber = (state, num) => {
  * @returns {string} Encoded board string
  */
 const encodeBoard = (board) => {
-  return compressBoard(board.map((digit) => digit.toString()).join(''));
+  return compressBoard(board.map((digit) => digit.toString()).join(""));
 };
 
-/**
- * Decodes a hash string to a board array, preserving given cells.
- * @param {string} encodedBoard - Encoded board string (81 characters)
- * @param {boolean[]} givenCells - Array indicating which cells are given (immutable)
- * @param {number[]} originalBoard - Original puzzle board to restore given cells from
- * @returns {number[]} Decoded board array, with given cells restored from original puzzle
- */
 /**
  * Decodes an encoded board string into a board array.
  * @param {string} encodedBoard - 81-character digit string
@@ -363,5 +356,30 @@ const decodeBoard = (encodedBoard) => {
   if (!decoded || decoded.length !== TOTAL_CELLS || !/^\d+$/.test(decoded)) {
     return null;
   }
-  return decoded.split('').map((char) => parseInt(char, 10));
+  return decoded.split("").map((char) => parseInt(char, 10));
+};
+
+/**
+ * Applies a decoded board onto state while preserving immutable given cells.
+ * Given cells are always restored from the original puzzle digits.
+ * @param {Object} state - Current puzzle state
+ * @param {number[]|null} decodedBoard - Decoded board array from URL hash
+ * @returns {Object} New state with merged board, or original state when invalid
+ */
+const applyDecodedBoard = (state, decodedBoard) => {
+  if (!state || !decodedBoard || decodedBoard.length !== TOTAL_CELLS) {
+    return state;
+  }
+
+  const mergedBoard = decodedBoard.map((digit, index) => {
+    if (state.given[index]) {
+      return state.puzzle[index];
+    }
+    return digit;
+  });
+
+  return {
+    ...state,
+    board: mergedBoard,
+  };
 };

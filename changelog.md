@@ -9,6 +9,15 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.1]
+
+- URL puzzle tokens are now sanitized before matching: URL-decoded, `puzzles/` prefix stripped, `.yaml` suffix stripped, and path traversal segments (`../`, `./`) removed
+- Exact canonical id match (e.g. `?puzzle=004`) loads the puzzle immediately and rewrites the URL to its canonical form
+- Legacy full-path tokens (e.g. `?puzzle=puzzles/easy/004.yaml` or `?puzzle=easy/004.yaml`) resolve to the correct puzzle and the URL is rewritten to the canonical id
+- Ambiguous or partial tokens (e.g. `?puzzle=04`) open the Load Puzzle modal with the token prefilled in the filter field so the user can pick the intended puzzle
+- Canceling the modal from an unresolved token falls back to the blank board with the `Can't load puzzle` error from 1.16.0
+- URL hash board restore now preserves puzzle givens (immutable cells) and applies hash values only to non-given cells
+
 ## [1.16.0]
 
 - Added unknown puzzle-link fallback behavior that shows `Can't load puzzle "<id>".`, renders a blank interactive board, and clears stale board hash state
