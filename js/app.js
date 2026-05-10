@@ -174,10 +174,10 @@ const loadNewGame = async () => {
   const incomingToken = getPuzzleFromQuery();
   if (incomingToken) {
     try {
-      const filenames = await getPuzzles();
+      const indexEntries = await getPuzzleIndex();
       const { exactMatch, filtered } = findPuzzleMatches(
         incomingToken,
-        filenames,
+        indexEntries,
       );
 
       if (exactMatch) {
@@ -304,7 +304,7 @@ const init = async () => {
   });
 
   configureLoadModal({
-    listPuzzles: getPuzzles,
+    listPuzzles: getPuzzleIndex,
     loadPuzzleByFilename,
   });
 

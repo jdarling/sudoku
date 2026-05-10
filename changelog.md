@@ -9,6 +9,16 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.2]
+
+- Added metadata-first puzzle index generation via `node tools/generate-puzzle-index.js`; `data/puzzles.json` is now generated from YAML files with entries containing `id`, `path`, `name`, `level`, `author`, and `description`
+- Added generator validation and explicit exit codes: id collision warnings with exit `2`, schema/alias validation failures with exit `3`, and IO failures with exit `4`
+- Updated runtime puzzle loading to consume metadata index entries (`getPuzzleIndex`) while preserving existing filename-based loading behavior
+- Updated URL token matching to operate on metadata entries with strict canonical id matching and exact legacy-path fallback matching
+- Updated Load Puzzle modal filtering to use metadata fields (`id`, `name`, `level`, `author`, `description`, `path`) and render metadata-first selection rows
+- Added explicit unique IDs (`051`, `052`, `053`) for previously colliding puzzle files so the generated index can remain globally unique
+- Added/updated unit tests for metadata index loading and metadata-based matching/filtering; Node suite now passes `147/147`
+
 ## [1.16.1]
 
 - URL puzzle tokens are now sanitized before matching: URL-decoded, `puzzles/` prefix stripped, `.yaml` suffix stripped, and path traversal segments (`../`, `./`) removed

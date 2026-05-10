@@ -1,55 +1,426 @@
 [
-  "puzzles/easy/001.yaml",
-  "puzzles/easy/002.yaml",
-  "puzzles/easy/003.yaml",
-  "puzzles/easy/004.yaml",
-  "puzzles/easy/005.yaml",
-  "puzzles/easy/006.yaml",
-  "puzzles/easy/007.yaml",
-  "puzzles/easy/008.yaml",
-  "puzzles/easy/009.yaml",
-  "puzzles/easy/010.yaml",
-  "puzzles/medium/003.yaml",
-  "puzzles/medium/005.yaml",
-  "puzzles/medium/011.yaml",
-  "puzzles/medium/012.yaml",
-  "puzzles/medium/013.yaml",
-  "puzzles/medium/014.yaml",
-  "puzzles/medium/015.yaml",
-  "puzzles/medium/016.yaml",
-  "puzzles/medium/017.yaml",
-  "puzzles/medium/018.yaml",
-  "puzzles/medium/019.yaml",
-  "puzzles/medium/020.yaml",
-  "puzzles/hard/004.yaml",
-  "puzzles/hard/021.yaml",
-  "puzzles/hard/022.yaml",
-  "puzzles/hard/023.yaml",
-  "puzzles/hard/024.yaml",
-  "puzzles/hard/025.yaml",
-  "puzzles/hard/026.yaml",
-  "puzzles/hard/027.yaml",
-  "puzzles/hard/028.yaml",
-  "puzzles/hard/029.yaml",
-  "puzzles/hard/030.yaml",
-  "puzzles/unfair/031.yaml",
-  "puzzles/unfair/032.yaml",
-  "puzzles/unfair/033.yaml",
-  "puzzles/unfair/034.yaml",
-  "puzzles/unfair/035.yaml",
-  "puzzles/unfair/036.yaml",
-  "puzzles/unfair/037.yaml",
-  "puzzles/unfair/038.yaml",
-  "puzzles/unfair/039.yaml",
-  "puzzles/unfair/040.yaml",
-  "puzzles/extreme/041.yaml",
-  "puzzles/extreme/042.yaml",
-  "puzzles/extreme/043.yaml",
-  "puzzles/extreme/044.yaml",
-  "puzzles/extreme/045.yaml",
-  "puzzles/extreme/046.yaml",
-  "puzzles/extreme/047.yaml",
-  "puzzles/extreme/048.yaml",
-  "puzzles/extreme/049.yaml",
-  "puzzles/extreme/050.yaml"
+  {
+    "id": "001",
+    "path": "puzzles/easy/001.yaml",
+    "name": "Puzzle 001",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "002",
+    "path": "puzzles/easy/002.yaml",
+    "name": "Puzzle 002",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "003",
+    "path": "puzzles/easy/003.yaml",
+    "name": "Puzzle 003",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "004",
+    "path": "puzzles/easy/004.yaml",
+    "name": "Puzzle 004",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "005",
+    "path": "puzzles/easy/005.yaml",
+    "name": "Puzzle 005",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "006",
+    "path": "puzzles/easy/006.yaml",
+    "name": "Puzzle 006",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "007",
+    "path": "puzzles/easy/007.yaml",
+    "name": "Puzzle 007",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "008",
+    "path": "puzzles/easy/008.yaml",
+    "name": "Puzzle 008",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "009",
+    "path": "puzzles/easy/009.yaml",
+    "name": "Puzzle 009",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "010",
+    "path": "puzzles/easy/010.yaml",
+    "name": "Puzzle 010",
+    "level": "easy",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "011",
+    "path": "puzzles/medium/011.yaml",
+    "name": "Puzzle 011",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "012",
+    "path": "puzzles/medium/012.yaml",
+    "name": "Puzzle 012",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "013",
+    "path": "puzzles/medium/013.yaml",
+    "name": "Puzzle 013",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "014",
+    "path": "puzzles/medium/014.yaml",
+    "name": "Puzzle 014",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "015",
+    "path": "puzzles/medium/015.yaml",
+    "name": "Puzzle 015",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "016",
+    "path": "puzzles/medium/016.yaml",
+    "name": "Puzzle 016",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "017",
+    "path": "puzzles/medium/017.yaml",
+    "name": "Puzzle 017",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "018",
+    "path": "puzzles/medium/018.yaml",
+    "name": "Puzzle 018",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "019",
+    "path": "puzzles/medium/019.yaml",
+    "name": "Puzzle 019",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "020",
+    "path": "puzzles/medium/020.yaml",
+    "name": "Puzzle 020",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "021",
+    "path": "puzzles/hard/021.yaml",
+    "name": "Puzzle 021",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "022",
+    "path": "puzzles/hard/022.yaml",
+    "name": "Puzzle 022",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "023",
+    "path": "puzzles/hard/023.yaml",
+    "name": "Puzzle 023",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "024",
+    "path": "puzzles/hard/024.yaml",
+    "name": "Puzzle 024",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "025",
+    "path": "puzzles/hard/025.yaml",
+    "name": "Puzzle 025",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "026",
+    "path": "puzzles/hard/026.yaml",
+    "name": "Puzzle 026",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "027",
+    "path": "puzzles/hard/027.yaml",
+    "name": "Puzzle 027",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "028",
+    "path": "puzzles/hard/028.yaml",
+    "name": "Puzzle 028",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "029",
+    "path": "puzzles/hard/029.yaml",
+    "name": "Puzzle 029",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "030",
+    "path": "puzzles/hard/030.yaml",
+    "name": "Puzzle 030",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "031",
+    "path": "puzzles/unfair/031.yaml",
+    "name": "Puzzle 031",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "032",
+    "path": "puzzles/unfair/032.yaml",
+    "name": "Puzzle 032",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "033",
+    "path": "puzzles/unfair/033.yaml",
+    "name": "Puzzle 033",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "034",
+    "path": "puzzles/unfair/034.yaml",
+    "name": "Puzzle 034",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "035",
+    "path": "puzzles/unfair/035.yaml",
+    "name": "Puzzle 035",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "036",
+    "path": "puzzles/unfair/036.yaml",
+    "name": "Puzzle 036",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "037",
+    "path": "puzzles/unfair/037.yaml",
+    "name": "Puzzle 037",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "038",
+    "path": "puzzles/unfair/038.yaml",
+    "name": "Puzzle 038",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "039",
+    "path": "puzzles/unfair/039.yaml",
+    "name": "Puzzle 039",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "040",
+    "path": "puzzles/unfair/040.yaml",
+    "name": "Puzzle 040",
+    "level": "unfair",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "041",
+    "path": "puzzles/extreme/041.yaml",
+    "name": "Puzzle 041",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "042",
+    "path": "puzzles/extreme/042.yaml",
+    "name": "Puzzle 042",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "043",
+    "path": "puzzles/extreme/043.yaml",
+    "name": "Puzzle 043",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "044",
+    "path": "puzzles/extreme/044.yaml",
+    "name": "Puzzle 044",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "045",
+    "path": "puzzles/extreme/045.yaml",
+    "name": "Puzzle 045",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "046",
+    "path": "puzzles/extreme/046.yaml",
+    "name": "Puzzle 046",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "047",
+    "path": "puzzles/extreme/047.yaml",
+    "name": "Puzzle 047",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "048",
+    "path": "puzzles/extreme/048.yaml",
+    "name": "Puzzle 048",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "049",
+    "path": "puzzles/extreme/049.yaml",
+    "name": "Puzzle 049",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "050",
+    "path": "puzzles/extreme/050.yaml",
+    "name": "Puzzle 050",
+    "level": "extreme",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "051",
+    "path": "puzzles/hard/004.yaml",
+    "name": "Puzzle 004",
+    "level": "hard",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "052",
+    "path": "puzzles/medium/003.yaml",
+    "name": "Puzzle 003",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  },
+  {
+    "id": "053",
+    "path": "puzzles/medium/005.yaml",
+    "name": "Puzzle 005",
+    "level": "medium",
+    "author": "Unknown",
+    "description": ""
+  }
 ]

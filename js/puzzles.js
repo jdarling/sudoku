@@ -1,4 +1,110 @@
 /**
+ * Derives a canonical puzzle id from a puzzle path.
+ * @param {string} path - Puzzle path such as puzzles/easy/004.yaml
+ * @returns {string} Derived id such as 004
+ */
+const derivePuzzleIdFromPath = (path) => {
+  if (!path || typeof path !== "string") {
+    return "";
+  }
+
+  const stem = path.split("/").pop() || "";
+  return stem.replace(/\.yaml$/, "");
+};
+
+/**
+ * Normalizes one puzzle index entry into the metadata shape used by the app.
+ * @param {Object|string} entry - Raw index entry from JSON
+ * @returns {Object|null} Normalized metadata entry or null when invalid
+ */
+const normalizePuzzleIndexEntry = (entry) => {
+  if (typeof entry === "string") {
+    const id = derivePuzzleIdFromPath(entry);
+    return {
+      id,
+      path: entry,
+      name: id,
+      level: "",
+      author: "",
+      description: "",
+    };
+  }
+
+  if (!entry || typeof entry !== "object") {
+    return null;
+  }
+
+  const path = typeof entry.path === "string" ? entry.path : "";
+  if (!path) {
+    return null;
+  }
+
+  const derivedId = derivePuzzleIdFromPath(path);
+  const id = typeof entry.id === "string" && entry.id ? entry.id : derivedId;
+
+  return {
+    id,
+    path,
+    name: typeof entry.name === "string" ? entry.name : "",
+    level: typeof entry.level === "string" ? entry.level : "",
+    author: typeof entry.author === "string" ? entry.author : "",
+    description: typeof entry.description === "string" ? entry.description : "",
+  };
+};
+
+/**
+ * Builds a case-insensitive search string for one puzzle index entry.
+ * Search spans all loader-visible metadata fields.
+ * @param {Object} entry - Puzzle metadata entry
+ * @returns {string} Lowercased concatenated search text
+ */
+const buildPuzzleSearchText = (entry) => {
+  const fields = [
+    entry.id,
+    entry.name,
+    entry.level,
+    entry.author,
+    entry.description,
+    entry.path,
+  ];
+  return fields
+    .filter((value) => typeof value === "string" && value)
+    .join(" ")
+    .toLowerCase();
+};
+
+/**
+ * Normalizes a token into a comparable legacy puzzle path.
+ * @param {string} token - Raw token from URL
+ * @returns {string} Normalized path or empty string
+ */
+const normalizeLegacyPathToken = (token) => {
+  if (!token || typeof token !== "string") {
+    return "";
+  }
+
+  let normalized = decodeURIComponent(token).trim();
+  normalized = normalized.replace(/\\/g, "/");
+  normalized = normalized.replace(/^\//, "");
+  normalized = normalized.replace(/\.\//g, "");
+  normalized = normalized.replace(/\/\.\.(?=\/|$)/g, "");
+  normalized = normalized.replace(/\/+/g, "/");
+
+  if (!normalized) {
+    return "";
+  }
+
+  if (!normalized.startsWith("puzzles/")) {
+    normalized = `puzzles/${normalized}`;
+  }
+  if (!normalized.endsWith(".yaml")) {
+    normalized = `${normalized}.yaml`;
+  }
+
+  return normalized;
+};
+
+/**
  * Parses a YAML puzzle document into an 81-digit puzzle string.
  * Supports both rows and blocks formats.
  * @param {Object} doc - Parsed YAML document
@@ -32,17 +138,40 @@ const parsePuzzleDoc = (doc) => {
 };
 
 /**
- * Fetches the puzzle index.
+ * Fetches the puzzle metadata index.
  * NOTE: This returns a manageable list of curated puzzles.
  * Do not use this to drive random selection at scale — use getRandomPuzzle() instead.
- * @returns {Promise<string[]>} Array of puzzle filenames
+ * @returns {Promise<Object[]>} Array of metadata entries
  */
-const getPuzzles = async () => {
+const getPuzzleIndex = async () => {
   const response = await fetch("data/puzzles.json");
   if (!response.ok) {
     throw new Error(`Failed to load puzzle index: ${response.statusText}`);
   }
-  return response.json();
+  const rawIndex = await response.json();
+  if (!Array.isArray(rawIndex)) {
+    throw new Error("Failed to load puzzle index: invalid shape");
+  }
+
+  const entries = [];
+  rawIndex.forEach((entry) => {
+    const normalized = normalizePuzzleIndexEntry(entry);
+    if (!normalized) {
+      return;
+    }
+    entries.push(normalized);
+  });
+
+  return entries;
+};
+
+/**
+ * Fetches puzzle paths from the metadata index.
+ * @returns {Promise<string[]>} Array of puzzle filenames
+ */
+const getPuzzles = async () => {
+  const entries = await getPuzzleIndex();
+  return entries.map((entry) => entry.path);
 };
 
 /**
@@ -98,11 +227,11 @@ const sanitizePuzzleToken = (token) => {
  * Returns an exact match if the token matches a puzzle ID exactly,
  * and a list of filtered candidates for non-exact tokens.
  * @param {string} token - Raw puzzle token
- * @param {string[]} filenames - Array of puzzle filenames from index
- * @returns {Object} { exactMatch: filename|null, filtered: [filenames] }
+ * @param {Object[]} entries - Array of metadata entries from index
+ * @returns {Object} { exactMatch: filename|null, filtered: [entries] }
  */
-const findPuzzleMatches = (token, filenames) => {
-  if (!token || !filenames || filenames.length === 0) {
+const findPuzzleMatches = (token, entries) => {
+  if (!token || !entries || entries.length === 0) {
     return { exactMatch: null, filtered: [] };
   }
 
@@ -112,23 +241,33 @@ const findPuzzleMatches = (token, filenames) => {
   }
 
   const tokenLower = sanitized.toLowerCase();
-  let exactMatch = null;
-  const filtered = [];
+  const canMatchCanonicalId =
+    /^\d+$/.test(sanitized) && !sanitized.includes("/");
+  let exactEntry = null;
 
-  filenames.forEach((filename) => {
-    const basename = filename.replace(/^puzzles\//, "").replace(/\.yaml$/, "");
-    const basenameForId = basename.split("/").pop();
+  if (canMatchCanonicalId) {
+    exactEntry =
+      entries.find((entry) => entry.id.toLowerCase() === tokenLower) || null;
+  }
 
-    if (basenameForId === tokenLower || basename === tokenLower) {
-      exactMatch = filename;
+  if (!exactEntry) {
+    const normalizedPathToken = normalizeLegacyPathToken(token).toLowerCase();
+    if (normalizedPathToken) {
+      exactEntry =
+        entries.find(
+          (entry) => entry.path.toLowerCase() === normalizedPathToken,
+        ) || null;
     }
+  }
 
-    if (basename.toLowerCase().includes(tokenLower)) {
-      filtered.push(filename);
-    }
+  const filtered = entries.filter((entry) => {
+    return buildPuzzleSearchText(entry).includes(tokenLower);
   });
 
-  return { exactMatch, filtered };
+  return {
+    exactMatch: exactEntry ? exactEntry.path : null,
+    filtered,
+  };
 };
 
 /**
@@ -140,16 +279,16 @@ const findPuzzleMatches = (token, filenames) => {
  * @returns {Promise<Object>} A random puzzle object
  */
 const getRandomPuzzle = async (excludeFilename = null) => {
-  const filenames = await getPuzzles();
-  if (filenames.length === 0) {
+  const entries = await getPuzzleIndex();
+  if (entries.length === 0) {
     throw new Error("No puzzles available");
   }
 
-  let candidates = filenames;
-  if (excludeFilename && filenames.length > 1) {
-    candidates = filenames.filter((filename) => filename !== excludeFilename);
+  let candidates = entries;
+  if (excludeFilename && entries.length > 1) {
+    candidates = entries.filter((entry) => entry.path !== excludeFilename);
   }
 
-  const filename = candidates[Math.floor(Math.random() * candidates.length)];
-  return getPuzzle(filename);
+  const selected = candidates[Math.floor(Math.random() * candidates.length)];
+  return getPuzzle(selected.path);
 };

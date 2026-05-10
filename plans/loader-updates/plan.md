@@ -323,7 +323,7 @@ Add a generator script to build puzzle metadata index from YAML inputs.
 
 Suggested location:
 
-- `scripts/generate-puzzle-index.js`
+- `tools/generate-puzzle-index.js`
 
 Suggested output:
 
@@ -552,7 +552,7 @@ Notes:
 
 1. Generator command:
 
-- `node scripts/generate-puzzle-index.js`
+- `node tools/generate-puzzle-index.js`
 
 2. CI requirement:
 
@@ -694,7 +694,7 @@ These concrete scenarios validate behavior end-to-end. Use these to verify imple
 
 **Input:** Two YAML files both have `id: 001a` in their metadata
 
-**Execution:** `node scripts/generate-puzzle-index.js`
+**Execution:** `node tools/generate-puzzle-index.js`
 
 **Flow:**
 

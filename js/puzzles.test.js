@@ -26,11 +26,13 @@ const runPuzzleTests = () => {
   };
 
   let parsePuzzleDoc = resolveSymbol("parsePuzzleDoc");
+  let getPuzzleIndex = resolveSymbol("getPuzzleIndex");
   let getPuzzles = resolveSymbol("getPuzzles");
   let getPuzzle = resolveSymbol("getPuzzle");
   let getRandomPuzzle = resolveSymbol("getRandomPuzzle");
   let sanitizePuzzleToken = resolveSymbol("sanitizePuzzleToken");
   let findPuzzleMatches = resolveSymbol("findPuzzleMatches");
+  let buildPuzzleSearchText = resolveSymbol("buildPuzzleSearchText");
 
   setTestFile("puzzles.js");
 
@@ -69,13 +71,40 @@ const runPuzzleTests = () => {
     return expect(parsePuzzleDoc(doc).length).toBe(81);
   });
 
+  test("getPuzzleIndex returns metadata entries", async () => {
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => [
+        {
+          id: "001",
+          path: "puzzles/easy/001.yaml",
+          name: "Puzzle 001",
+          level: "easy",
+          author: "Unknown",
+          description: "",
+        },
+      ],
+    });
+    const list = await getPuzzleIndex();
+    return expect(list[0].path).toBe("puzzles/easy/001.yaml");
+  });
+
   test("getPuzzles returns parsed index list", async () => {
     globalThis.fetch = async () => ({
       ok: true,
-      json: async () => ["puzzles/001.yaml"],
+      json: async () => [
+        {
+          id: "001",
+          path: "puzzles/easy/001.yaml",
+          name: "Puzzle 001",
+          level: "easy",
+          author: "Unknown",
+          description: "",
+        },
+      ],
     });
     const list = await getPuzzles();
-    return expect(list).toEqual(["puzzles/001.yaml"]);
+    return expect(list).toEqual(["puzzles/easy/001.yaml"]);
   });
 
   test("getPuzzles throws on failed response", async () => {
@@ -149,7 +178,19 @@ const runPuzzleTests = () => {
 
     globalThis.fetch = async (url) => {
       if (url === "data/puzzles.json") {
-        return { ok: true, json: async () => ["puzzles/001.yaml"] };
+        return {
+          ok: true,
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
+        };
       }
       return { ok: true, text: async () => payload };
     };
@@ -186,7 +227,24 @@ const runPuzzleTests = () => {
       if (url === "data/puzzles.json") {
         return {
           ok: true,
-          json: async () => ["puzzles/001.yaml", "puzzles/002.yaml"],
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+            {
+              id: "002",
+              path: "puzzles/002.yaml",
+              name: "Puzzle 002",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
         };
       }
       return { ok: true, text: async () => payload };
@@ -219,7 +277,19 @@ const runPuzzleTests = () => {
 
     globalThis.fetch = async (url) => {
       if (url === "data/puzzles.json") {
-        return { ok: true, json: async () => ["puzzles/001.yaml"] };
+        return {
+          ok: true,
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
+        };
       }
       return { ok: true, text: async () => payload };
     };
@@ -274,46 +344,154 @@ const runPuzzleTests = () => {
   });
 
   test("findPuzzleMatches exact match by canonical id", () => {
-    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
-    const result = findPuzzleMatches("004", filenames);
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("004", entries);
     return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
   });
 
   test("findPuzzleMatches exact match by legacy path token", () => {
-    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
-    const result = findPuzzleMatches("easy/004", filenames);
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("easy/004", entries);
     return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
   });
 
   test("findPuzzleMatches exact match for full legacy path", () => {
-    const filenames = ["puzzles/easy/004.yaml", "puzzles/medium/011.yaml"];
-    const result = findPuzzleMatches("puzzles/easy/004.yaml", filenames);
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("puzzles/easy/004.yaml", entries);
     return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
   });
 
   test("findPuzzleMatches returns no exact match for unknown token", () => {
-    const filenames = ["puzzles/easy/004.yaml"];
-    const result = findPuzzleMatches("999", filenames);
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("999", entries);
     return expect(result.exactMatch === null).toBeTruthy();
   });
 
-  test("findPuzzleMatches returns filtered candidates for partial token", () => {
-    const filenames = [
-      "puzzles/easy/004.yaml",
-      "puzzles/medium/011.yaml",
-      "puzzles/hard/021.yaml",
+  test("findPuzzleMatches returns filtered entries for partial token", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Starter",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "021",
+        path: "puzzles/hard/021.yaml",
+        name: "Puzzle 021",
+        level: "hard",
+        author: "Unknown",
+        description: "",
+      },
     ];
-    const result = findPuzzleMatches("easy", filenames);
+    const result = findPuzzleMatches("starter", entries);
     return expect(
       result.filtered.length === 1 &&
-        result.filtered[0] === "puzzles/easy/004.yaml",
+        result.filtered[0].path === "puzzles/easy/004.yaml",
     ).toBeTruthy();
   });
 
   test("findPuzzleMatches returns empty filtered for completely unknown token", () => {
-    const filenames = ["puzzles/easy/004.yaml"];
-    const result = findPuzzleMatches("xyzzy", filenames);
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("xyzzy", entries);
     return expect(result.filtered.length === 0).toBeTruthy();
+  });
+
+  test("buildPuzzleSearchText includes all searchable fields", () => {
+    const entry = {
+      id: "004",
+      path: "puzzles/easy/004.yaml",
+      name: "Hidden Gem",
+      level: "easy",
+      author: "Jane",
+      description: "Practice board",
+    };
+    const text = buildPuzzleSearchText(entry);
+    return expect(
+      text.includes("hidden gem") &&
+        text.includes("jane") &&
+        text.includes("practice board") &&
+        text.includes("puzzles/easy/004.yaml"),
+    ).toBeTruthy();
   });
 };
 

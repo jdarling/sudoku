@@ -169,11 +169,13 @@ loadScript(path.join(__dirname, "../js/state.js"), [
 ]);
 loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "parsePuzzleDoc",
+  "getPuzzleIndex",
   "getPuzzles",
   "getPuzzle",
   "getRandomPuzzle",
   "sanitizePuzzleToken",
   "findPuzzleMatches",
+  "buildPuzzleSearchText",
 ]);
 loadScript(path.join(__dirname, "../js/dom.js"), [
   "configureDomEventHandlers",
