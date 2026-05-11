@@ -11,6 +11,7 @@
  * Internally uses decision modal with No={label, callback:null} and Yes={label, callback:onConfirm}.
  * @param {string} message - Message to display to the user
  * @param {Function} onConfirm - Invoked when the user clicks Yes
+ * @returns {void}
  */
 const openConfirmModal = (message, onConfirm) => {
   const buttons = [
@@ -23,6 +24,7 @@ const openConfirmModal = (message, onConfirm) => {
 /**
  * Closes the confirm modal.
  * Delegates to decisionModal.
+ * @returns {void}
  */
 const closeConfirmModal = () => {
   closeDecisionModal();
@@ -31,6 +33,7 @@ const closeConfirmModal = () => {
 /**
  * Handles Yes button click.
  * Delegates to decisionModal — button at index 1.
+ * @returns {void}
  */
 const onConfirmYesClick = () => {
   onDecisionButtonClick(1);
@@ -39,6 +42,7 @@ const onConfirmYesClick = () => {
 /**
  * Handles No button click.
  * Delegates to decisionModal — button at index 0.
+ * @returns {void}
  */
 const onConfirmNoClick = () => {
   onDecisionButtonClick(0);
@@ -49,6 +53,7 @@ const onConfirmNoClick = () => {
  * Escape → No (button 0); Enter → Yes (button 1).
  * Delegates to decisionModal keyboard handler.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onConfirmModalKeydown = (event) => {
   const modal = getDecisionModalEl();

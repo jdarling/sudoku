@@ -38,6 +38,7 @@ const getSavedTheme = () => {
 /**
  * Saves the theme preference to localStorage.
  * @param {string} themeName - Theme to save
+ * @returns {void}
  */
 const saveTheme = (themeName) => {
   try {
@@ -50,6 +51,7 @@ const saveTheme = (themeName) => {
 /**
  * Applies a theme by swapping the stylesheet link.
  * @param {string} themeName - Theme name to apply
+ * @returns {void}
  */
 const applyTheme = (themeName) => {
   if (!AVAILABLE_THEMES.includes(themeName)) {
@@ -74,6 +76,7 @@ const applyTheme = (themeName) => {
 
 /**
  * Initializes the theme system by loading the saved theme.
+ * @returns {void}
  */
 const initTheme = () => {
   const savedTheme = getSavedTheme();

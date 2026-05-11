@@ -13,6 +13,7 @@ const getCellStyle = (cellIndex, boardStyles) => {
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell position (0-80)
  * @param {(string|null)[]} boardStyles - Pre-computed styles array
+ * @param {boolean} coarsePointer - True when device uses a coarse pointer (touch)
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
@@ -22,6 +23,7 @@ const createCell = (
   state,
   cellIndex,
   boardStyles,
+  coarsePointer,
   onCellFocus,
   onCellKeydown,
   onCellInput,
@@ -29,24 +31,24 @@ const createCell = (
   const row = Math.floor(cellIndex / GRID_SIZE);
   const col = cellIndex % GRID_SIZE;
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'cell';
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "cell";
   input.maxLength = 1;
-  input.value = state.board[cellIndex] || '';
+  input.value = state.board[cellIndex] || "";
   input.dataset.cellIndex = cellIndex;
-  input.inputMode = 'none';
-  input.setAttribute('autocomplete', 'off');
-  input.setAttribute('autocorrect', 'off');
-  input.setAttribute('autocapitalize', 'off');
-  input.setAttribute('spellcheck', 'false');
-  input.setAttribute('aria-label', `Row ${row + 1}, column ${col + 1}`);
+  input.inputMode = "none";
+  input.setAttribute("autocomplete", "off");
+  input.setAttribute("autocorrect", "off");
+  input.setAttribute("autocapitalize", "off");
+  input.setAttribute("spellcheck", "false");
+  input.setAttribute("aria-label", `Row ${row + 1}, column ${col + 1}`);
 
-  if (state.given[cellIndex] || isCoarsePointerDevice()) {
+  if (state.given[cellIndex] || coarsePointer) {
     input.readOnly = true;
   }
   if (state.given[cellIndex]) {
-    input.classList.add('given');
+    input.classList.add("given");
   }
 
   const style = getCellStyle(cellIndex, boardStyles);
@@ -54,11 +56,11 @@ const createCell = (
     input.classList.add(style);
   }
 
-  input.addEventListener('focus', onCellFocus);
-  input.addEventListener('keydown', onCellKeydown);
-  input.addEventListener('input', onCellInput);
+  input.addEventListener("focus", onCellFocus);
+  input.addEventListener("keydown", onCellKeydown);
+  input.addEventListener("input", onCellInput);
 
-  const td = document.createElement('td');
+  const td = document.createElement("td");
   td.appendChild(input);
   return td;
 };
@@ -68,6 +70,7 @@ const createCell = (
  * @param {Object} state - Current state
  * @param {number} row - Row index (0-8)
  * @param {(string|null)[]} boardStyles - Pre-computed styles array
+ * @param {boolean} coarsePointer - True when device uses a coarse pointer (touch)
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
@@ -77,17 +80,19 @@ const createRow = (
   state,
   row,
   boardStyles,
+  coarsePointer,
   onCellFocus,
   onCellKeydown,
   onCellInput,
 ) => {
-  const tr = document.createElement('tr');
+  const tr = document.createElement("tr");
   for (let col = 0; col < GRID_SIZE; col++) {
     tr.appendChild(
       createCell(
         state,
         idx(row, col),
         boardStyles,
+        coarsePointer,
         onCellFocus,
         onCellKeydown,
         onCellInput,
@@ -101,25 +106,28 @@ const createRow = (
  * Renders the sudoku grid.
  * @param {Object} state - Current state
  * @param {string[]} highlightFeatures - Active highlight features from options
+ * @param {boolean} coarsePointer - True when device uses a coarse pointer (touch)
  * @param {Function} onCellFocus - Focus handler
  * @param {Function} onCellKeydown - Keydown handler
  * @param {Function} onCellInput - Input handler
+ * @returns {void}
  */
 const renderGrid = (
   state,
   highlightFeatures,
+  coarsePointer,
   onCellFocus,
   onCellKeydown,
   onCellInput,
 ) => {
-  const gridEl = document.getElementById('grid');
-  gridEl.innerHTML = '';
+  const gridEl = document.getElementById("grid");
+  gridEl.innerHTML = "";
 
   // Build styles array once for entire board
   const boardStyles = buildStyles(
     state.board,
     state.selected,
-    highlightFeatures || getStyleConfigFeatures('related-block'),
+    highlightFeatures || getStyleConfigFeatures("related-block"),
     state.given,
     state.puzzle,
     state.hinting,
@@ -131,6 +139,7 @@ const renderGrid = (
         state,
         row,
         boardStyles,
+        coarsePointer,
         onCellFocus,
         onCellKeydown,
         onCellInput,
@@ -143,11 +152,12 @@ const renderGrid = (
  * Updates the status message display.
  * @param {string} msg - Status message
  * @param {string} type - Status type (e.g., 'win', 'error')
+ * @returns {void}
  */
 const setStatus = (msg, type) => {
-  const statusEl = document.getElementById('status');
+  const statusEl = document.getElementById("status");
   statusEl.textContent = msg;
-  statusEl.className = type || '';
+  statusEl.className = type || "";
 };
 
 /**
@@ -155,17 +165,17 @@ const setStatus = (msg, type) => {
  * @returns {HTMLDivElement|null} Confetti layer element
  */
 const getConfettiLayer = () => {
-  if (typeof document === 'undefined') {
+  if (typeof document === "undefined") {
     return null;
   }
 
-  let layer = document.getElementById('confetti-layer');
+  let layer = document.getElementById("confetti-layer");
   if (layer) {
     return layer;
   }
 
-  layer = document.createElement('div');
-  layer.id = 'confetti-layer';
+  layer = document.createElement("div");
+  layer.id = "confetti-layer";
   document.body.appendChild(layer);
   return layer;
 };
@@ -173,10 +183,11 @@ const getConfettiLayer = () => {
 /**
  * Creates and animates a single confetti piece.
  * @param {HTMLElement} layer - Confetti layer element
+ * @returns {void}
  */
 const createConfettiPiece = (layer) => {
-  const piece = document.createElement('span');
-  piece.className = 'confetti-piece';
+  const piece = document.createElement("span");
+  piece.className = "confetti-piece";
   piece.style.left = `${Math.random() * 100}vw`;
   piece.style.top = `${Math.random() * 100}vh`;
   piece.style.backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 85%, 58%)`;
@@ -185,7 +196,7 @@ const createConfettiPiece = (layer) => {
   piece.style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
   layer.appendChild(piece);
 
-  piece.addEventListener('animationend', () => {
+  piece.addEventListener("animationend", () => {
     piece.remove();
   });
 };
@@ -195,7 +206,7 @@ const createConfettiPiece = (layer) => {
  * @returns {number} Number of pieces to emit
  */
 const getWinConfettiPieceCount = () => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return 700;
   }
 
@@ -206,6 +217,7 @@ const getWinConfettiPieceCount = () => {
 
 /**
  * Triggers a non-blocking confetti burst to celebrate a win.
+ * @returns {void}
  */
 const launchWinCelebration = () => {
   const layer = getConfettiLayer();
@@ -221,9 +233,10 @@ const launchWinCelebration = () => {
 
 /**
  * Renders the version number in the version footer element.
+ * @returns {void}
  */
 const renderVersion = () => {
-  const el = document.getElementById('version');
+  const el = document.getElementById("version");
   if (el) {
     el.textContent = `v${VERSION}`;
   }
@@ -232,15 +245,17 @@ const renderVersion = () => {
 /**
  * Focuses the cell input at the given index.
  * @param {number} cellIndex - Cell position (0-80), or -1 to clear focus
+ * @param {boolean} coarsePointer - True when device uses a coarse pointer (touch)
+ * @returns {void}
  */
-const focusCell = (cellIndex) => {
+const focusCell = (cellIndex, coarsePointer) => {
   if (cellIndex < 0 || cellIndex >= TOTAL_CELLS) {
     return;
   }
-  if (isCoarsePointerDevice()) {
+  if (coarsePointer) {
     return;
   }
-  const inputs = document.querySelectorAll('.cell');
+  const inputs = document.querySelectorAll(".cell");
   if (inputs[cellIndex]) {
     inputs[cellIndex].focus();
   }

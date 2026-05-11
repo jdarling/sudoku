@@ -4,15 +4,15 @@
  * All functions are pure and testable.
  */
 
-const SETTINGS_STORAGE_KEY = 'sudoku-settings';
+const SETTINGS_STORAGE_KEY = "sudoku-settings";
 
 /**
  * Creates default settings object.
  * @returns {Object} Default settings
  */
 const createDefaultSettings = () => ({
-  highlightFeatures: [...getStyleConfigFeatures('related-block')],
-  theme: 'default',
+  highlightFeatures: [...getStyleConfigFeatures("related-block")],
+  theme: "default",
   autoCheck: false,
 });
 
@@ -37,6 +37,7 @@ const loadSettings = () => {
 /**
  * Saves settings to localStorage.
  * @param {Object} settings - Settings to save
+ * @returns {void}
  */
 const saveSettings = (settings) => {
   try {

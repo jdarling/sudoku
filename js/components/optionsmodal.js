@@ -18,8 +18,11 @@ let optionsModalDeps = null;
  * @param {Function} deps.getHighlightFeatures - Returns the current highlight features
  * @param {Function} deps.applyHighlightFeatures - Applies highlight feature list
  * @param {Function} deps.applyHighlightPreset - Applies highlight preset by name
+ * @param {Function} deps.getShowStatsOnSolved - Returns current solved-stats preference
+ * @param {Function} deps.applyShowStatsOnSolved - Applies solved-stats preference
+ * @returns {void}
  */
-const configureOptionsModal = (deps) => {
+const initOptionsModal = (deps) => {
   optionsModalDeps = deps;
   renderPresetButtons();
 };
@@ -34,19 +37,20 @@ const getPresetKeys = () => {
 
 /**
  * Renders preset buttons from STYLE_CONFIGS keys.
+ * @returns {void}
  */
 const renderPresetButtons = () => {
-  const container = document.getElementById('options-highlight-presets');
+  const container = document.getElementById("options-highlight-presets");
   if (!container) {
     return;
   }
 
   const presets = getPresetKeys();
-  container.innerHTML = '';
+  container.innerHTML = "";
   for (const preset of presets) {
-    const button = document.createElement('button');
-    button.className = 'action-btn';
-    button.type = 'button';
+    const button = document.createElement("button");
+    button.className = "action-btn";
+    button.type = "button";
     button.dataset.preset = preset;
     button.textContent = preset;
     container.appendChild(button);
@@ -67,6 +71,7 @@ const getFeatureCheckboxes = () => {
 /**
  * Syncs checkboxes to current feature list.
  * @param {string[]} features - Active features
+ * @returns {void}
  */
 const syncFeatureCheckboxes = (features) => {
   const featureSet = new Set(Array.isArray(features) ? features : []);
@@ -95,10 +100,23 @@ const readFeaturesFromCheckboxes = () => {
  * Returns the options modal root element.
  * @returns {HTMLElement|null}
  */
-const getOptionsModalEl = () => document.getElementById('options-modal');
+const getOptionsModalEl = () => document.getElementById("options-modal");
+
+/**
+ * Returns the show-stats-on-solved checkbox element.
+ * @returns {HTMLInputElement|null}
+ */
+const getShowStatsOnSolvedCheckbox = () => {
+  const checkbox = document.getElementById("options-show-stats-on-solved");
+  if (!(checkbox instanceof HTMLInputElement)) {
+    return null;
+  }
+  return checkbox;
+};
 
 /**
  * Opens the options modal and syncs controls to the current active theme and highlight features.
+ * @returns {void}
  */
 const openOptionsModal = () => {
   const modal = getOptionsModalEl();
@@ -106,13 +124,20 @@ const openOptionsModal = () => {
     return;
   }
 
-  const themeSelect = document.getElementById('options-theme-select');
+  const themeSelect = document.getElementById("options-theme-select");
   if (themeSelect) {
     themeSelect.value = getActiveTheme();
   }
 
   if (optionsModalDeps && optionsModalDeps.getHighlightFeatures) {
     syncFeatureCheckboxes(optionsModalDeps.getHighlightFeatures());
+  }
+
+  if (optionsModalDeps && optionsModalDeps.getShowStatsOnSolved) {
+    const checkbox = getShowStatsOnSolvedCheckbox();
+    if (checkbox) {
+      checkbox.checked = Boolean(optionsModalDeps.getShowStatsOnSolved());
+    }
   }
 
   openModal(modal);
@@ -124,6 +149,7 @@ const openOptionsModal = () => {
 
 /**
  * Closes the options modal.
+ * @returns {void}
  */
 const closeOptionsModal = () => {
   closeModal(getOptionsModalEl());
@@ -131,6 +157,7 @@ const closeOptionsModal = () => {
 
 /**
  * Handles the Options button click — opens the modal.
+ * @returns {void}
  */
 const onOptionsClick = () => {
   openOptionsModal();
@@ -139,6 +166,7 @@ const onOptionsClick = () => {
 /**
  * Handles theme selector change inside the options modal.
  * @param {Event} event - Change event from the select element
+ * @returns {void}
  */
 const onOptionsThemeChange = (event) => {
   if (!optionsModalDeps) {
@@ -150,9 +178,10 @@ const onOptionsThemeChange = (event) => {
 /**
  * Handles feature checkbox changes inside the options modal.
  * @param {Event} event - Change event from a checkbox
+ * @returns {void}
  */
 const onOptionsHighlightFeatureChange = (event) => {
-  if (!event.target || event.target.type !== 'checkbox') {
+  if (!event.target || event.target.type !== "checkbox") {
     return;
   }
   if (!optionsModalDeps || !optionsModalDeps.applyHighlightFeatures) {
@@ -162,8 +191,24 @@ const onOptionsHighlightFeatureChange = (event) => {
 };
 
 /**
+ * Handles show-stats-on-solved checkbox changes.
+ * @param {Event} event - Change event from a checkbox
+ * @returns {void}
+ */
+const onOptionsShowStatsChange = (event) => {
+  if (!event.target || event.target.type !== "checkbox") {
+    return;
+  }
+  if (!optionsModalDeps || !optionsModalDeps.applyShowStatsOnSolved) {
+    return;
+  }
+  optionsModalDeps.applyShowStatsOnSolved(Boolean(event.target.checked));
+};
+
+/**
  * Applies a preset mode and updates checkbox states.
  * @param {string} preset - Preset key
+ * @returns {void}
  */
 const applyPreset = (preset) => {
   if (!optionsModalDeps || !optionsModalDeps.applyHighlightPreset) {
@@ -176,8 +221,9 @@ const applyPreset = (preset) => {
 /**
  * Handles click on preset buttons.
  * @param {Event} event - Click event from options modal
+ * @returns {void}
  */
-const onOptionsPresetClick = (event) => {
+const onOptionsPresetButtonClick = (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) {
     return;
@@ -190,6 +236,7 @@ const onOptionsPresetClick = (event) => {
 
 /**
  * Handles the Close button — closes the modal.
+ * @returns {void}
  */
 const onOptionsCloseClick = () => {
   closeOptionsModal();
@@ -199,13 +246,14 @@ const onOptionsCloseClick = () => {
  * Handles keyboard controls while the options modal is open.
  * Escape closes the modal.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onOptionsModalKeydown = (event) => {
   if (!isModalOpen(getOptionsModalEl())) {
     return;
   }
 
-  if (event.key !== 'Escape') {
+  if (event.key !== "Escape") {
     return;
   }
 

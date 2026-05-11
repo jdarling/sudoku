@@ -414,61 +414,37 @@ const runStateTests = () => {
 
   test("getCellHighlightClass returns 'selected' for selected cell", () => {
     const board = "0".repeat(81);
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(
-      0,
-      0,
-      board,
-      relatedCells,
-      "related-block",
-    );
+    const result = getCellHighlightClass(0, 0, board, "related-block");
     return expect(result).toBe("selected");
   });
 
   test("getCellHighlightClass returns no style for 'none' mode", () => {
     const board = "0".repeat(81);
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(1, 0, board, relatedCells, "none");
+    const result = getCellHighlightClass(1, 0, board, "none");
     return expect(!result).toBe(true);
   });
 
   test("getCellHighlightClass returns no style for unmatched cell in 'same' mode", () => {
     const board = "5".concat("4".repeat(80));
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(1, 0, board, relatedCells, "same");
+    const result = getCellHighlightClass(1, 0, board, "same");
     return expect(!result).toBe(true);
   });
 
   test("getCellHighlightClass highlights row/column in 'minimal' mode", () => {
     const board = "0".repeat(81);
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(1, 0, board, relatedCells, "minimal");
+    const result = getCellHighlightClass(1, 0, board, "minimal");
     return expect(result).toBe("related-line");
   });
 
   test("getCellHighlightClass uses 'related-line' for selected row/col in 'related-block'", () => {
     const board = "1".concat("3".repeat(80));
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(
-      1,
-      0,
-      board,
-      relatedCells,
-      "related-block",
-    );
+    const result = getCellHighlightClass(1, 0, board, "related-block");
     return expect(result).toBe("related-line");
   });
 
   test("getCellHighlightClass uses 'related-line-subtle' for selected block in 'related-block'", () => {
     const board = "1".concat("3".repeat(80));
-    const relatedCells = new Set([0, 1, 2, 9, 18, 27, 36, 45, 54]);
-    const result = getCellHighlightClass(
-      11,
-      0,
-      board,
-      relatedCells,
-      "related-block",
-    );
+    const result = getCellHighlightClass(11, 0, board, "related-block");
     return expect(result).toBe("related-line-subtle");
   });
 

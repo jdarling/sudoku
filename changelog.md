@@ -9,6 +9,31 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.17.3]
+
+- Added scorecard completion modal flow gated by a new persisted option, `showStatsOnSolved`.
+- Added scorecard display formatting helpers and options wiring for solved-state stat visibility.
+- Added scorecard modal component wiring and related test coverage updates.
+
+## [1.17.2]
+
+- Added scorecard core module (`js/scorecard.js`) with pure run-metric functions and lifecycle helpers.
+- Wired scorecard tracking into app/dom action flows for moves, Check/Hint clicks, error visibility transitions, support option usage, and Solve disqualification/finalization.
+- Added scorecard unit tests (`js/scorecard.test.js`) and registered them in shared Node/browser test config.
+- Updated runtime and test script loading to include `js/scorecard.js` in app startup and app-init validation.
+
+## [1.17.1]
+
+- Added authoritative AI plan execution workflow with mandatory process gates.
+- Enforced user-owned major/minor versioning, phase-driven patching, and explicit human approval before tagging.
+- Required both Node test commands before release readiness and prohibited output-filter pipelines on required test runs.
+- Updated AGENTS guidance to reference the workflow and harden release/testing process rules.
+- Refocused README content for human readers and removed AI-assistant focused sections.
+
+## [1.17.0]
+
+- Standards cleanup (v1.17-standards-cleanup): guard clauses in loadNewGame, removed dead relatedCells parameter, separated device detection from rendering, added missing JSDoc @returns tags.
+
 ## [1.16.5]
 
 - **New Game flow now offers three options**: Cancel, Clear board to givens, or load Random puzzle.

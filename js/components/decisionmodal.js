@@ -37,6 +37,7 @@ const getDecisionModalElements = () => {
  * Clears any previous buttons and renders new ones from the buttons array.
  * @param {string} message - Message to display to the user
  * @param {Array<{label: string, callback: Function|null}>} buttons - Button configs
+ * @returns {void}
  */
 const openDecisionModal = (message, buttons) => {
   const elements = getDecisionModalElements();
@@ -70,6 +71,7 @@ const openDecisionModal = (message, buttons) => {
 
 /**
  * Closes the decision modal and clears stored buttons.
+ * @returns {void}
  */
 const closeDecisionModal = () => {
   const modal = getDecisionModalEl();
@@ -80,6 +82,7 @@ const closeDecisionModal = () => {
 /**
  * Handles decision button click — invokes callback and closes modal.
  * @param {number} index - Index of the button that was clicked
+ * @returns {void}
  */
 const onDecisionButtonClick = (index) => {
   const button = decisionButtons[index];
@@ -98,6 +101,7 @@ const onDecisionButtonClick = (index) => {
  * Handles keyboard controls while the decision modal is open.
  * Escape → first button (if callback is null, acts as cancel); Enter → first button.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onDecisionModalKeydown = (event) => {
   const modal = getDecisionModalEl();

@@ -59,11 +59,9 @@ const isInBox = (cellIdx1, cellIdx2) => {
 /**
  * Gets the highlight style for a specific cell using the styler module.
  * Pure function: can be tested independently.
- * Accesses given array from state to apply fixed cell styling.
  * @param {number} cellIndex - Cell index (0-80)
  * @param {number} selectedIndex - Selected cell index (-1 if none)
  * @param {number[]} boardState - Current board state
- * @param {Set<number>} relatedCells - Set of related cells to selected (unused; included for backwards compatibility)
  * @param {string} highlightMode - Highlight mode
  * @param {boolean[]} given - Array indicating which cells are fixed
  * @returns {string|null} CSS class name or null
@@ -72,7 +70,6 @@ const getCellHighlightClass = (
   cellIndex,
   selectedIndex,
   boardState,
-  relatedCells,
   highlightMode = "related-block",
   given = null,
 ) => {

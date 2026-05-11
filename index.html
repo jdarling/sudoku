@@ -68,9 +68,10 @@
           </div>
         </div>
       </div>
-      <div id="load-modal" aria-hidden="true">
+      <div id="load-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="load-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="load-modal-title"
@@ -97,7 +98,7 @@
             </table>
           </div>
           <div id="load-modal-status" aria-live="polite"></div>
-          <div id="load-modal-actions">
+          <div id="load-modal-actions" class="modal-actions">
             <button class="action-btn" id="load-cancel-btn" type="button">
               Cancel
             </button>
@@ -118,9 +119,10 @@
           </div>
         </div>
       </div>
-      <div id="url-load-modal" aria-hidden="true">
+      <div id="url-load-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="url-load-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="url-load-modal-title"
@@ -135,7 +137,7 @@
             spellcheck="false"
           />
           <div id="url-load-error" aria-live="polite"></div>
-          <div id="url-load-modal-actions">
+          <div id="url-load-modal-actions" class="modal-actions">
             <button class="action-btn" id="url-load-cancel-btn" type="button">
               Cancel
             </button>
@@ -150,9 +152,10 @@
           </div>
         </div>
       </div>
-      <div id="board-entry-modal" aria-hidden="true">
+      <div id="board-entry-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="board-entry-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="board-entry-modal-title"
@@ -167,7 +170,7 @@
             spellcheck="false"
           ></textarea>
           <div id="board-entry-error" aria-live="polite"></div>
-          <div id="board-entry-modal-actions">
+          <div id="board-entry-modal-actions" class="modal-actions">
             <button
               class="action-btn"
               id="board-entry-cancel-btn"
@@ -186,9 +189,10 @@
           </div>
         </div>
       </div>
-      <div id="options-modal" aria-hidden="true">
+      <div id="options-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="options-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="options-modal-title"
@@ -310,22 +314,86 @@
               </label>
             </div>
           </div>
-          <div id="options-modal-actions">
+          <div class="options-field">
+            <label class="feature-option" for="options-show-stats-on-solved">
+              <input
+                id="options-show-stats-on-solved"
+                type="checkbox"
+                checked
+              />
+              Show stats on solved
+            </label>
+          </div>
+          <div id="options-modal-actions" class="modal-actions">
             <button class="action-btn" id="options-close-btn" type="button">
               Close
             </button>
           </div>
         </div>
       </div>
-      <div id="decision-modal" aria-hidden="true">
+      <div id="scoreboard-modal" class="modal-overlay" aria-hidden="true">
+        <div
+          id="scoreboard-modal-panel"
+          class="modal-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="scoreboard-modal-title"
+        >
+          <h2 id="scoreboard-modal-title">Game Complete - Your Stats</h2>
+          <div id="scoreboard-grid">
+            <p>
+              <strong>Puzzle ID:</strong>
+              <span id="scoreboard-puzzle-id"></span>
+            </p>
+            <p>
+              <strong>Elapsed Time:</strong>
+              <span id="scoreboard-elapsed-time"></span>
+            </p>
+            <p>
+              <strong>Moves:</strong> <span id="scoreboard-move-count"></span>
+            </p>
+            <p>
+              <strong>Check Uses:</strong>
+              <span id="scoreboard-check-count"></span>
+            </p>
+            <p>
+              <strong>Hint Uses:</strong>
+              <span id="scoreboard-hint-count"></span>
+            </p>
+            <p>
+              <strong>Immediate Errors:</strong>
+              <span id="scoreboard-immediate-errors"></span>
+            </p>
+            <p>
+              <strong>Error Cell Highlights:</strong>
+              <span id="scoreboard-error-cells"></span>
+            </p>
+            <p>
+              <strong>Total Errors:</strong>
+              <span id="scoreboard-total-errors"></span>
+            </p>
+            <p id="scoreboard-support-row">
+              <strong>Support Features Used:</strong>
+              <span id="scoreboard-support-options"></span>
+            </p>
+          </div>
+          <div id="scoreboard-modal-actions" class="modal-actions">
+            <button class="action-btn" id="scoreboard-close-btn" type="button">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="decision-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="decision-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="decision-modal-message"
         >
           <p id="decision-modal-message"></p>
-          <div id="decision-modal-actions"></div>
+          <div id="decision-modal-actions" class="modal-actions"></div>
         </div>
       </div>
       <div id="version"></div>
@@ -341,6 +409,7 @@
     <script src="js/puzzles.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/options.js"></script>
+    <script src="js/scorecard.js"></script>
     <script src="js/components/modal.js"></script>
     <script src="js/components/table.js"></script>
     <script src="js/components/loadmodal.js"></script>
@@ -350,6 +419,7 @@
     <script src="js/components/confirmmodal.js"></script>
     <script src="js/components/newgamedecisionmodal.js"></script>
     <script src="js/components/optionsmodal.js"></script>
+    <script src="js/components/scoreboardmodal.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

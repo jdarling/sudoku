@@ -12,16 +12,230 @@ let currentState = null;
 let currentOptions = createDefaultOptions();
 
 /**
+ * Whether the device uses a coarse pointer (touch/mobile).
+ * Computed once at module load; used to set readOnly on cells and skip focus.
+ * @type {boolean}
+ */
+const coarsePointer = isCoarsePointerDevice();
+
+/**
  * Module-level active puzzle name for status messaging.
  * @type {string}
  */
 let currentPuzzleName = "";
 let currentPuzzleFilename = "";
 let lastStatusType = "";
+let currentScorecard = null;
 
 /**
- * Stores the active puzzle display name from loaded metadata.
+ * Returns whether solved stats modal should be shown.
+ * @returns {boolean} True when solved stats modal is enabled
+ */
+const getShowStatsOnSolved = () => {
+  return currentOptions.showStatsOnSolved !== false;
+};
+
+/**
+ * Applies solved-stats modal visibility preference and persists options.
+ * @param {boolean} enabled - True to show modal on solved
+ * @returns {void}
+ */
+const applyShowStatsOnSolved = (enabled) => {
+  currentOptions = updateOption(currentOptions, "showStatsOnSolved", enabled);
+  saveOptions(currentOptions);
+};
+
+/**
+ * Derives puzzle id used for scorecard tracking.
+ * @param {Object} puzzle - Loaded puzzle metadata
+ * @returns {string} Scorecard puzzle id
+ */
+const getScorecardPuzzleId = (puzzle) => {
+  if (!puzzle) {
+    return "unknown";
+  }
+
+  if (puzzle.filename) {
+    const canonicalId = puzzle.filename
+      .split("/")
+      .pop()
+      .replace(/\.yaml$/, "");
+    return canonicalId || "unknown";
+  }
+
+  if (puzzle.name && puzzle.name.trim()) {
+    return puzzle.name.trim();
+  }
+
+  return "unknown";
+};
+
+/**
+ * Returns true when board values changed between states.
+ * @param {Object|null} previousState - Previous game state
+ * @param {Object|null} nextState - Next game state
+ * @returns {boolean} True when any board value changed
+ */
+const didBoardChange = (previousState, nextState) => {
+  if (!previousState || !nextState) {
+    return false;
+  }
+
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if (previousState.board[i] !== nextState.board[i]) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Returns true when selected-cell immediate error is visible for state.
+ * @param {Object|null} state - Current game state
+ * @returns {boolean} True when immediate conflict highlight should show
+ */
+const isImmediateErrorVisible = (state) => {
+  if (!state || state.selected < 0) {
+    return false;
+  }
+
+  if (state.given[state.selected] || state.board[state.selected] === 0) {
+    return false;
+  }
+
+  const selectedValue = state.board[state.selected];
+  const relatedCells = getRelated(state.selected);
+  for (const relatedIndex of relatedCells) {
+    if (relatedIndex === state.selected) {
+      continue;
+    }
+    if (state.board[relatedIndex] === selectedValue) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Returns true when error-cell highlights are visible for state.
+ * @param {Object|null} state - Current game state
+ * @param {string[]} highlightFeatures - Active feature list
+ * @returns {boolean} True when error-cell highlights are visible
+ */
+const isErrorCellVisible = (state, highlightFeatures) => {
+  if (!state) {
+    return false;
+  }
+
+  const usesErrorCells =
+    state.hinting || (highlightFeatures || []).includes("error cells");
+  if (!usesErrorCells) {
+    return false;
+  }
+
+  return getHintCells(state).length > 0;
+};
+
+/**
+ * Creates a fresh scorecard for a board run.
+ * @param {Object} puzzle - Loaded puzzle metadata
+ * @param {Object} boardState - Initial board state for run
+ * @returns {void}
+ */
+const startScorecardRun = (puzzle, boardState) => {
+  const puzzleId = getScorecardPuzzleId(puzzle);
+  const startingBoardDigits = boardState.puzzle.join("");
+  currentScorecard = createInitialScorecard({
+    highlightFeatures: currentOptions.highlightFeatures,
+    puzzleId,
+    startingBoardDigits,
+    startedAt: new Date().toISOString(),
+  });
+};
+
+/**
+ * Applies scorecard metric updates for one state transition.
+ * @param {Object|null} previousState - Previous game state
+ * @param {Object} nextState - Next game state
+ * @param {Object|null} actionMeta - Action metadata from DOM handlers
+ * @returns {void}
+ */
+const trackScorecardTransition = (previousState, nextState, actionMeta) => {
+  if (!currentScorecard) {
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+  const highlightFeatures = currentOptions.highlightFeatures || [];
+
+  if (
+    actionMeta &&
+    actionMeta.kind === "move" &&
+    didBoardChange(previousState, nextState)
+  ) {
+    const showedImmediateBefore = highlightFeatures.includes("immediate errors")
+      ? isImmediateErrorVisible(previousState)
+      : false;
+    const showsImmediateNow = highlightFeatures.includes("immediate errors")
+      ? isImmediateErrorVisible(nextState)
+      : false;
+
+    currentScorecard = recordMove(currentScorecard, {
+      isClear: Boolean(actionMeta.isClear),
+      nowIso,
+    });
+
+    if (!showedImmediateBefore && showsImmediateNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "immediate");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "check") {
+    const showedErrorCellsBefore = isErrorCellVisible(
+      previousState,
+      highlightFeatures,
+    );
+    const showsErrorCellsNow = isErrorCellVisible(nextState, highlightFeatures);
+    currentScorecard = recordCheckClick(currentScorecard);
+    if (!showedErrorCellsBefore && showsErrorCellsNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "error-cell");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "hint") {
+    const showedErrorCellsBefore = isErrorCellVisible(
+      previousState,
+      highlightFeatures,
+    );
+    const showsErrorCellsNow = isErrorCellVisible(nextState, highlightFeatures);
+    currentScorecard = recordHintClick(currentScorecard);
+    if (!showedErrorCellsBefore && showsErrorCellsNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "error-cell");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "solve") {
+    currentScorecard = mutateScorecard(currentScorecard, {
+      isDisqualified: true,
+      disqualifyReason: "solve-used",
+    });
+    currentScorecard = finalizeScorecard(currentScorecard, nowIso);
+    return;
+  }
+
+  const solvedNow =
+    nextState.statusType === "win" && nextState.status === "Puzzle solved!";
+  if (solvedNow) {
+    currentScorecard = finalizeScorecard(currentScorecard, nowIso);
+  }
+};
+
+/**
+ * Sets the active puzzle display name from loaded metadata.
  * @param {Object} puzzle - Loaded puzzle object
+ * @returns {void}
  */
 const setCurrentPuzzleName = (puzzle) => {
   if (puzzle && puzzle.name && puzzle.name.trim()) {
@@ -35,12 +249,17 @@ const setCurrentPuzzleName = (puzzle) => {
 /**
  * Updates current state and orchestrates rendering and side effects.
  * @param {Object} newState - New state to apply
+ * @param {Object|null} actionMeta - Action metadata from DOM handlers
+ * @returns {void}
  */
-const updateState = (newState) => {
+const updateState = (newState, actionMeta = null) => {
+  const previousState = currentState;
+  trackScorecardTransition(previousState, newState, actionMeta);
   currentState = newState;
   renderGrid(
     currentState,
     currentOptions.highlightFeatures,
+    coarsePointer,
     onCellFocus,
     onCellKeydown,
     onCellInput,
@@ -56,12 +275,19 @@ const updateState = (newState) => {
     lastStatusType !== "win";
   if (enteredWin) {
     launchWinCelebration();
+    const shouldOpenScoreboard =
+      getShowStatsOnSolved() &&
+      currentScorecard &&
+      currentScorecard.isDisqualified !== true;
+    if (shouldOpenScoreboard) {
+      openScoreboardModal(currentScorecard);
+    }
   }
 
   lastStatusType = currentState.statusType || "";
   updateHash(currentState.board);
   if (currentState.selected >= 0) {
-    focusCell(currentState.selected);
+    focusCell(currentState.selected, coarsePointer);
   }
 };
 
@@ -76,6 +302,7 @@ const getCurrentState = () => {
 /**
  * Applies decoded board state from URL hash and re-renders.
  * @param {number[]} decodedBoard - Decoded board values
+ * @returns {void}
  */
 const applyBoardStateFromHash = (decodedBoard) => {
   if (!currentState) {
@@ -89,14 +316,18 @@ const applyBoardStateFromHash = (decodedBoard) => {
  * Common logic shared by all puzzle-loading functions.
  * @param {Object} puzzle - Loaded puzzle object with name and filename
  * @param {Object} boardState - The board state to apply
+ * @returns {void}
  */
 const loadGame = (puzzle, boardState) => {
+  closeScoreboardModal();
   currentState = boardState;
   currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
   setCurrentPuzzleName(puzzle);
+  startScorecardRun(puzzle, boardState);
   renderGrid(
     currentState,
     currentOptions.highlightFeatures,
+    coarsePointer,
     onCellFocus,
     onCellKeydown,
     onCellInput,
@@ -113,6 +344,7 @@ const loadGame = (puzzle, boardState) => {
 /**
  * Applies a fetched puzzle to state, URL query, and rendering.
  * @param {Object} puzzle - Loaded puzzle object
+ * @returns {void}
  */
 const loadFetchedPuzzle = (puzzle) => {
   const boardState = createStateFromPuzzle(puzzle.puzzle);
@@ -128,6 +360,7 @@ const loadFetchedPuzzle = (puzzle) => {
  * Applies not-found puzzle fallback state.
  * Renders a blank board, shows loader error, and clears stale board hash.
  * @param {string} incomingToken - Original puzzle token from query
+ * @returns {void}
  */
 const showUnknownPuzzleFallback = (incomingToken) => {
   const blankState = createStateFromPuzzle("0".repeat(TOTAL_CELLS));
@@ -192,15 +425,15 @@ const loadNewGame = async () => {
       : "Invalid board.";
     if (validationError) {
       showUnknownPuzzleFallback(incomingBoard);
-    } else {
-      let boardState = createStateFromBoard(parsed);
-      const boardHash = getBoardFromHash();
-      if (boardHash) {
-        const decodedBoard = decodeBoard(boardHash);
-        boardState = applyDecodedBoard(boardState, decodedBoard);
-      }
-      loadPuzzleFromBoard(parsed, boardState, false);
+      return;
     }
+    let boardState = createStateFromBoard(parsed);
+    const boardHash = getBoardFromHash();
+    if (boardHash) {
+      const decodedBoard = decodeBoard(boardHash);
+      boardState = applyDecodedBoard(boardState, decodedBoard);
+    }
+    loadPuzzleFromBoard(parsed, boardState, false);
     return;
   }
 
@@ -212,30 +445,31 @@ const loadNewGame = async () => {
         indexEntries,
       );
 
-      if (exactMatch) {
-        const puzzle = await getPuzzle(exactMatch);
-        let boardState = createStateFromPuzzle(puzzle.puzzle);
-
-        const boardHash = getBoardFromHash();
-        if (boardHash) {
-          const decodedBoard = decodeBoard(boardHash);
-          boardState = applyDecodedBoard(boardState, decodedBoard);
-        }
-
-        loadGame(puzzle, boardState);
-        const canonicalId = exactMatch
-          .split("/")
-          .pop()
-          .replace(/\.yaml$/, "");
-        updateQuery(canonicalId);
-      } else {
+      if (!exactMatch) {
         const selectedFilename = await openLoadModalForSelection(incomingToken);
         if (!selectedFilename) {
           showUnknownPuzzleFallback(incomingToken);
-        } else {
-          await loadPuzzleByFilename(selectedFilename);
+          return;
         }
+        await loadPuzzleByFilename(selectedFilename);
+        return;
       }
+
+      const puzzle = await getPuzzle(exactMatch);
+      let boardState = createStateFromPuzzle(puzzle.puzzle);
+
+      const boardHash = getBoardFromHash();
+      if (boardHash) {
+        const decodedBoard = decodeBoard(boardHash);
+        boardState = applyDecodedBoard(boardState, decodedBoard);
+      }
+
+      loadGame(puzzle, boardState);
+      const canonicalId = exactMatch
+        .split("/")
+        .pop()
+        .replace(/\.yaml$/, "");
+      updateQuery(canonicalId);
     } catch (error) {
       console.error("[loadNewGame] error:", error);
       showUnknownPuzzleFallback(incomingToken);
@@ -280,6 +514,7 @@ const loadPuzzleFromUrl = async (puzzleUrl) => {
  * @param {string} boardStr - Validated 81-char digit string
  * @param {Object|null} restoredState - Optional board state that already includes restored progress
  * @param {boolean} clearHashOnLoad - Whether to clear board hash after load
+ * @returns {void}
  */
 const loadPuzzleFromBoard = (
   boardStr,
@@ -328,6 +563,7 @@ const loadRandomPuzzle = async () => {
 /**
  * Clears the current board, resetting all user entries to givens only.
  * Deselects any cell and updates status.
+ * @returns {void}
  */
 const clearBoard = () => {
   if (!currentState) {
@@ -347,6 +583,7 @@ const getHighlightFeatures = () => {
 /**
  * Applies new highlight features, updates game state, and persists options.
  * @param {string[]} features - Highlight features to apply
+ * @returns {void}
  */
 const applyHighlightFeatures = (features) => {
   if (!currentState) {
@@ -358,6 +595,13 @@ const applyHighlightFeatures = (features) => {
     normalizeHighlightFeatures(features),
   );
   saveOptions(currentOptions);
+  if (currentScorecard) {
+    currentScorecard = recordSupportChecksChange(
+      currentScorecard,
+      currentOptions.highlightFeatures,
+      new Date().toISOString(),
+    );
+  }
   updateState(currentState);
 };
 
@@ -404,16 +648,18 @@ const init = async () => {
     loadPuzzleFromBoard,
   });
 
-  setNewGameDecisionModalDeps({
+  initNewGameDecisionModal({
     clearBoard,
     loadRandomPuzzle,
   });
 
-  configureOptionsModal({
+  initOptionsModal({
     applyTheme,
     getHighlightFeatures,
     applyHighlightFeatures,
     applyHighlightPreset,
+    getShowStatsOnSolved,
+    applyShowStatsOnSolved,
   });
 
   document.getElementById("load-url-btn").addEventListener("click", () => {
@@ -485,8 +731,14 @@ const init = async () => {
     .getElementById("options-highlight-features")
     .addEventListener("change", onOptionsHighlightFeatureChange);
   document
+    .getElementById("options-show-stats-on-solved")
+    .addEventListener("change", onOptionsShowStatsChange);
+  document
     .getElementById("options-highlight-presets")
-    .addEventListener("click", onOptionsPresetClick);
+    .addEventListener("click", onOptionsPresetButtonClick);
+  document
+    .getElementById("scoreboard-close-btn")
+    .addEventListener("click", onScoreboardCloseClick);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
@@ -499,9 +751,9 @@ const init = async () => {
   window.addEventListener("keydown", onLoadModalKeydown);
   window.addEventListener("keydown", onDecisionModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);
+  window.addEventListener("keydown", onScoreboardModalKeydown);
 
   await loadNewGame();
-  updateState(currentState);
 };
 
 init().catch((error) => {

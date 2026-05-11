@@ -4,7 +4,7 @@
  * All functions are pure and testable.
  */
 
-const OPTIONS_STORAGE_KEY = 'sudoku-options';
+const OPTIONS_STORAGE_KEY = "sudoku-options";
 
 /**
  * Deduplicates and validates feature strings against known feature keys.
@@ -30,7 +30,7 @@ const normalizeHighlightFeatures = (features) => {
  * @returns {string[]} Feature list for mode
  */
 const mapModeToFeatures = (mode) => {
-  if (typeof mode !== 'string') {
+  if (typeof mode !== "string") {
     return [];
   }
   return [...getStyleConfigFeatures(mode)];
@@ -41,9 +41,10 @@ const mapModeToFeatures = (mode) => {
  * @returns {Object} Default options
  */
 const createDefaultOptions = () => ({
-  highlightFeatures: [...getStyleConfigFeatures('related-block')],
-  theme: 'default',
+  highlightFeatures: [...getStyleConfigFeatures("related-block")],
+  theme: "default",
   autoCheck: false,
+  showStatsOnSolved: true,
 });
 
 /**
@@ -55,7 +56,7 @@ const createDefaultOptions = () => ({
 const sanitizeOptions = (options) => {
   const defaults = createDefaultOptions();
   const source =
-    options && typeof options === 'object' ? options : createDefaultOptions();
+    options && typeof options === "object" ? options : createDefaultOptions();
 
   const highlightFeatures = normalizeHighlightFeatures(
     source.highlightFeatures,
@@ -66,19 +67,82 @@ const sanitizeOptions = (options) => {
       : [...defaults.highlightFeatures];
 
   const theme =
-    typeof source.theme === 'string' && AVAILABLE_THEMES.includes(source.theme)
+    typeof source.theme === "string" && AVAILABLE_THEMES.includes(source.theme)
       ? source.theme
       : defaults.theme;
 
   const autoCheck =
-    typeof source.autoCheck === 'boolean'
+    typeof source.autoCheck === "boolean"
       ? source.autoCheck
       : defaults.autoCheck;
+
+  const showStatsOnSolved =
+    typeof source.showStatsOnSolved === "boolean"
+      ? source.showStatsOnSolved
+      : defaults.showStatsOnSolved;
 
   return {
     highlightFeatures: resolvedFeatures,
     theme,
     autoCheck,
+    showStatsOnSolved,
+  };
+};
+
+/**
+ * Formats elapsed time from two ISO timestamps as minutes/seconds.
+ * @param {string} startedAtIso - Start timestamp (ISO)
+ * @param {string} completedAtIso - Completion timestamp (ISO)
+ * @returns {string} Human-readable duration string
+ */
+const formatElapsedTime = (startedAtIso, completedAtIso) => {
+  const startedAtMs = Date.parse(startedAtIso || "");
+  const completedAtMs = Date.parse(completedAtIso || "");
+  if (Number.isNaN(startedAtMs) || Number.isNaN(completedAtMs)) {
+    return "0 minutes 0 seconds";
+  }
+
+  const diffMs = Math.max(0, completedAtMs - startedAtMs);
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const minuteLabel = minutes === 1 ? "minute" : "minutes";
+  const secondLabel = seconds === 1 ? "second" : "seconds";
+  return `${minutes} ${minuteLabel} ${seconds} ${secondLabel}`;
+};
+
+/**
+ * Creates a display-friendly metrics object from scorecard values.
+ * @param {Object} scorecard - Completed scorecard object
+ * @returns {Object} Metrics object prepared for UI display
+ */
+const createMetricsDisplay = (scorecard) => {
+  const source =
+    scorecard && typeof scorecard === "object"
+      ? scorecard
+      : Object.create(null);
+
+  const supportOptions = Array.isArray(source.supportOptionsUsed)
+    ? source.supportOptionsUsed
+    : [];
+
+  return {
+    puzzleId: source.puzzleId || "unknown",
+    elapsedTime: formatElapsedTime(
+      source.startedAt || "",
+      source.completedAt || "",
+    ),
+    moveCount: source.moveCount || 0,
+    checkClickCount: source.checkClickCount || 0,
+    hintClickCount: source.hintClickCount || 0,
+    immediateErrorShownCount: source.immediateErrorShownCount || 0,
+    errorCellShownCount: source.errorCellShownCount || 0,
+    errorShownCount: source.errorShownCount || 0,
+    supportOptionsUsed:
+      supportOptions.length > 0 ? [...supportOptions] : ["None"],
+    startedAt: source.startedAt || "",
+    completedAt: source.completedAt || "",
   };
 };
 
@@ -118,6 +182,7 @@ const loadOptions = () => {
 /**
  * Saves options to localStorage.
  * @param {Object} options - Options to save
+ * @returns {void}
  */
 const saveOptions = (options) => {
   try {

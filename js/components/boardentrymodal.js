@@ -14,6 +14,7 @@ let boardEntryModalDeps = null;
  * Registers dependencies used by board entry modal handlers.
  * @param {Object} deps - Dependency functions from app orchestration
  * @param {Function} deps.loadPuzzleFromBoard - Loads a puzzle from an 81-char board string
+ * @returns {void}
  */
 const configureBoardEntryModal = (deps) => {
   boardEntryModalDeps = deps;
@@ -43,6 +44,7 @@ const getBoardEntryModalElements = () => {
 
 /**
  * Opens the board entry modal and resets its input state.
+ * @returns {void}
  */
 const openBoardEntryModal = () => {
   const elements = getBoardEntryModalElements();
@@ -58,6 +60,7 @@ const openBoardEntryModal = () => {
 
 /**
  * Closes the board entry modal.
+ * @returns {void}
  */
 const closeBoardEntryModal = () => {
   const modal = getBoardEntryModalEl();
@@ -67,6 +70,7 @@ const closeBoardEntryModal = () => {
 /**
  * Validates board input and updates button state and inline error.
  * @param {Event} event - Input event from textarea
+ * @returns {void}
  */
 const onBoardEntryInput = (event) => {
   const elements = getBoardEntryModalElements();
@@ -91,6 +95,7 @@ const onBoardEntryInput = (event) => {
 
 /**
  * Handles the Load button — parses and loads the entered board.
+ * @returns {void}
  */
 const onBoardEntryConfirmClick = () => {
   const elements = getBoardEntryModalElements();
@@ -116,6 +121,7 @@ const onBoardEntryConfirmClick = () => {
 
 /**
  * Handles the Cancel button — closes the modal without any state changes.
+ * @returns {void}
  */
 const onBoardEntryCancelClick = () => {
   closeBoardEntryModal();
@@ -125,6 +131,7 @@ const onBoardEntryCancelClick = () => {
  * Handles keyboard controls while the board entry modal is open.
  * Escape closes the modal.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onBoardEntryModalKeydown = (event) => {
   const modal = getBoardEntryModalEl();
