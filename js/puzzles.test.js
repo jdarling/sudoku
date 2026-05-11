@@ -35,6 +35,8 @@ const runPuzzleTests = () => {
   let buildPuzzleSearchText = resolveSymbol("buildPuzzleSearchText");
   let validatePuzzleUrl = resolveSymbol("validatePuzzleUrl");
   let validatePuzzleDoc = resolveSymbol("validatePuzzleDoc");
+  let parseBoardInput = resolveSymbol("parseBoardInput");
+  let validateBoardInput = resolveSymbol("validateBoardInput");
 
   setTestFile("puzzles.js");
 
@@ -629,6 +631,88 @@ const runPuzzleTests = () => {
 
   test("validatePuzzleDoc returns false for null input", () => {
     return expect(validatePuzzleDoc(null)).toBeFalsy();
+  });
+
+  const VALID_BOARD =
+    "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+
+  test("parseBoardInput returns 81-char string for digit-only input", () => {
+    return expect(parseBoardInput(VALID_BOARD)).toBe(VALID_BOARD);
+  });
+
+  test("parseBoardInput treats non-digit chars as 0", () => {
+    const dotBoard =
+      "53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79";
+    const result = parseBoardInput(dotBoard);
+    return expect(
+      result !== null && result.length === 81 && /^[0-9]+$/.test(result),
+    ).toBeTruthy();
+  });
+
+  test("parseBoardInput returns null for input with wrong cell count", () => {
+    return expect(parseBoardInput("12345")).toBe(null);
+  });
+
+  test("parseBoardInput returns null for empty string", () => {
+    return expect(parseBoardInput("")).toBe(null);
+  });
+
+  test("parseBoardInput returns null for null input", () => {
+    return expect(parseBoardInput(null)).toBe(null);
+  });
+
+  test("parseBoardInput strips whitespace/newlines to normalize multi-line input", () => {
+    const multiLine =
+      "530070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079";
+    const result = parseBoardInput(multiLine);
+    return expect(result !== null && result.length === 81).toBeTruthy();
+  });
+
+  test("validateBoardInput returns null for valid board", () => {
+    return expect(validateBoardInput(VALID_BOARD)).toBe(null);
+  });
+
+  test("validateBoardInput accepts manual board entry case 1", () => {
+    const board =
+      "058060000410300700003700005680001000900000008000400013300006200002009076000040150";
+    return expect(validateBoardInput(board)).toBe(null);
+  });
+
+  test("validateBoardInput accepts manual board entry case 2", () => {
+    const board =
+      "040000000002103094000002003706000050000538000050000401100200000520709100000000060";
+    return expect(validateBoardInput(board)).toBe(null);
+  });
+
+  test("validateBoardInput returns error for all-zero board", () => {
+    return expect(validateBoardInput("0".repeat(81)) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for wrong length", () => {
+    return expect(validateBoardInput("53007") !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same row", () => {
+    const conflicting = "55" + "0".repeat(79);
+    return expect(validateBoardInput(conflicting) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same column", () => {
+    const cells = new Array(81).fill("0");
+    cells[0] = "7";
+    cells[9] = "7";
+    return expect(validateBoardInput(cells.join("")) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same box", () => {
+    const cells = new Array(81).fill("0");
+    cells[0] = "9";
+    cells[10] = "9";
+    return expect(validateBoardInput(cells.join("")) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for null input", () => {
+    return expect(validateBoardInput(null) !== null).toBeTruthy();
   });
 };
 

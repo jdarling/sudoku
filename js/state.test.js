@@ -26,6 +26,7 @@ const runStateTests = () => {
   };
 
   let createStateFromPuzzle = resolveSymbol("createStateFromPuzzle");
+  let createStateFromBoard = resolveSymbol("createStateFromBoard");
   let selectCell = resolveSymbol("selectCell");
   let placeNumber = resolveSymbol("placeNumber");
   let solveBoard = resolveSymbol("solveBoard");
@@ -55,6 +56,27 @@ const runStateTests = () => {
   test("createStateFromPuzzle does not store highlight mode preference", () => {
     const state = createStateFromPuzzle("0".repeat(81));
     return expect(state.highlightMode === undefined).toBeTruthy();
+  });
+
+  test("createStateFromBoard builds board and given arrays", () => {
+    const board = "120000000" + "0".repeat(72);
+    const state = createStateFromBoard(board);
+    return expect(
+      state.board.length === TOTAL_CELLS &&
+        state.board[0] === 1 &&
+        state.board[1] === 2 &&
+        state.given[0] === true &&
+        state.given[1] === true &&
+        state.given[2] === false,
+    ).toBeTruthy();
+  });
+
+  test("createStateFromBoard is equivalent to createStateFromPuzzle", () => {
+    const board =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const fromBoard = createStateFromBoard(board);
+    const fromPuzzle = createStateFromPuzzle(board);
+    return expect(fromBoard).toEqual(fromPuzzle);
   });
 
   test("selectCell returns new state with selected index", () => {

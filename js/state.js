@@ -18,6 +18,15 @@ const createStateFromPuzzle = (puzzleStr) => {
 };
 
 /**
+ * Creates initial game state from a manually-entered board string.
+ * All non-zero digits are treated as given cells.
+ * Semantically identical to createStateFromPuzzle; named separately for clarity.
+ * @param {string} boardStr - 81-digit board string (0 = empty, 1-9 = given)
+ * @returns {Object} Initial state object
+ */
+const createStateFromBoard = (boardStr) => createStateFromPuzzle(boardStr);
+
+/**
  * Creates a new state with a cell selected.
  * @param {Object} state - Current state
  * @param {number} cellIndex - Cell to select

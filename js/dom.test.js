@@ -69,6 +69,27 @@ const runDomTests = () => {
       buildPuzzleQueryString({ puzzleId: null, puzzleUrl: null }),
     ).toBe("");
   });
+
+  test("buildPuzzleQueryString returns board query for board", () => {
+    return expect(buildPuzzleQueryString({ board: "5" + "0".repeat(80) })).toBe(
+      "?board=5" + "0".repeat(80),
+    );
+  });
+
+  test("buildPuzzleQueryString prefers puzzleId over board when both provided", () => {
+    return expect(
+      buildPuzzleQueryString({ puzzleId: "004", board: "0".repeat(81) }),
+    ).toBe("?puzzle=004");
+  });
+
+  test("buildPuzzleQueryString prefers puzzleUrl over board when both provided", () => {
+    return expect(
+      buildPuzzleQueryString({
+        puzzleUrl: "https://example.com/puzzle.yaml",
+        board: "0".repeat(81),
+      }),
+    ).toBe("?puzzleUrl=https%3A%2F%2Fexample.com%2Fpuzzle.yaml");
+  });
 };
 
 runDomTests();

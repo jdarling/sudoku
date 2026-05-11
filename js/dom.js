@@ -35,15 +35,30 @@ const getUrlPuzzleFromQuery = () => {
 };
 
 /**
+ * Extracts the board query parameter from the current URL.
+ * Used for manually-entered boards shared via ?board= links.
+ * @returns {string|null} 81-char board string or null if not present
+ */
+const getBoardFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("board") || null;
+};
+
+/**
  * Builds a query string for the app URL from a puzzle identity.
- * Exactly one of puzzleId or puzzleUrl should be provided.
- * Returns an empty string when neither is provided.
+ * Exactly one of puzzleId, puzzleUrl, or board should be provided.
+ * Returns an empty string when none is provided.
  * @param {Object} opts
  * @param {string|null} [opts.puzzleId] - Canonical puzzle id (e.g. '004')
  * @param {string|null} [opts.puzzleUrl] - Absolute URL to a remote puzzle file
+ * @param {string|null} [opts.board] - 81-char digit string for a manually-entered board
  * @returns {string} Query string including leading '?', or ''
  */
-const buildPuzzleQueryString = ({ puzzleId = null, puzzleUrl = null } = {}) => {
+const buildPuzzleQueryString = ({
+  puzzleId = null,
+  puzzleUrl = null,
+  board = null,
+} = {}) => {
   if (puzzleId) {
     return `?puzzle=${encodeURIComponent(puzzleId)}`;
   }
@@ -51,6 +66,9 @@ const buildPuzzleQueryString = ({ puzzleId = null, puzzleUrl = null } = {}) => {
     const params = new URLSearchParams();
     params.set("puzzleUrl", puzzleUrl);
     return `?${params.toString()}`;
+  }
+  if (board) {
+    return `?board=${encodeURIComponent(board)}`;
   }
   return "";
 };

@@ -385,6 +385,61 @@ const fetchPuzzleFromUrl = async (puzzleUrl) => {
 };
 
 /**
+ * Parses free-form board input text into an 81-character digit string.
+ * Characters 1-9 are kept as givens; any other character becomes '0'.
+ * Returns null when the normalized text does not contain exactly 81 cells.
+ * @param {string} text - Raw input text from the user
+ * @returns {string|null} 81-char string of digits, or null if wrong length
+ */
+const parseBoardInput = (text) => {
+  if (!text || typeof text !== "string") {
+    return null;
+  }
+  const normalized = text
+    .replace(/\s/g, "")
+    .split("")
+    .map((ch) => (/^[1-9]$/.test(ch) ? ch : "0"))
+    .join("");
+  if (normalized.length !== TOTAL_CELLS) {
+    return null;
+  }
+  return normalized;
+};
+
+/**
+ * Validates an 81-character board string for puzzle play.
+ * Requires exactly 81 cells, at least one given, and no conflicting givens.
+ * @param {string} boardStr - 81-char digit string from parseBoardInput
+ * @returns {string|null} Error message, or null when the board is valid
+ */
+const validateBoardInput = (boardStr) => {
+  if (!boardStr || boardStr.length !== TOTAL_CELLS) {
+    return "Board must contain exactly 81 cells.";
+  }
+
+  const cells = boardStr.split("").map(Number);
+
+  const hasGiven = cells.some((v) => v >= 1 && v <= 9);
+  if (!hasGiven) {
+    return "Board must have at least one given cell.";
+  }
+
+  for (let pos = 0; pos < TOTAL_CELLS; pos++) {
+    const val = cells[pos];
+    if (val === 0) {
+      continue;
+    }
+    // temporarily clear the cell to check if its value conflicts with peers
+    const boardWithout = [...cells.slice(0, pos), 0, ...cells.slice(pos + 1)];
+    if (!isValid(boardWithout, pos, val)) {
+      return "Board contains conflicting given cells.";
+    }
+  }
+
+  return null;
+};
+
+/**
  * Fetches a random puzzle.
  * Currently selects from the local index — replace this implementation
  * with an API call (e.g. GET /api/puzzles/random) when a backend is available,

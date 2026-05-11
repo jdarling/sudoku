@@ -150,6 +150,7 @@ loadScript(path.join(__dirname, "../js/styler.js"), [
 ]);
 loadScript(path.join(__dirname, "../js/state.js"), [
   "createStateFromPuzzle",
+  "createStateFromBoard",
   "selectCell",
   "placeNumber",
   "solveBoard",
@@ -178,6 +179,8 @@ loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "buildPuzzleSearchText",
   "validatePuzzleUrl",
   "validatePuzzleDoc",
+  "parseBoardInput",
+  "validateBoardInput",
 ]);
 loadScript(path.join(__dirname, "../js/dom.js"), [
   "buildPuzzleQueryString",

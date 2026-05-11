@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Sudoku Tests</title>
     <style>
       * {
@@ -206,8 +212,9 @@
        * Uses the same TEST_FILES list as the Node runner for consistency.
        */
       const loadTestFiles = () => {
+        const failedTestScripts = [];
         const testFiles = TEST_FILES.map((filePath) => {
-          if (filePath.startsWith('../')) {
+          if (filePath.startsWith("../")) {
             return filePath;
           }
           return `./${filePath}`;
@@ -216,20 +223,21 @@
 
         const loadNextFile = () => {
           if (filesLoaded >= testFiles.length) {
-            setTimeout(runAllTests, 0);
+            setTimeout(() => runAllTests(failedTestScripts), 0);
             return;
           }
 
-          const script = document.createElement('script');
-          script.src = testFiles[filesLoaded];
+          const script = document.createElement("script");
+          // Prevent stale cached test files from skewing totals.
+          script.src = `${testFiles[filesLoaded]}?v=${Date.now()}`;
           script.onload = () => {
             filesLoaded += 1;
             loadNextFile();
           };
           script.onerror = () => {
-            console.error(
-              `Failed to load test file: ${testFiles[filesLoaded]}`,
-            );
+            const failedPath = testFiles[filesLoaded];
+            failedTestScripts.push(failedPath);
+            console.error(`Failed to load test file: ${failedPath}`);
             filesLoaded += 1;
             loadNextFile();
           };
@@ -237,6 +245,8 @@
         };
 
         loadNextFile();
+
+        return failedTestScripts;
       };
 
       /**
@@ -244,19 +254,19 @@
        * @param {Object} summary - Test summary from runAllRegisteredTests
        */
       const renderCollapsibleResults = (summary) => {
-        const container = document.getElementById('test-results');
+        const container = document.getElementById("test-results");
         if (!container) return;
 
-        const resultsDiv = document.createElement('div');
-        resultsDiv.className = 'test-results';
+        const resultsDiv = document.createElement("div");
+        resultsDiv.className = "test-results";
 
         // File sections - each file in the registry
         summary.files.forEach((file) => {
-          const fileSection = document.createElement('details');
-          fileSection.className = 'file-section';
+          const fileSection = document.createElement("details");
+          fileSection.className = "file-section";
           fileSection.open = false; // Collapsed by default
 
-          const fileSummary = document.createElement('summary');
+          const fileSummary = document.createElement("summary");
           fileSummary.innerHTML = `
             <span class="file-name">${file.fileName}</span>
             <span class="file-stats">
@@ -267,13 +277,13 @@
           fileSection.appendChild(fileSummary);
 
           // Tests directly under file (no function/suite grouping)
-          const testList = document.createElement('div');
-          testList.className = 'test-list';
+          const testList = document.createElement("div");
+          testList.className = "test-list";
 
           if (file.tests && Array.isArray(file.tests)) {
             file.tests.forEach((test) => {
-              const testItem = document.createElement('div');
-              testItem.className = `test-item ${test.pass ? 'pass' : 'fail'}`;
+              const testItem = document.createElement("div");
+              testItem.className = `test-item ${test.pass ? "pass" : "fail"}`;
               testItem.textContent = test.message;
               testList.appendChild(testItem);
             });
@@ -286,10 +296,10 @@
         container.appendChild(resultsDiv);
 
         // Summary at bottom
-        const summaryDiv = document.createElement('div');
-        summaryDiv.className = `test-summary ${summary.totalFailed === 0 ? 'all-pass' : 'has-fail'}`;
+        const summaryDiv = document.createElement("div");
+        summaryDiv.className = `test-summary ${summary.totalFailed === 0 ? "all-pass" : "has-fail"}`;
         summaryDiv.innerHTML = `
-          <span class="summary-text">${summary.totalPassed}/${summary.total} tests passed${summary.totalFailed > 0 ? ` (${summary.totalFailed} failed)` : ''}</span>
+          <span class="summary-text">${summary.totalPassed}/${summary.total} tests passed${summary.totalFailed > 0 ? ` (${summary.totalFailed} failed)` : ""}</span>
           <span class="summary-actions">
             <button onclick="expandAll()">Expand All</button>
             <button onclick="collapseAll()">Collapse All</button>
@@ -301,7 +311,7 @@
        * Expand all collapsible sections.
        */
       const expandAll = () => {
-        document.querySelectorAll('details').forEach((detail) => {
+        document.querySelectorAll("details").forEach((detail) => {
           detail.open = true;
         });
       };
@@ -310,7 +320,7 @@
        * Collapse all collapsible sections.
        */
       const collapseAll = () => {
-        document.querySelectorAll('details').forEach((detail) => {
+        document.querySelectorAll("details").forEach((detail) => {
           detail.open = false;
         });
       };
@@ -318,7 +328,16 @@
       /**
        * Run all registered tests and display results.
        */
-      const runAllTests = async () => {
+      const runAllTests = async (failedTestScripts) => {
+        if (failedTestScripts.length > 0) {
+          const container = document.getElementById("test-results");
+          if (container) {
+            const warning = document.createElement("div");
+            warning.className = "test-summary has-fail";
+            warning.innerHTML = `<span class="summary-text">Failed to load ${failedTestScripts.length} test file(s): ${failedTestScripts.join(", ")}</span>`;
+            container.appendChild(warning);
+          }
+        }
         const summary = await runAllRegisteredTests();
         renderCollapsibleResults(summary);
       };

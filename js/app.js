@@ -174,12 +174,32 @@ const loadPuzzleByFilename = async (filename) => {
 const loadNewGame = async () => {
   const incomingToken = getPuzzleFromQuery();
   const incomingUrl = getUrlPuzzleFromQuery();
+  const incomingBoard = getBoardFromQuery();
 
   if (incomingUrl) {
     try {
       await loadPuzzleFromUrl(incomingUrl);
     } catch (error) {
       showUnknownPuzzleFallback(incomingUrl);
+    }
+    return;
+  }
+
+  if (incomingBoard) {
+    const parsed = parseBoardInput(incomingBoard);
+    const validationError = parsed
+      ? validateBoardInput(parsed)
+      : "Invalid board.";
+    if (validationError) {
+      showUnknownPuzzleFallback(incomingBoard);
+    } else {
+      let boardState = createStateFromBoard(parsed);
+      const boardHash = getBoardFromHash();
+      if (boardHash) {
+        const decodedBoard = decodeBoard(boardHash);
+        boardState = applyDecodedBoard(boardState, decodedBoard);
+      }
+      loadPuzzleFromBoard(parsed, boardState, false);
     }
     return;
   }
@@ -251,6 +271,35 @@ const loadPuzzleFromUrl = async (puzzleUrl) => {
   closeLoadModal();
   loadGame(puzzle, boardState);
   setAppQuery(buildPuzzleQueryString({ puzzleUrl }));
+};
+
+/**
+ * Loads a puzzle from a manually-entered 81-char board string.
+ * All non-zero digits are treated as givens. No file, no index entry.
+ * URL is set to ?board=<boardStr> for shareability.
+ * @param {string} boardStr - Validated 81-char digit string
+ * @param {Object|null} restoredState - Optional board state that already includes restored progress
+ * @param {boolean} clearHashOnLoad - Whether to clear board hash after load
+ */
+const loadPuzzleFromBoard = (
+  boardStr,
+  restoredState = null,
+  clearHashOnLoad = true,
+) => {
+  const boardState = restoredState || createStateFromBoard(boardStr);
+  const puzzle = {
+    filename: null,
+    name: "Custom Board",
+    author: "",
+    difficulty: "",
+    puzzle: boardStr,
+  };
+  closeLoadModal();
+  loadGame(puzzle, boardState);
+  setAppQuery(buildPuzzleQueryString({ board: boardStr }));
+  if (clearHashOnLoad) {
+    clearBoardHash();
+  }
 };
 
 /**
@@ -340,6 +389,10 @@ const init = async () => {
     loadPuzzleFromUrl,
   });
 
+  configureBoardEntryModal({
+    loadPuzzleFromBoard,
+  });
+
   configureOptionsModal({
     applyTheme,
     getHighlightFeatures,
@@ -360,6 +413,20 @@ const init = async () => {
   document
     .getElementById("url-load-input")
     .addEventListener("input", onUrlLoadInput);
+
+  document.getElementById("load-board-btn").addEventListener("click", () => {
+    closeLoadModal();
+    openBoardEntryModal();
+  });
+  document
+    .getElementById("board-entry-confirm-btn")
+    .addEventListener("click", onBoardEntryConfirmClick);
+  document
+    .getElementById("board-entry-cancel-btn")
+    .addEventListener("click", onBoardEntryCancelClick);
+  document
+    .getElementById("board-entry-input")
+    .addEventListener("input", onBoardEntryInput);
 
   document.getElementById("new-btn").addEventListener("click", onNewGameClick);
   document
@@ -419,6 +486,7 @@ const init = async () => {
   window.addEventListener("popstate", onPopState);
   window.addEventListener("hashchange", onHashChange);
   window.addEventListener("keydown", onUrlLoadModalKeydown);
+  window.addEventListener("keydown", onBoardEntryModalKeydown);
   window.addEventListener("keydown", onLoadModalKeydown);
   window.addEventListener("keydown", onConfirmModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);

@@ -9,6 +9,21 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.4]
+
+- Added "Enter Board" action to the Load Puzzle modal for manual puzzle entry without YAML files
+- Added board-entry dialog (`#board-entry-modal`) with textarea input, inline validation errors, and Cancel/Load actions
+- Added pure `parseBoardInput(text)` in `puzzles.js` to normalize free-form single-line or multi-line text into an 81-cell digit string (`1-9` kept, other chars treated as empty)
+- Added pure `validateBoardInput(boardStr)` in `puzzles.js` to enforce board length, at least one given cell, and no row/column/block conflicts in givens
+- Added `createStateFromBoard(boardStr)` in `state.js` as the explicit state initializer for manually-entered boards
+- Added `getBoardFromQuery()` in `dom.js` and extended `buildPuzzleQueryString({ puzzleId, puzzleUrl, board })` to support `?board=<81-char-string>` URLs
+- Added `loadPuzzleFromBoard(boardStr)` orchestration in `app.js`; successful manual loads now set the browser URL to `?board=<...>`
+- Startup loading now supports `?board=`: valid board links load directly; invalid board links fall back to existing unknown-puzzle behavior
+- Added `js/components/boardentrymodal.js` for board-entry modal behavior (`configure`, `open`, `close`, input validation, confirm/cancel, Escape handling)
+- Opening either "Load URL" or "Enter Board" now closes the list modal first, and successful manual loads scroll to top
+- Added unit tests for board parsing/validation in `puzzles.test.js` and board query generation in `dom.test.js`
+- Node test suite now passes `180/180`
+
 ## [1.16.3]
 
 - Added "Load URL" button to the Load Puzzle modal that opens a dedicated URL load dialog
