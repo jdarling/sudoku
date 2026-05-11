@@ -25,14 +25,6 @@ jobs:
       - name: Generate puzzle index
         run: node tools/generate-puzzle-index.js
 
-      - name: Commit puzzle updates (if any)
-        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add data/puzzles.json
-          git diff --cached --quiet || git commit -m "chore: sync puzzles.json" && git push origin HEAD
-
       - name: Run tests
         run: node tests/run-node-tests.js --report-only-failures --report-status
 
