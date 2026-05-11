@@ -4,6 +4,7 @@ This document explains how to work with AI agents (like Copilot) on this project
 
 ## Before You Start
 
+0. **Read plan execution workflow** — Follow [plan-execution-workflow.md](plan-execution-workflow.md) for any plan implementation request
 1. **Read the architecture** — Understand [docs/design.md](docs/design.md)
 2. **Know the standards** — Coding standards are in `standards/coding/`
 3. **One change at a time** — Use the todo list to break work into clear steps
@@ -230,8 +231,11 @@ Current constraint: [limitation if any].
 - Agent should verify the change against standards
 - Agent should check for consistency with existing patterns
 - Agent should report what was done (no markdown summaries unless requested)
-- Agent should run Node tests using `node tests/run-node-tests.js --report-only-failures --report-status` for concise terminal output
-- Agent should not truncate test output with shell filters like `tail` or `grep`; use runner flags instead
+- Agent should run both required Node tests:
+  - `node tests/run-node-tests.js --report-only-failures --report-status`
+  - `node tests/check-app-init.js`
+- Agent should not pipe required test commands through output filters such as `head`, `tail`, `grep`, `wc`, or similar
+- Agent should run required test commands directly; output is already concise by design unless failures occur
 
 ## Escalation
 
@@ -258,6 +262,8 @@ Before considering a change complete:
 - [ ] No new globals introduced
 - [ ] Standards-compliant (lint-style checks pass)
 - [ ] Node harness run with preferred command: `node tests/run-node-tests.js --report-only-failures --report-status`
+- [ ] App initialization check run: `node tests/check-app-init.js`
+- [ ] Required test commands were run without output-filter pipelines (`head`, `tail`, `grep`, `wc`, etc.)
 
 ## References
 
@@ -270,11 +276,13 @@ Before considering a change complete:
 
 The app version is a single `VERSION` constant in `js/constants.js` (semver: `major.minor.patch`).
 
-**Increment rules:**
+**Version ownership rule:**
 
-- **Bug fix / docs** → increment `patch` only (e.g. `1.0.0` → `1.0.1`)
-- **New feature, backward compatible** → increment `minor`, reset `patch` to 0 (e.g. `1.0.1` → `1.1.0`)
-- **Breaking change** → increment `major`, reset `minor` and `patch` to 0 (e.g. `1.1.0` → `2.0.0`)
+- User decides major and minor.
+- Patch increments are phase-driven (phase/stage/mechanics progression).
+- Agent must not decide major/minor without explicit user direction.
+- Process guidance is generic; do not hardcode plan-specific version sequences in workflow rules.
+- For plan execution requests, follow [plan-execution-workflow.md](plan-execution-workflow.md).
 
 The version is displayed in the bottom of the UI via `renderVersion()` in `render.js`, called once from `init()` in `app.js`.
 
@@ -284,15 +292,17 @@ Follow this cycle precisely:
 
 1. **New work starts** → bump `VERSION` in `js/constants.js` and add a `## [x.y.z]` entry to `changelog.md` **before** any other commits for that version
 2. **During work** → commit freely as logical chunks complete; no tagging yet
-3. **User says “we’re done”** → commit any remaining uncommitted changes, then tag:
+3. **Ready to release** → ensure both required Node test commands pass, commit any remaining uncommitted changes, and stop for human approval
+4. **User explicitly approves tagging** → tag:
 
 ```bash
 git tag -a v1.x.x -m "Version 1.x.x: description"
 ```
 
-4. **Next work begins** → go back to step 1
+5. **Next work begins** → go back to step 1
 
 **Never tag mid-feature.** Tags mark finished, stable versions only.
+**Never tag without explicit user approval.**
 
 **Always update `changelog.md`** alongside `VERSION` at the start of each new version.
 

@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight browser-based Sudoku game with clean separation of concerns, pure function architecture, and community-contributed puzzles.
+A lightweight browser-based Sudoku game with shareable puzzles, helpful tools, and community-contributed content.
 
 **🎮 [Play online](https://jdarling.github.io/sudoku/) (hosted on GitHub Pages)**
 
@@ -13,7 +13,7 @@ A lightweight browser-based Sudoku game with clean separation of concerns, pure 
 1. Clone or download this repository
 2. Open `index.html` in your browser
 
-That's it. If your browser blocks fetech then you can always Run with Docker...
+That's it. If your browser blocks fetch requests for local files, run with Docker.
 
 ### Run with Docker (Recommended for Development)
 
@@ -63,12 +63,14 @@ This lets you:
 
 ## Features
 
-- **Pure functions** — All business logic is testable and dependency-free
-- **Clean architecture** — Strict separation between data, rendering, and UI orchestration
+- **Fast start** — Open in a browser and play right away
+- **Keyboard + mouse controls** — Enter numbers quickly and move with arrow keys
+- **Built-in helpers** — Use Check, Hint, and Solve when you need help
 - **Community puzzles** — Puzzles are YAML files; contributors can add new ones via PR
 - **Two puzzle formats** — Write puzzles as rows or as 3×3 blocks—whatever's clearer
 - **Async puzzle loading** — Puzzles load on demand, not all at once
 - **Load puzzle modal** — Browse and filter all available puzzles; double-click to load
+- **Shareable puzzle links** — Send direct links to specific puzzles via query params
 - **Themed UI** — Nine selectable themes (Default, Dark, Terminal, Sepia, Forest, Ocean, Sunset, High Contrast, Cyberpunk); preference is saved automatically
 - **Styled modals** — New Game and Solve confirmations use a consistent modal instead of browser dialogs
 - **Options panel** — Theme selection lives in the Options modal, not cluttering the main UI
@@ -159,17 +161,7 @@ Works in any modern browser. Requires:
 - Fetch API
 - DOM Level 3 Events
 
-## For AI Assistants
-
-This project has specific architectural constraints to maintain code quality and testability. See [AGENTS.md](AGENTS.md) for:
-
-- Architecture principles (pure functions, top-level functions, separation of concerns)
-- Coding standards and style guidelines
-- File organization and module responsibilities
-- Common tasks and workflows
-- Testing checklist before considering changes complete
-
-## Development
+## For Contributors
 
 All code follows the standards in `standards/coding/`. Key points:
 

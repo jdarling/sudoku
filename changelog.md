@@ -9,6 +9,14 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.17.1]
+
+- Added authoritative AI plan execution workflow with mandatory process gates.
+- Enforced user-owned major/minor versioning, phase-driven patching, and explicit human approval before tagging.
+- Required both Node test commands before release readiness and prohibited output-filter pipelines on required test runs.
+- Updated AGENTS guidance to reference the workflow and harden release/testing process rules.
+- Refocused README content for human readers and removed AI-assistant focused sections.
+
 ## [1.17.0]
 
 - Standards cleanup (v1.17-standards-cleanup): guard clauses in loadNewGame, removed dead relatedCells parameter, separated device detection from rendering, added missing JSDoc @returns tags.
