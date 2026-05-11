@@ -6,6 +6,8 @@ A lightweight browser-based Sudoku game with shareable puzzles, helpful tools, a
 
 **🎮 [Play online](https://jdarling.github.io/sudoku/) (hosted on GitHub Pages)**
 
+[Learn more about why this project exists](./why.md)
+
 ## Quick Start
 
 ### Run Locally (No Server)
