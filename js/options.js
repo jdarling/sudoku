@@ -119,7 +119,9 @@ const formatElapsedTime = (startedAtIso, completedAtIso) => {
  */
 const createMetricsDisplay = (scorecard) => {
   const source =
-    scorecard && typeof scorecard === "object" ? scorecard : Object.create(null);
+    scorecard && typeof scorecard === "object"
+      ? scorecard
+      : Object.create(null);
 
   const supportOptions = Array.isArray(source.supportOptionsUsed)
     ? source.supportOptionsUsed
@@ -127,14 +129,18 @@ const createMetricsDisplay = (scorecard) => {
 
   return {
     puzzleId: source.puzzleId || "unknown",
-    elapsedTime: formatElapsedTime(source.startedAt || "", source.completedAt || ""),
+    elapsedTime: formatElapsedTime(
+      source.startedAt || "",
+      source.completedAt || "",
+    ),
     moveCount: source.moveCount || 0,
     checkClickCount: source.checkClickCount || 0,
     hintClickCount: source.hintClickCount || 0,
     immediateErrorShownCount: source.immediateErrorShownCount || 0,
     errorCellShownCount: source.errorCellShownCount || 0,
     errorShownCount: source.errorShownCount || 0,
-    supportOptionsUsed: supportOptions.length > 0 ? [...supportOptions] : ["None"],
+    supportOptionsUsed:
+      supportOptions.length > 0 ? [...supportOptions] : ["None"],
     startedAt: source.startedAt || "",
     completedAt: source.completedAt || "",
   };

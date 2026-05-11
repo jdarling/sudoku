@@ -68,9 +68,10 @@
           </div>
         </div>
       </div>
-      <div id="load-modal" aria-hidden="true">
+      <div id="load-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="load-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="load-modal-title"
@@ -97,7 +98,7 @@
             </table>
           </div>
           <div id="load-modal-status" aria-live="polite"></div>
-          <div id="load-modal-actions">
+          <div id="load-modal-actions" class="modal-actions">
             <button class="action-btn" id="load-cancel-btn" type="button">
               Cancel
             </button>
@@ -118,9 +119,10 @@
           </div>
         </div>
       </div>
-      <div id="url-load-modal" aria-hidden="true">
+      <div id="url-load-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="url-load-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="url-load-modal-title"
@@ -135,7 +137,7 @@
             spellcheck="false"
           />
           <div id="url-load-error" aria-live="polite"></div>
-          <div id="url-load-modal-actions">
+          <div id="url-load-modal-actions" class="modal-actions">
             <button class="action-btn" id="url-load-cancel-btn" type="button">
               Cancel
             </button>
@@ -150,9 +152,10 @@
           </div>
         </div>
       </div>
-      <div id="board-entry-modal" aria-hidden="true">
+      <div id="board-entry-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="board-entry-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="board-entry-modal-title"
@@ -167,7 +170,7 @@
             spellcheck="false"
           ></textarea>
           <div id="board-entry-error" aria-live="polite"></div>
-          <div id="board-entry-modal-actions">
+          <div id="board-entry-modal-actions" class="modal-actions">
             <button
               class="action-btn"
               id="board-entry-cancel-btn"
@@ -186,9 +189,10 @@
           </div>
         </div>
       </div>
-      <div id="options-modal" aria-hidden="true">
+      <div id="options-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="options-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="options-modal-title"
@@ -320,33 +324,42 @@
               Show stats on solved
             </label>
           </div>
-          <div id="options-modal-actions">
+          <div id="options-modal-actions" class="modal-actions">
             <button class="action-btn" id="options-close-btn" type="button">
               Close
             </button>
           </div>
         </div>
       </div>
-      <div id="scoreboard-modal" aria-hidden="true">
+      <div id="scoreboard-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="scoreboard-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="scoreboard-modal-title"
         >
           <h2 id="scoreboard-modal-title">Game Complete - Your Stats</h2>
           <div id="scoreboard-grid">
-            <p><strong>Puzzle ID:</strong> <span id="scoreboard-puzzle-id"></span></p>
+            <p>
+              <strong>Puzzle ID:</strong>
+              <span id="scoreboard-puzzle-id"></span>
+            </p>
             <p>
               <strong>Elapsed Time:</strong>
               <span id="scoreboard-elapsed-time"></span>
             </p>
-            <p><strong>Moves:</strong> <span id="scoreboard-move-count"></span></p>
+            <p>
+              <strong>Moves:</strong> <span id="scoreboard-move-count"></span>
+            </p>
             <p>
               <strong>Check Uses:</strong>
               <span id="scoreboard-check-count"></span>
             </p>
-            <p><strong>Hint Uses:</strong> <span id="scoreboard-hint-count"></span></p>
+            <p>
+              <strong>Hint Uses:</strong>
+              <span id="scoreboard-hint-count"></span>
+            </p>
             <p>
               <strong>Immediate Errors:</strong>
               <span id="scoreboard-immediate-errors"></span>
@@ -364,22 +377,23 @@
               <span id="scoreboard-support-options"></span>
             </p>
           </div>
-          <div id="scoreboard-modal-actions">
+          <div id="scoreboard-modal-actions" class="modal-actions">
             <button class="action-btn" id="scoreboard-close-btn" type="button">
               Close
             </button>
           </div>
         </div>
       </div>
-      <div id="decision-modal" aria-hidden="true">
+      <div id="decision-modal" class="modal-overlay" aria-hidden="true">
         <div
           id="decision-modal-panel"
+          class="modal-panel"
           role="dialog"
           aria-modal="true"
           aria-labelledby="decision-modal-message"
         >
           <p id="decision-modal-message"></p>
-          <div id="decision-modal-actions"></div>
+          <div id="decision-modal-actions" class="modal-actions"></div>
         </div>
       </div>
       <div id="version"></div>
