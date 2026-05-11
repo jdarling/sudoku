@@ -18,6 +18,8 @@ let optionsModalDeps = null;
  * @param {Function} deps.getHighlightFeatures - Returns the current highlight features
  * @param {Function} deps.applyHighlightFeatures - Applies highlight feature list
  * @param {Function} deps.applyHighlightPreset - Applies highlight preset by name
+ * @param {Function} deps.getShowStatsOnSolved - Returns current solved-stats preference
+ * @param {Function} deps.applyShowStatsOnSolved - Applies solved-stats preference
  * @returns {void}
  */
 const initOptionsModal = (deps) => {
@@ -101,6 +103,18 @@ const readFeaturesFromCheckboxes = () => {
 const getOptionsModalEl = () => document.getElementById("options-modal");
 
 /**
+ * Returns the show-stats-on-solved checkbox element.
+ * @returns {HTMLInputElement|null}
+ */
+const getShowStatsOnSolvedCheckbox = () => {
+  const checkbox = document.getElementById("options-show-stats-on-solved");
+  if (!(checkbox instanceof HTMLInputElement)) {
+    return null;
+  }
+  return checkbox;
+};
+
+/**
  * Opens the options modal and syncs controls to the current active theme and highlight features.
  * @returns {void}
  */
@@ -117,6 +131,13 @@ const openOptionsModal = () => {
 
   if (optionsModalDeps && optionsModalDeps.getHighlightFeatures) {
     syncFeatureCheckboxes(optionsModalDeps.getHighlightFeatures());
+  }
+
+  if (optionsModalDeps && optionsModalDeps.getShowStatsOnSolved) {
+    const checkbox = getShowStatsOnSolvedCheckbox();
+    if (checkbox) {
+      checkbox.checked = Boolean(optionsModalDeps.getShowStatsOnSolved());
+    }
   }
 
   openModal(modal);
@@ -167,6 +188,21 @@ const onOptionsHighlightFeatureChange = (event) => {
     return;
   }
   optionsModalDeps.applyHighlightFeatures(readFeaturesFromCheckboxes());
+};
+
+/**
+ * Handles show-stats-on-solved checkbox changes.
+ * @param {Event} event - Change event from a checkbox
+ * @returns {void}
+ */
+const onOptionsShowStatsChange = (event) => {
+  if (!event.target || event.target.type !== "checkbox") {
+    return;
+  }
+  if (!optionsModalDeps || !optionsModalDeps.applyShowStatsOnSolved) {
+    return;
+  }
+  optionsModalDeps.applyShowStatsOnSolved(Boolean(event.target.checked));
 };
 
 /**

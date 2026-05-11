@@ -28,6 +28,24 @@ let lastStatusType = "";
 let currentScorecard = null;
 
 /**
+ * Returns whether solved stats modal should be shown.
+ * @returns {boolean} True when solved stats modal is enabled
+ */
+const getShowStatsOnSolved = () => {
+  return currentOptions.showStatsOnSolved !== false;
+};
+
+/**
+ * Applies solved-stats modal visibility preference and persists options.
+ * @param {boolean} enabled - True to show modal on solved
+ * @returns {void}
+ */
+const applyShowStatsOnSolved = (enabled) => {
+  currentOptions = updateOption(currentOptions, "showStatsOnSolved", enabled);
+  saveOptions(currentOptions);
+};
+
+/**
  * Derives puzzle id used for scorecard tracking.
  * @param {Object} puzzle - Loaded puzzle metadata
  * @returns {string} Scorecard puzzle id
@@ -257,6 +275,13 @@ const updateState = (newState, actionMeta = null) => {
     lastStatusType !== "win";
   if (enteredWin) {
     launchWinCelebration();
+    const shouldOpenScoreboard =
+      getShowStatsOnSolved() &&
+      currentScorecard &&
+      currentScorecard.isDisqualified !== true;
+    if (shouldOpenScoreboard) {
+      openScoreboardModal(currentScorecard);
+    }
   }
 
   lastStatusType = currentState.statusType || "";
@@ -294,6 +319,7 @@ const applyBoardStateFromHash = (decodedBoard) => {
  * @returns {void}
  */
 const loadGame = (puzzle, boardState) => {
+  closeScoreboardModal();
   currentState = boardState;
   currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
   setCurrentPuzzleName(puzzle);
@@ -632,6 +658,8 @@ const init = async () => {
     getHighlightFeatures,
     applyHighlightFeatures,
     applyHighlightPreset,
+    getShowStatsOnSolved,
+    applyShowStatsOnSolved,
   });
 
   document.getElementById("load-url-btn").addEventListener("click", () => {
@@ -703,8 +731,14 @@ const init = async () => {
     .getElementById("options-highlight-features")
     .addEventListener("change", onOptionsHighlightFeatureChange);
   document
+    .getElementById("options-show-stats-on-solved")
+    .addEventListener("change", onOptionsShowStatsChange);
+  document
     .getElementById("options-highlight-presets")
     .addEventListener("click", onOptionsPresetButtonClick);
+  document
+    .getElementById("scoreboard-close-btn")
+    .addEventListener("click", onScoreboardCloseClick);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
@@ -717,6 +751,7 @@ const init = async () => {
   window.addEventListener("keydown", onLoadModalKeydown);
   window.addEventListener("keydown", onDecisionModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);
+  window.addEventListener("keydown", onScoreboardModalKeydown);
 
   await loadNewGame();
 };

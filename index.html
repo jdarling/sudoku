@@ -310,8 +310,62 @@
               </label>
             </div>
           </div>
+          <div class="options-field">
+            <label class="feature-option" for="options-show-stats-on-solved">
+              <input
+                id="options-show-stats-on-solved"
+                type="checkbox"
+                checked
+              />
+              Show stats on solved
+            </label>
+          </div>
           <div id="options-modal-actions">
             <button class="action-btn" id="options-close-btn" type="button">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="scoreboard-modal" aria-hidden="true">
+        <div
+          id="scoreboard-modal-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="scoreboard-modal-title"
+        >
+          <h2 id="scoreboard-modal-title">Game Complete - Your Stats</h2>
+          <div id="scoreboard-grid">
+            <p><strong>Puzzle ID:</strong> <span id="scoreboard-puzzle-id"></span></p>
+            <p>
+              <strong>Elapsed Time:</strong>
+              <span id="scoreboard-elapsed-time"></span>
+            </p>
+            <p><strong>Moves:</strong> <span id="scoreboard-move-count"></span></p>
+            <p>
+              <strong>Check Uses:</strong>
+              <span id="scoreboard-check-count"></span>
+            </p>
+            <p><strong>Hint Uses:</strong> <span id="scoreboard-hint-count"></span></p>
+            <p>
+              <strong>Immediate Errors:</strong>
+              <span id="scoreboard-immediate-errors"></span>
+            </p>
+            <p>
+              <strong>Error Cell Highlights:</strong>
+              <span id="scoreboard-error-cells"></span>
+            </p>
+            <p>
+              <strong>Total Errors:</strong>
+              <span id="scoreboard-total-errors"></span>
+            </p>
+            <p id="scoreboard-support-row">
+              <strong>Support Features Used:</strong>
+              <span id="scoreboard-support-options"></span>
+            </p>
+          </div>
+          <div id="scoreboard-modal-actions">
+            <button class="action-btn" id="scoreboard-close-btn" type="button">
               Close
             </button>
           </div>
@@ -351,6 +405,7 @@
     <script src="js/components/confirmmodal.js"></script>
     <script src="js/components/newgamedecisionmodal.js"></script>
     <script src="js/components/optionsmodal.js"></script>
+    <script src="js/components/scoreboardmodal.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

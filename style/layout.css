@@ -495,6 +495,60 @@ input.cell.given {
   justify-content: flex-end;
 }
 
+#scoreboard-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--load-modal-overlay);
+}
+
+#scoreboard-modal[aria-hidden="true"] {
+  display: none;
+}
+
+#scoreboard-modal-panel {
+  max-width: 520px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--load-modal-border);
+  border-radius: 10px;
+  background: var(--load-modal-panel-bg);
+  color: var(--load-modal-panel-fg);
+}
+
+#scoreboard-modal-title {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+#scoreboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  font-size: 13px;
+  font-family: system-ui, sans-serif;
+}
+
+#scoreboard-grid p {
+  margin: 0;
+}
+
+#scoreboard-support-row {
+  grid-column: 1 / -1;
+}
+
+#scoreboard-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 #game-shell {
   display: flex;
   flex-direction: column;

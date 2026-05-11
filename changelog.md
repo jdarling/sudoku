@@ -9,6 +9,12 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.17.3]
+
+- Added scorecard completion modal flow gated by a new persisted option, `showStatsOnSolved`.
+- Added scorecard display formatting helpers and options wiring for solved-state stat visibility.
+- Added scorecard modal component wiring and related test coverage updates.
+
 ## [1.17.2]
 
 - Added scorecard core module (`js/scorecard.js`) with pure run-metric functions and lifecycle helpers.

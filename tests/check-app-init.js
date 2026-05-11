@@ -324,6 +324,13 @@ try {
     "onOptionsModalKeydown",
   ]);
 
+  loadScript(path.join(__dirname, "../js/components/scoreboardmodal.js"), [
+    "openScoreboardModal",
+    "closeScoreboardModal",
+    "onScoreboardCloseClick",
+    "onScoreboardModalKeydown",
+  ]);
+
   loadScript(path.join(__dirname, "../js/app.js"), ["init"]);
 
   // Try to call init()

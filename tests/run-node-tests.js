@@ -194,6 +194,16 @@ loadScript(path.join(__dirname, "../js/scorecard.js"), [
   "recordErrorShown",
   "finalizeScorecard",
 ]);
+loadScript(path.join(__dirname, "../js/options.js"), [
+  "normalizeHighlightFeatures",
+  "createDefaultOptions",
+  "sanitizeOptions",
+  "loadOptions",
+  "saveOptions",
+  "updateOption",
+  "formatElapsedTime",
+  "createMetricsDisplay",
+]);
 loadScript(path.join(__dirname, "../js/dom.js"), [
   "buildPuzzleQueryString",
   "configureDomEventHandlers",

@@ -44,6 +44,7 @@ const createDefaultOptions = () => ({
   highlightFeatures: [...getStyleConfigFeatures("related-block")],
   theme: "default",
   autoCheck: false,
+  showStatsOnSolved: true,
 });
 
 /**
@@ -75,10 +76,67 @@ const sanitizeOptions = (options) => {
       ? source.autoCheck
       : defaults.autoCheck;
 
+  const showStatsOnSolved =
+    typeof source.showStatsOnSolved === "boolean"
+      ? source.showStatsOnSolved
+      : defaults.showStatsOnSolved;
+
   return {
     highlightFeatures: resolvedFeatures,
     theme,
     autoCheck,
+    showStatsOnSolved,
+  };
+};
+
+/**
+ * Formats elapsed time from two ISO timestamps as minutes/seconds.
+ * @param {string} startedAtIso - Start timestamp (ISO)
+ * @param {string} completedAtIso - Completion timestamp (ISO)
+ * @returns {string} Human-readable duration string
+ */
+const formatElapsedTime = (startedAtIso, completedAtIso) => {
+  const startedAtMs = Date.parse(startedAtIso || "");
+  const completedAtMs = Date.parse(completedAtIso || "");
+  if (Number.isNaN(startedAtMs) || Number.isNaN(completedAtMs)) {
+    return "0 minutes 0 seconds";
+  }
+
+  const diffMs = Math.max(0, completedAtMs - startedAtMs);
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const minuteLabel = minutes === 1 ? "minute" : "minutes";
+  const secondLabel = seconds === 1 ? "second" : "seconds";
+  return `${minutes} ${minuteLabel} ${seconds} ${secondLabel}`;
+};
+
+/**
+ * Creates a display-friendly metrics object from scorecard values.
+ * @param {Object} scorecard - Completed scorecard object
+ * @returns {Object} Metrics object prepared for UI display
+ */
+const createMetricsDisplay = (scorecard) => {
+  const source =
+    scorecard && typeof scorecard === "object" ? scorecard : Object.create(null);
+
+  const supportOptions = Array.isArray(source.supportOptionsUsed)
+    ? source.supportOptionsUsed
+    : [];
+
+  return {
+    puzzleId: source.puzzleId || "unknown",
+    elapsedTime: formatElapsedTime(source.startedAt || "", source.completedAt || ""),
+    moveCount: source.moveCount || 0,
+    checkClickCount: source.checkClickCount || 0,
+    hintClickCount: source.hintClickCount || 0,
+    immediateErrorShownCount: source.immediateErrorShownCount || 0,
+    errorCellShownCount: source.errorCellShownCount || 0,
+    errorShownCount: source.errorShownCount || 0,
+    supportOptionsUsed: supportOptions.length > 0 ? [...supportOptions] : ["None"],
+    startedAt: source.startedAt || "",
+    completedAt: source.completedAt || "",
   };
 };
 
