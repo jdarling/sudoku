@@ -29,8 +29,7 @@ A lot of this project became an exercise in reinforcing boundaries; Separation o
 
 My experience so far is that the "better" Copilot gets, the more important project structure, standards, and reinforcement become.
 
-Hopefully you take a walk through the code. If you do, please remember:
+Hopefully you take a walk through the code. If you do, please realize and remember:
 
-AI wrote all the code.
-
-Not just AI. What most people currently consider the "worst" AI wrote this code.
+- AI wrote all the code.
+- Not just any AI, what many people currently consider the "worst" AI wrote all of this code.
