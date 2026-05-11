@@ -15,13 +15,15 @@ let newGameDecisionModalDeps = null;
 /**
  * Stores dependencies for New Game modal actions.
  * @param {Object} deps - {clearBoard, loadRandomPuzzle}
+ * @returns {void}
  */
-const setNewGameDecisionModalDeps = (deps) => {
+const initNewGameDecisionModal = (deps) => {
   newGameDecisionModalDeps = deps;
 };
 
 /**
  * Opens the New Game decision modal with three action buttons.
+ * @returns {void}
  */
 const openNewGameDecisionModal = () => {
   if (!newGameDecisionModalDeps) {

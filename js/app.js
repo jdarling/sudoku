@@ -12,6 +12,13 @@ let currentState = null;
 let currentOptions = createDefaultOptions();
 
 /**
+ * Whether the device uses a coarse pointer (touch/mobile).
+ * Computed once at module load; used to set readOnly on cells and skip focus.
+ * @type {boolean}
+ */
+const coarsePointer = isCoarsePointerDevice();
+
+/**
  * Module-level active puzzle name for status messaging.
  * @type {string}
  */
@@ -20,8 +27,9 @@ let currentPuzzleFilename = "";
 let lastStatusType = "";
 
 /**
- * Stores the active puzzle display name from loaded metadata.
+ * Sets the active puzzle display name from loaded metadata.
  * @param {Object} puzzle - Loaded puzzle object
+ * @returns {void}
  */
 const setCurrentPuzzleName = (puzzle) => {
   if (puzzle && puzzle.name && puzzle.name.trim()) {
@@ -35,12 +43,14 @@ const setCurrentPuzzleName = (puzzle) => {
 /**
  * Updates current state and orchestrates rendering and side effects.
  * @param {Object} newState - New state to apply
+ * @returns {void}
  */
 const updateState = (newState) => {
   currentState = newState;
   renderGrid(
     currentState,
     currentOptions.highlightFeatures,
+    coarsePointer,
     onCellFocus,
     onCellKeydown,
     onCellInput,
@@ -61,7 +71,7 @@ const updateState = (newState) => {
   lastStatusType = currentState.statusType || "";
   updateHash(currentState.board);
   if (currentState.selected >= 0) {
-    focusCell(currentState.selected);
+    focusCell(currentState.selected, coarsePointer);
   }
 };
 
@@ -76,6 +86,7 @@ const getCurrentState = () => {
 /**
  * Applies decoded board state from URL hash and re-renders.
  * @param {number[]} decodedBoard - Decoded board values
+ * @returns {void}
  */
 const applyBoardStateFromHash = (decodedBoard) => {
   if (!currentState) {
@@ -89,6 +100,7 @@ const applyBoardStateFromHash = (decodedBoard) => {
  * Common logic shared by all puzzle-loading functions.
  * @param {Object} puzzle - Loaded puzzle object with name and filename
  * @param {Object} boardState - The board state to apply
+ * @returns {void}
  */
 const loadGame = (puzzle, boardState) => {
   currentState = boardState;
@@ -97,6 +109,7 @@ const loadGame = (puzzle, boardState) => {
   renderGrid(
     currentState,
     currentOptions.highlightFeatures,
+    coarsePointer,
     onCellFocus,
     onCellKeydown,
     onCellInput,
@@ -113,6 +126,7 @@ const loadGame = (puzzle, boardState) => {
 /**
  * Applies a fetched puzzle to state, URL query, and rendering.
  * @param {Object} puzzle - Loaded puzzle object
+ * @returns {void}
  */
 const loadFetchedPuzzle = (puzzle) => {
   const boardState = createStateFromPuzzle(puzzle.puzzle);
@@ -128,6 +142,7 @@ const loadFetchedPuzzle = (puzzle) => {
  * Applies not-found puzzle fallback state.
  * Renders a blank board, shows loader error, and clears stale board hash.
  * @param {string} incomingToken - Original puzzle token from query
+ * @returns {void}
  */
 const showUnknownPuzzleFallback = (incomingToken) => {
   const blankState = createStateFromPuzzle("0".repeat(TOTAL_CELLS));
@@ -192,15 +207,15 @@ const loadNewGame = async () => {
       : "Invalid board.";
     if (validationError) {
       showUnknownPuzzleFallback(incomingBoard);
-    } else {
-      let boardState = createStateFromBoard(parsed);
-      const boardHash = getBoardFromHash();
-      if (boardHash) {
-        const decodedBoard = decodeBoard(boardHash);
-        boardState = applyDecodedBoard(boardState, decodedBoard);
-      }
-      loadPuzzleFromBoard(parsed, boardState, false);
+      return;
     }
+    let boardState = createStateFromBoard(parsed);
+    const boardHash = getBoardFromHash();
+    if (boardHash) {
+      const decodedBoard = decodeBoard(boardHash);
+      boardState = applyDecodedBoard(boardState, decodedBoard);
+    }
+    loadPuzzleFromBoard(parsed, boardState, false);
     return;
   }
 
@@ -212,30 +227,31 @@ const loadNewGame = async () => {
         indexEntries,
       );
 
-      if (exactMatch) {
-        const puzzle = await getPuzzle(exactMatch);
-        let boardState = createStateFromPuzzle(puzzle.puzzle);
-
-        const boardHash = getBoardFromHash();
-        if (boardHash) {
-          const decodedBoard = decodeBoard(boardHash);
-          boardState = applyDecodedBoard(boardState, decodedBoard);
-        }
-
-        loadGame(puzzle, boardState);
-        const canonicalId = exactMatch
-          .split("/")
-          .pop()
-          .replace(/\.yaml$/, "");
-        updateQuery(canonicalId);
-      } else {
+      if (!exactMatch) {
         const selectedFilename = await openLoadModalForSelection(incomingToken);
         if (!selectedFilename) {
           showUnknownPuzzleFallback(incomingToken);
-        } else {
-          await loadPuzzleByFilename(selectedFilename);
+          return;
         }
+        await loadPuzzleByFilename(selectedFilename);
+        return;
       }
+
+      const puzzle = await getPuzzle(exactMatch);
+      let boardState = createStateFromPuzzle(puzzle.puzzle);
+
+      const boardHash = getBoardFromHash();
+      if (boardHash) {
+        const decodedBoard = decodeBoard(boardHash);
+        boardState = applyDecodedBoard(boardState, decodedBoard);
+      }
+
+      loadGame(puzzle, boardState);
+      const canonicalId = exactMatch
+        .split("/")
+        .pop()
+        .replace(/\.yaml$/, "");
+      updateQuery(canonicalId);
     } catch (error) {
       console.error("[loadNewGame] error:", error);
       showUnknownPuzzleFallback(incomingToken);
@@ -280,6 +296,7 @@ const loadPuzzleFromUrl = async (puzzleUrl) => {
  * @param {string} boardStr - Validated 81-char digit string
  * @param {Object|null} restoredState - Optional board state that already includes restored progress
  * @param {boolean} clearHashOnLoad - Whether to clear board hash after load
+ * @returns {void}
  */
 const loadPuzzleFromBoard = (
   boardStr,
@@ -328,6 +345,7 @@ const loadRandomPuzzle = async () => {
 /**
  * Clears the current board, resetting all user entries to givens only.
  * Deselects any cell and updates status.
+ * @returns {void}
  */
 const clearBoard = () => {
   if (!currentState) {
@@ -347,6 +365,7 @@ const getHighlightFeatures = () => {
 /**
  * Applies new highlight features, updates game state, and persists options.
  * @param {string[]} features - Highlight features to apply
+ * @returns {void}
  */
 const applyHighlightFeatures = (features) => {
   if (!currentState) {
@@ -404,12 +423,12 @@ const init = async () => {
     loadPuzzleFromBoard,
   });
 
-  setNewGameDecisionModalDeps({
+  initNewGameDecisionModal({
     clearBoard,
     loadRandomPuzzle,
   });
 
-  configureOptionsModal({
+  initOptionsModal({
     applyTheme,
     getHighlightFeatures,
     applyHighlightFeatures,
@@ -486,7 +505,7 @@ const init = async () => {
     .addEventListener("change", onOptionsHighlightFeatureChange);
   document
     .getElementById("options-highlight-presets")
-    .addEventListener("click", onOptionsPresetClick);
+    .addEventListener("click", onOptionsPresetButtonClick);
 
   document.querySelectorAll(".num-btn").forEach((btn) => {
     btn.addEventListener("click", onNumberButtonClick);
@@ -501,7 +520,6 @@ const init = async () => {
   window.addEventListener("keydown", onOptionsModalKeydown);
 
   await loadNewGame();
-  updateState(currentState);
 };
 
 init().catch((error) => {

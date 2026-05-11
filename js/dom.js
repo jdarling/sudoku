@@ -77,6 +77,7 @@ const buildPuzzleQueryString = ({
  * Replaces the browser URL query while preserving the current hash.
  * Single point of truth for all URL query updates.
  * @param {string} queryString - Value returned by buildPuzzleQueryString
+ * @returns {void}
  */
 const setAppQuery = (queryString) => {
   window.history.replaceState(
@@ -102,6 +103,7 @@ const getBoardFromHash = () => {
 /**
  * Updates URL query parameter with the canonical puzzle id.
  * @param {string} canonicalId - Canonical puzzle id (e.g., "004")
+ * @returns {void}
  */
 const updateQuery = (canonicalId) => {
   setAppQuery(buildPuzzleQueryString({ puzzleId: canonicalId }));
@@ -111,6 +113,7 @@ const updateQuery = (canonicalId) => {
  * Updates the URL hash with the current board state.
  * Uses replaceState to avoid triggering hashchange for internal updates.
  * @param {Array<number>} board - Board state to encode in hash
+ * @returns {void}
  */
 const updateHash = (board) => {
   const encoded = encodeBoard(board);
@@ -123,6 +126,7 @@ const updateHash = (board) => {
 
 /**
  * Clears the board hash from the URL.
+ * @returns {void}
  */
 const clearBoardHash = () => {
   window.history.replaceState(
@@ -141,6 +145,7 @@ let domHandlerDeps = null;
 /**
  * Registers dependencies used by DOM event handlers.
  * @param {Object} deps - Dependency functions from app orchestration
+ * @returns {void}
  */
 const configureDomEventHandlers = (deps) => {
   domHandlerDeps = deps;
@@ -149,6 +154,7 @@ const configureDomEventHandlers = (deps) => {
 /**
  * Handles cell focus event.
  * @param {Event} event - Focus event
+ * @returns {void}
  */
 const onCellFocus = (event) => {
   if (!domHandlerDeps) {
@@ -171,6 +177,7 @@ const onCellFocus = (event) => {
 /**
  * Handles cell keydown event.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onCellKeydown = (event) => {
   if (!domHandlerDeps) {
@@ -219,6 +226,7 @@ const onCellKeydown = (event) => {
 /**
  * Handles cell input event.
  * @param {Event} event - Input event
+ * @returns {void}
  */
 const onCellInput = (event) => {
   if (!domHandlerDeps) {
@@ -243,6 +251,7 @@ const onCellInput = (event) => {
 /**
  * Handles number pad button click.
  * @param {Event} event - Click event
+ * @returns {void}
  */
 const onNumberButtonClick = (event) => {
   if (!domHandlerDeps) {
@@ -265,6 +274,7 @@ const onNumberButtonClick = (event) => {
 
 /**
  * Handles New Game button click.
+ * @returns {void}
  */
 const onNewGameClick = () => {
   openNewGameDecisionModal();
@@ -272,6 +282,7 @@ const onNewGameClick = () => {
 
 /**
  * Handles Load Game button click.
+ * @returns {Promise<void>}
  */
 const onLoadGameClick = async () => {
   if (!domHandlerDeps) {
@@ -283,6 +294,7 @@ const onLoadGameClick = async () => {
 
 /**
  * Handles Check button click.
+ * @returns {void}
  */
 const onCheckButtonClick = () => {
   if (!domHandlerDeps) {
@@ -297,6 +309,7 @@ const onCheckButtonClick = () => {
 
 /**
  * Handles Hint button click.
+ * @returns {void}
  */
 const onHintButtonClick = () => {
   if (!domHandlerDeps) {
@@ -311,6 +324,7 @@ const onHintButtonClick = () => {
 
 /**
  * Handles Solve button click.
+ * @returns {void}
  */
 const onSolveButtonClick = () => {
   if (!domHandlerDeps) {
@@ -329,6 +343,7 @@ const onSolveButtonClick = () => {
 
 /**
  * Handles browser popstate event.
+ * @returns {void}
  */
 const onPopState = () => {
   if (!domHandlerDeps) {
@@ -339,6 +354,7 @@ const onPopState = () => {
 
 /**
  * Handles browser hashchange event.
+ * @returns {void}
  */
 const onHashChange = () => {
   if (!domHandlerDeps) {

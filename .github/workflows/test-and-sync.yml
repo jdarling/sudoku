@@ -25,6 +25,9 @@ jobs:
       - name: Run tests
         run: node tests/run-node-tests.js --report-only-failures --report-status
 
+      - name: Check app initialization
+        run: node tests/check-app-init.js
+
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v7 # Updated to v7
         with:

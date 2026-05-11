@@ -41,6 +41,7 @@ let loadModalResolve = null;
  * @param {Object} deps - Dependency functions from app orchestration
  * @param {Function} deps.listPuzzles - Returns Promise<Object[]> of metadata entries
  * @param {Function} deps.loadPuzzleByFilename - Loads a puzzle by filename
+ * @returns {void}
  */
 const configureLoadModal = (deps) => {
   loadModalDeps = deps;
@@ -70,6 +71,7 @@ const getLoadModalElements = () => {
 
 /**
  * Re-renders the puzzle table based on current filter and selection state.
+ * @returns {void}
  */
 const renderLoadModal = () => {
   const elements = getLoadModalElements();
@@ -167,6 +169,7 @@ const openLoadModalForSelection = (prefillFilter = "") => {
 
 /**
  * Closes the load modal and clears transient selection state.
+ * @returns {void}
  */
 const closeLoadModal = () => {
   const modal = getLoadModalEl();
@@ -178,6 +181,7 @@ const closeLoadModal = () => {
 /**
  * Handles typing in the load modal filter input.
  * @param {Event} event - Input event
+ * @returns {void}
  */
 const onLoadModalFilterInput = (event) => {
   loadModalFilterText = event.target.value || "";
@@ -190,6 +194,7 @@ const onLoadModalFilterInput = (event) => {
  * A full re-render replaces the tr elements, which prevents the browser from
  * recognising the two clicks as a double-click on the same target.
  * @param {Event} event - Click event
+ * @returns {void}
  */
 const onLoadModalTableClick = (event) => {
   const row = event.target.closest("tr[data-key]");
@@ -217,6 +222,7 @@ const onLoadModalTableClick = (event) => {
 /**
  * Handles double-click/double-tap on a row to immediately load that puzzle.
  * @param {Event} event - Dblclick event
+ * @returns {void}
  */
 const onLoadModalTableDblClick = (event) => {
   const row = event.target.closest("tr[data-key]");
@@ -239,6 +245,7 @@ const onLoadModalTableDblClick = (event) => {
 
 /**
  * Handles the Cancel button — closes the modal without loading.
+ * @returns {void}
  */
 const onLoadModalCancelClick = () => {
   closeLoadModal();
@@ -251,6 +258,7 @@ const onLoadModalCancelClick = () => {
 
 /**
  * Handles the Select button — loads the currently highlighted puzzle.
+ * @returns {void}
  */
 const onLoadModalSelectClick = () => {
   if (!loadModalSelectedPath) {
@@ -274,6 +282,7 @@ const onLoadModalSelectClick = () => {
  * Handles keyboard controls while the load modal is open.
  * Escape closes; Enter (outside a text input) confirms selection.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onLoadModalKeydown = (event) => {
   const modal = getLoadModalEl();

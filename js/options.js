@@ -4,7 +4,7 @@
  * All functions are pure and testable.
  */
 
-const OPTIONS_STORAGE_KEY = 'sudoku-options';
+const OPTIONS_STORAGE_KEY = "sudoku-options";
 
 /**
  * Deduplicates and validates feature strings against known feature keys.
@@ -30,7 +30,7 @@ const normalizeHighlightFeatures = (features) => {
  * @returns {string[]} Feature list for mode
  */
 const mapModeToFeatures = (mode) => {
-  if (typeof mode !== 'string') {
+  if (typeof mode !== "string") {
     return [];
   }
   return [...getStyleConfigFeatures(mode)];
@@ -41,8 +41,8 @@ const mapModeToFeatures = (mode) => {
  * @returns {Object} Default options
  */
 const createDefaultOptions = () => ({
-  highlightFeatures: [...getStyleConfigFeatures('related-block')],
-  theme: 'default',
+  highlightFeatures: [...getStyleConfigFeatures("related-block")],
+  theme: "default",
   autoCheck: false,
 });
 
@@ -55,7 +55,7 @@ const createDefaultOptions = () => ({
 const sanitizeOptions = (options) => {
   const defaults = createDefaultOptions();
   const source =
-    options && typeof options === 'object' ? options : createDefaultOptions();
+    options && typeof options === "object" ? options : createDefaultOptions();
 
   const highlightFeatures = normalizeHighlightFeatures(
     source.highlightFeatures,
@@ -66,12 +66,12 @@ const sanitizeOptions = (options) => {
       : [...defaults.highlightFeatures];
 
   const theme =
-    typeof source.theme === 'string' && AVAILABLE_THEMES.includes(source.theme)
+    typeof source.theme === "string" && AVAILABLE_THEMES.includes(source.theme)
       ? source.theme
       : defaults.theme;
 
   const autoCheck =
-    typeof source.autoCheck === 'boolean'
+    typeof source.autoCheck === "boolean"
       ? source.autoCheck
       : defaults.autoCheck;
 
@@ -118,6 +118,7 @@ const loadOptions = () => {
 /**
  * Saves options to localStorage.
  * @param {Object} options - Options to save
+ * @returns {void}
  */
 const saveOptions = (options) => {
   try {

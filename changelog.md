@@ -9,6 +9,10 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.17.0]
+
+- Standards cleanup (v1.17-standards-cleanup): guard clauses in loadNewGame, removed dead relatedCells parameter, separated device detection from rendering, added missing JSDoc @returns tags.
+
 ## [1.16.5]
 
 - **New Game flow now offers three options**: Cancel, Clear board to givens, or load Random puzzle.

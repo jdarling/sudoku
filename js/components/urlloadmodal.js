@@ -14,6 +14,7 @@ let urlLoadModalDeps = null;
  * Registers dependencies used by URL load modal handlers.
  * @param {Object} deps - Dependency functions from app orchestration
  * @param {Function} deps.loadPuzzleFromUrl - Loads a puzzle from a URL string
+ * @returns {void}
  */
 const configureUrlLoadModal = (deps) => {
   urlLoadModalDeps = deps;
@@ -43,6 +44,7 @@ const getUrlLoadModalElements = () => {
 
 /**
  * Opens the URL load modal and resets its input state.
+ * @returns {void}
  */
 const openUrlLoadModal = () => {
   const elements = getUrlLoadModalElements();
@@ -58,6 +60,7 @@ const openUrlLoadModal = () => {
 
 /**
  * Closes the URL load modal.
+ * @returns {void}
  */
 const closeUrlLoadModal = () => {
   const modal = getUrlLoadModalEl();
@@ -67,6 +70,7 @@ const closeUrlLoadModal = () => {
 /**
  * Validates URL input and updates button state and inline error.
  * @param {Event} event - Input event
+ * @returns {void}
  */
 const onUrlLoadInput = (event) => {
   const elements = getUrlLoadModalElements();
@@ -80,6 +84,7 @@ const onUrlLoadInput = (event) => {
 
 /**
  * Handles the Load button — fetches and loads the YAML from the entered URL.
+ * @returns {Promise<void>}
  */
 const onUrlLoadConfirmClick = async () => {
   const elements = getUrlLoadModalElements();
@@ -109,6 +114,7 @@ const onUrlLoadConfirmClick = async () => {
 
 /**
  * Handles the Cancel button — closes the modal without any state changes.
+ * @returns {void}
  */
 const onUrlLoadCancelClick = () => {
   closeUrlLoadModal();
@@ -118,6 +124,7 @@ const onUrlLoadCancelClick = () => {
  * Handles keyboard controls while the URL load modal is open.
  * Escape closes; Enter on non-input triggers load.
  * @param {Event} event - Keydown event
+ * @returns {void}
  */
 const onUrlLoadModalKeydown = (event) => {
   const modal = getUrlLoadModalEl();
