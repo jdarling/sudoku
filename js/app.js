@@ -25,6 +25,194 @@ const coarsePointer = isCoarsePointerDevice();
 let currentPuzzleName = "";
 let currentPuzzleFilename = "";
 let lastStatusType = "";
+let currentScorecard = null;
+
+/**
+ * Derives puzzle id used for scorecard tracking.
+ * @param {Object} puzzle - Loaded puzzle metadata
+ * @returns {string} Scorecard puzzle id
+ */
+const getScorecardPuzzleId = (puzzle) => {
+  if (!puzzle) {
+    return "unknown";
+  }
+
+  if (puzzle.filename) {
+    const canonicalId = puzzle.filename
+      .split("/")
+      .pop()
+      .replace(/\.yaml$/, "");
+    return canonicalId || "unknown";
+  }
+
+  if (puzzle.name && puzzle.name.trim()) {
+    return puzzle.name.trim();
+  }
+
+  return "unknown";
+};
+
+/**
+ * Returns true when board values changed between states.
+ * @param {Object|null} previousState - Previous game state
+ * @param {Object|null} nextState - Next game state
+ * @returns {boolean} True when any board value changed
+ */
+const didBoardChange = (previousState, nextState) => {
+  if (!previousState || !nextState) {
+    return false;
+  }
+
+  for (let i = 0; i < TOTAL_CELLS; i++) {
+    if (previousState.board[i] !== nextState.board[i]) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Returns true when selected-cell immediate error is visible for state.
+ * @param {Object|null} state - Current game state
+ * @returns {boolean} True when immediate conflict highlight should show
+ */
+const isImmediateErrorVisible = (state) => {
+  if (!state || state.selected < 0) {
+    return false;
+  }
+
+  if (state.given[state.selected] || state.board[state.selected] === 0) {
+    return false;
+  }
+
+  const selectedValue = state.board[state.selected];
+  const relatedCells = getRelated(state.selected);
+  for (const relatedIndex of relatedCells) {
+    if (relatedIndex === state.selected) {
+      continue;
+    }
+    if (state.board[relatedIndex] === selectedValue) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Returns true when error-cell highlights are visible for state.
+ * @param {Object|null} state - Current game state
+ * @param {string[]} highlightFeatures - Active feature list
+ * @returns {boolean} True when error-cell highlights are visible
+ */
+const isErrorCellVisible = (state, highlightFeatures) => {
+  if (!state) {
+    return false;
+  }
+
+  const usesErrorCells =
+    state.hinting || (highlightFeatures || []).includes("error cells");
+  if (!usesErrorCells) {
+    return false;
+  }
+
+  return getHintCells(state).length > 0;
+};
+
+/**
+ * Creates a fresh scorecard for a board run.
+ * @param {Object} puzzle - Loaded puzzle metadata
+ * @param {Object} boardState - Initial board state for run
+ * @returns {void}
+ */
+const startScorecardRun = (puzzle, boardState) => {
+  const puzzleId = getScorecardPuzzleId(puzzle);
+  const startingBoardDigits = boardState.puzzle.join("");
+  currentScorecard = createInitialScorecard({
+    highlightFeatures: currentOptions.highlightFeatures,
+    puzzleId,
+    startingBoardDigits,
+    startedAt: new Date().toISOString(),
+  });
+};
+
+/**
+ * Applies scorecard metric updates for one state transition.
+ * @param {Object|null} previousState - Previous game state
+ * @param {Object} nextState - Next game state
+ * @param {Object|null} actionMeta - Action metadata from DOM handlers
+ * @returns {void}
+ */
+const trackScorecardTransition = (previousState, nextState, actionMeta) => {
+  if (!currentScorecard) {
+    return;
+  }
+
+  const nowIso = new Date().toISOString();
+  const highlightFeatures = currentOptions.highlightFeatures || [];
+
+  if (
+    actionMeta &&
+    actionMeta.kind === "move" &&
+    didBoardChange(previousState, nextState)
+  ) {
+    const showedImmediateBefore = highlightFeatures.includes("immediate errors")
+      ? isImmediateErrorVisible(previousState)
+      : false;
+    const showsImmediateNow = highlightFeatures.includes("immediate errors")
+      ? isImmediateErrorVisible(nextState)
+      : false;
+
+    currentScorecard = recordMove(currentScorecard, {
+      isClear: Boolean(actionMeta.isClear),
+      nowIso,
+    });
+
+    if (!showedImmediateBefore && showsImmediateNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "immediate");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "check") {
+    const showedErrorCellsBefore = isErrorCellVisible(
+      previousState,
+      highlightFeatures,
+    );
+    const showsErrorCellsNow = isErrorCellVisible(nextState, highlightFeatures);
+    currentScorecard = recordCheckClick(currentScorecard);
+    if (!showedErrorCellsBefore && showsErrorCellsNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "error-cell");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "hint") {
+    const showedErrorCellsBefore = isErrorCellVisible(
+      previousState,
+      highlightFeatures,
+    );
+    const showsErrorCellsNow = isErrorCellVisible(nextState, highlightFeatures);
+    currentScorecard = recordHintClick(currentScorecard);
+    if (!showedErrorCellsBefore && showsErrorCellsNow) {
+      currentScorecard = recordErrorShown(currentScorecard, "error-cell");
+    }
+  }
+
+  if (actionMeta && actionMeta.kind === "solve") {
+    currentScorecard = mutateScorecard(currentScorecard, {
+      isDisqualified: true,
+      disqualifyReason: "solve-used",
+    });
+    currentScorecard = finalizeScorecard(currentScorecard, nowIso);
+    return;
+  }
+
+  const solvedNow =
+    nextState.statusType === "win" && nextState.status === "Puzzle solved!";
+  if (solvedNow) {
+    currentScorecard = finalizeScorecard(currentScorecard, nowIso);
+  }
+};
 
 /**
  * Sets the active puzzle display name from loaded metadata.
@@ -43,9 +231,12 @@ const setCurrentPuzzleName = (puzzle) => {
 /**
  * Updates current state and orchestrates rendering and side effects.
  * @param {Object} newState - New state to apply
+ * @param {Object|null} actionMeta - Action metadata from DOM handlers
  * @returns {void}
  */
-const updateState = (newState) => {
+const updateState = (newState, actionMeta = null) => {
+  const previousState = currentState;
+  trackScorecardTransition(previousState, newState, actionMeta);
   currentState = newState;
   renderGrid(
     currentState,
@@ -106,6 +297,7 @@ const loadGame = (puzzle, boardState) => {
   currentState = boardState;
   currentPuzzleFilename = puzzle && puzzle.filename ? puzzle.filename : "";
   setCurrentPuzzleName(puzzle);
+  startScorecardRun(puzzle, boardState);
   renderGrid(
     currentState,
     currentOptions.highlightFeatures,
@@ -377,6 +569,13 @@ const applyHighlightFeatures = (features) => {
     normalizeHighlightFeatures(features),
   );
   saveOptions(currentOptions);
+  if (currentScorecard) {
+    currentScorecard = recordSupportChecksChange(
+      currentScorecard,
+      currentOptions.highlightFeatures,
+      new Date().toISOString(),
+    );
+  }
   updateState(currentState);
 };
 

@@ -9,6 +9,13 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.17.2]
+
+- Added scorecard core module (`js/scorecard.js`) with pure run-metric functions and lifecycle helpers.
+- Wired scorecard tracking into app/dom action flows for moves, Check/Hint clicks, error visibility transitions, support option usage, and Solve disqualification/finalization.
+- Added scorecard unit tests (`js/scorecard.test.js`) and registered them in shared Node/browser test config.
+- Updated runtime and test script loading to include `js/scorecard.js` in app startup and app-init validation.
+
 ## [1.17.1]
 
 - Added authoritative AI plan execution workflow with mandatory process gates.

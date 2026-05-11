@@ -171,7 +171,9 @@ const onCellFocus = (event) => {
     return;
   }
 
-  domHandlerDeps.applyState(selectCell(state, cellIndex));
+  domHandlerDeps.applyState(selectCell(state, cellIndex), {
+    kind: "select",
+  });
 };
 
 /**
@@ -196,7 +198,10 @@ const onCellKeydown = (event) => {
 
   if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
-    domHandlerDeps.applyState(applyNumber(state, parseInt(event.key, 10)));
+    domHandlerDeps.applyState(applyNumber(state, parseInt(event.key, 10)), {
+      kind: "move",
+      isClear: false,
+    });
     return;
   }
 
@@ -206,7 +211,10 @@ const onCellKeydown = (event) => {
     event.key === "0"
   ) {
     event.preventDefault();
-    domHandlerDeps.applyState(clearCellValue(state, state.selected));
+    domHandlerDeps.applyState(clearCellValue(state, state.selected), {
+      kind: "move",
+      isClear: true,
+    });
     return;
   }
 
@@ -220,7 +228,9 @@ const onCellKeydown = (event) => {
     return;
   }
 
-  domHandlerDeps.applyState(movedState);
+  domHandlerDeps.applyState(movedState, {
+    kind: "navigate",
+  });
 };
 
 /**
@@ -245,7 +255,10 @@ const onCellInput = (event) => {
 
   const numValue =
     parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
-  domHandlerDeps.applyState(placeNumber(state, cellIndex, numValue));
+  domHandlerDeps.applyState(placeNumber(state, cellIndex, numValue), {
+    kind: "move",
+    isClear: numValue === 0,
+  });
 };
 
 /**
@@ -265,11 +278,17 @@ const onNumberButtonClick = (event) => {
 
   const num = parseInt(event.currentTarget.dataset.n, 10);
   if (num === 0) {
-    domHandlerDeps.applyState(clearCellValue(state, state.selected));
+    domHandlerDeps.applyState(clearCellValue(state, state.selected), {
+      kind: "move",
+      isClear: true,
+    });
     return;
   }
 
-  domHandlerDeps.applyState(applyNumber(state, num));
+  domHandlerDeps.applyState(applyNumber(state, num), {
+    kind: "move",
+    isClear: false,
+  });
 };
 
 /**
@@ -304,7 +323,9 @@ const onCheckButtonClick = () => {
   if (!state) {
     return;
   }
-  domHandlerDeps.applyState(checkSolution(state, true));
+  domHandlerDeps.applyState(checkSolution(state, true), {
+    kind: "check",
+  });
 };
 
 /**
@@ -319,7 +340,9 @@ const onHintButtonClick = () => {
   if (!state) {
     return;
   }
-  domHandlerDeps.applyState(hintBoard(state));
+  domHandlerDeps.applyState(hintBoard(state), {
+    kind: "hint",
+  });
 };
 
 /**
@@ -337,7 +360,10 @@ const onSolveButtonClick = () => {
 
   openConfirmModal(
     "Reveal the full solution? This will fill the entire board.",
-    () => domHandlerDeps.applyState(solveBoard(state)),
+    () =>
+      domHandlerDeps.applyState(solveBoard(state), {
+        kind: "solve",
+      }),
   );
 };
 

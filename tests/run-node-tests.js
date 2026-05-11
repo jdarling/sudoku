@@ -182,6 +182,18 @@ loadScript(path.join(__dirname, "../js/puzzles.js"), [
   "parseBoardInput",
   "validateBoardInput",
 ]);
+loadScript(path.join(__dirname, "../js/scorecard.js"), [
+  "mutateScorecard",
+  "combineHighlightFeatures",
+  "createPuzzleHash",
+  "createInitialScorecard",
+  "recordSupportChecksChange",
+  "recordMove",
+  "recordCheckClick",
+  "recordHintClick",
+  "recordErrorShown",
+  "finalizeScorecard",
+]);
 loadScript(path.join(__dirname, "../js/dom.js"), [
   "buildPuzzleQueryString",
   "configureDomEventHandlers",
