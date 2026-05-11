@@ -156,6 +156,22 @@ const solveBoard = (state) => {
 };
 
 /**
+ * Creates a new state with board reset to givens only.
+ * Clears all user-entered values, leaving only the original puzzle cells.
+ * @param {Object} state - Current state
+ * @returns {Object} New state with board reset to puzzle
+ */
+const resetBoardToGivens = (state) => {
+  return {
+    ...state,
+    board: [...state.puzzle],
+    selected: -1,
+    status: "Board cleared",
+    statusType: "info",
+  };
+};
+
+/**
  * Checks whether the current board has any duplicate conflicts.
  * @param {number[]} board - Board state to validate
  * @returns {boolean} True when a duplicate exists in row/col/box

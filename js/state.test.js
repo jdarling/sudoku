@@ -30,6 +30,7 @@ const runStateTests = () => {
   let selectCell = resolveSymbol("selectCell");
   let placeNumber = resolveSymbol("placeNumber");
   let solveBoard = resolveSymbol("solveBoard");
+  let resetBoardToGivens = resolveSymbol("resetBoardToGivens");
   let checkSolution = resolveSymbol("checkSolution");
   let hintBoard = resolveSymbol("hintBoard");
   let getHintCells = resolveSymbol("getHintCells");
@@ -479,6 +480,32 @@ const runStateTests = () => {
   test("isInBox returns false for cells in different boxes", () => {
     const result = isInBox(0, 3);
     return expect(result).toBe(false);
+  });
+
+  test("resetBoardToGivens resets board to puzzle and clears status", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const modified = placeNumber(state, 10, 5);
+    const next = resetBoardToGivens(modified);
+    return expect(
+      next.board[10] === 0 &&
+        next.board.every((val, i) => val === state.puzzle[i]) &&
+        next.selected === -1 &&
+        next.statusType === "info",
+    ).toBeTruthy();
+  });
+
+  test("resetBoardToGivens preserves puzzle and given arrays", () => {
+    const puzzle =
+      "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+    const state = createStateFromPuzzle(puzzle);
+    const modified = placeNumber(state, 2, 9);
+    const next = resetBoardToGivens(modified);
+    return expect(
+      next.puzzle === state.puzzle &&
+        next.given.every((val, i) => val === state.given[i]),
+    ).toBeTruthy();
   });
 };
 

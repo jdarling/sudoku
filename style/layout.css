@@ -370,7 +370,7 @@ input.cell.given {
   justify-content: flex-end;
 }
 
-#confirm-modal {
+#decision-modal {
   position: fixed;
   inset: 0;
   z-index: 70;
@@ -381,11 +381,11 @@ input.cell.given {
   background: var(--load-modal-overlay);
 }
 
-#confirm-modal[aria-hidden="true"] {
+#decision-modal[aria-hidden="true"] {
   display: none;
 }
 
-#confirm-modal-panel {
+#decision-modal-panel {
   max-width: 440px;
   width: 100%;
   display: flex;
@@ -398,12 +398,12 @@ input.cell.given {
   color: var(--load-modal-panel-fg);
 }
 
-#confirm-modal-message {
+#decision-modal-message {
   font-size: 1rem;
   line-height: 1.5;
 }
 
-#confirm-modal-actions {
+#decision-modal-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;

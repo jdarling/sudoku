@@ -32,11 +32,13 @@ js/
 ├── dom.js            DOM event handlers, URL query/hash persistence
 ├── app.js            Application state, load cycle, init orchestration
 └── components/
-    ├── modal.js        Generic aria-based modal open/close/isOpen
-    ├── table.js        Generic filterable, selectable table rendering
-    ├── loadmodal.js    Load puzzle modal (uses modal.js + table.js)
-    ├── confirmmodal.js Yes/No confirmation modal (uses modal.js)
-    └── optionsmodal.js Options/settings modal (uses modal.js)
+    ├── modal.js              Generic aria-based modal open/close/isOpen
+    ├── table.js              Generic filterable, selectable table rendering
+    ├── decisionmodal.js      Multi-action decision modal (uses modal.js)
+    ├── confirmmodal.js       Yes/No confirmation modal (uses decisionmodal.js)
+    ├── newgamedecisionmodal.js New Game decision modal (uses decisionmodal.js)
+    ├── loadmodal.js          Load puzzle modal (uses modal.js + table.js)
+    └── optionsmodal.js       Options/settings modal (uses modal.js)
 ```
 
 ### `constants.js`
@@ -230,11 +232,24 @@ Reusable modal UI components. Each component is browser-only (DOM access); none 
 - `openLoadModal()`, `closeLoadModal()`
 - Handlers: `onLoadModalFilterInput`, `onLoadModalTableClick`, `onLoadModalTableDblClick`, `onLoadModalCancelClick`, `onLoadModalSelectClick`, `onLoadModalKeydown`
 
-**`confirmmodal.js`** — Yes/No confirmation modal:
+**`decisionmodal.js`** — Multi-action decision modal (generic N-button foundation):
 
-- `openConfirmModal(message, onConfirm)` — Sets message and stores callback
-- `closeConfirmModal()`
-- Handlers: `onConfirmYesClick`, `onConfirmNoClick`, `onConfirmModalKeydown` (Escape → No, Enter → Yes)
+- `openDecisionModal(message, buttons)` — Renders buttons from array of `{label, callback}` pairs
+- `closeDecisionModal()`
+- `onDecisionButtonClick(index)` — Invokes callback at index and closes
+- Keyboard: Escape/Enter → first button (supports cancel-by-null-callback)
+- Focus: Auto-focuses first button on open; restores on close
+
+**`confirmmodal.js`** — Yes/No confirmation modal (specialization of decisionModal):
+
+- `openConfirmModal(message, onConfirm)` — Delegates to `decisionModal` with No={label, callback:null}, Yes={label, callback:onConfirm}
+- `closeConfirmModal()` — Delegates to `closeDecisionModal`
+- Backwards compatible: handlers exist but no longer wired to buttons (buttons created dynamically)
+
+**`newgamedecisionmodal.js`** — New Game decision modal (3-action modal):
+
+- `setNewGameDecisionModalDeps({clearBoard, loadRandomPuzzle})` — Injects action callbacks
+- `openNewGameDecisionModal()` — Opens with Cancel/Clear/Random buttons; delegates to decisionModal
 
 **`optionsmodal.js`** — Options/settings modal:
 

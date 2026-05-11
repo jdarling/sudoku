@@ -1,0 +1,42 @@
+name: Test and Sync Puzzles
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!main"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Generate puzzle index
+        run: node tools/generate-puzzle-index.js
+
+      - name: Commit puzzle updates (if any)
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/puzzles.json
+          git diff --cached --quiet || git commit -m "chore: sync puzzles.json"
+          git push
+
+      - name: Run tests
+        run: node tests/run-node-tests.js --report-only-failures --report-status
+
+      - name: Report test failure
+        if: failure()
+        run: |
+          echo "::error::Tests failed. Merge blocked."
+          exit 1

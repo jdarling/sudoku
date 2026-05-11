@@ -9,454 +9,366 @@ Follow [semver](https://semver.org/): `major.minor.patch`.
 
 ---
 
+## [1.16.5]
+
+- **New Game flow now offers three options**: Cancel, Clear board to givens, or load Random puzzle.
+- Clear board resets all user entries while preserving the original puzzle.
+- Refactored modal system: decisionModal (generic N-button foundation) → confirmModal (binary specialization) and newGameDecisionModal (3-action modal).
+- All 189 automated tests pass; architecture is clean and testable.
+
 ## [1.16.4]
 
-- Added "Enter Board" action to the Load Puzzle modal for manual puzzle entry without YAML files
-- Added board-entry dialog (`#board-entry-modal`) with textarea input, inline validation errors, and Cancel/Load actions
-- Added pure `parseBoardInput(text)` in `puzzles.js` to normalize free-form single-line or multi-line text into an 81-cell digit string (`1-9` kept, other chars treated as empty)
-- Added pure `validateBoardInput(boardStr)` in `puzzles.js` to enforce board length, at least one given cell, and no row/column/block conflicts in givens
-- Added `createStateFromBoard(boardStr)` in `state.js` as the explicit state initializer for manually-entered boards
-- Added `getBoardFromQuery()` in `dom.js` and extended `buildPuzzleQueryString({ puzzleId, puzzleUrl, board })` to support `?board=<81-char-string>` URLs
-- Added `loadPuzzleFromBoard(boardStr)` orchestration in `app.js`; successful manual loads now set the browser URL to `?board=<...>`
-- Startup loading now supports `?board=`: valid board links load directly; invalid board links fall back to existing unknown-puzzle behavior
-- Added `js/components/boardentrymodal.js` for board-entry modal behavior (`configure`, `open`, `close`, input validation, confirm/cancel, Escape handling)
-- Opening either "Load URL" or "Enter Board" now closes the list modal first, and successful manual loads scroll to top
-- Added unit tests for board parsing/validation in `puzzles.test.js` and board query generation in `dom.test.js`
-- Node test suite now passes `180/180`
+- Added manual board entry from the Load Puzzle flow.
+- You can now paste or type a board, validate it inline, and load it instantly.
+- Board links now support shareable `?board=` URLs and restore correctly on reload.
+- Loading behavior was tightened so modal transitions and scrolling are consistent.
+- Expanded automated coverage for board parsing, validation, and URL handling.
 
 ## [1.16.3]
 
-- Added "Load URL" button to the Load Puzzle modal that opens a dedicated URL load dialog
-- Added URL load dialog (`#url-load-modal`) with a URL input field, inline live validation error display, Cancel and Load buttons
-- Load button is disabled until the entered URL passes validation (must be `http`/`https`, end in `.yaml`, no hash fragment, no query parameters)
-- On successful load the puzzle content is fetched from the supplied URL and the browser URL is set to `?puzzleUrl=<url>`; the puzzle identity is never remapped to an indexed entry
-- Opening the URL load dialog automatically closes the Load Puzzle list modal
-- Fetch failures and invalid YAML/schema errors are shown inline in the dialog; the board is not changed on error
-- Page scrolls to top after every puzzle load, including URL loads
-- Reloading the page with `?puzzleUrl=<url>` in the address bar restores the URL-loaded puzzle
-- Added pure `buildPuzzleQueryString({ puzzleId, puzzleUrl })` to `dom.js` — returns the correct `?puzzle=` or `?puzzleUrl=` string; used by all load paths
-- Added `setAppQuery(queryString)` as the single `replaceState` call site in `dom.js`; `updateQuery` rewritten to use it — fixes param accumulation bug where `?puzzleUrl=x` + normal load would produce `?puzzleUrl=x&puzzle=y`
-- Added `getUrlPuzzleFromQuery()` to `dom.js` for reading `?puzzleUrl=` on startup
-- Added `validatePuzzleUrl(rawUrl)` pure function in `puzzles.js` — returns an error string or `null` for a valid URL
-- Added `validatePuzzleDoc(doc)` pure function in `puzzles.js` — checks a parsed YAML document has `name`, `level`/`difficulty`, and a parseable `puzzle` board
-- Added `fetchPuzzleFromUrl(puzzleUrl)` in `puzzles.js` — fetches, parses, validates, and returns `{puzzle}` or throws a user-facing error
-- Added unit tests for `buildPuzzleQueryString` (6 cases) in `dom.test.js` and `validatePuzzleUrl` (8 cases) and `validatePuzzleDoc` (6 cases) in `puzzles.test.js`; Node suite now passes `167/167`
+- Added Load by URL from the puzzle picker.
+- URL loading now validates input, shows clear errors, and keeps puzzle source URLs intact.
+- Query handling was unified so URL state stays clean and predictable.
+- Added tests for URL query building and URL/YAML validation.
 
 ## [1.16.2]
 
-- Added metadata-first puzzle index generation via `node tools/generate-puzzle-index.js`; `data/puzzles.json` is now generated from YAML files with entries containing `id`, `path`, `name`, `level`, `author`, and `description`
-- Added generator validation and explicit exit codes: id collision warnings with exit `2`, schema/alias validation failures with exit `3`, and IO failures with exit `4`
-- Updated runtime puzzle loading to consume metadata index entries (`getPuzzleIndex`) while preserving existing filename-based loading behavior
-- Updated URL token matching to operate on metadata entries with strict canonical id matching and exact legacy-path fallback matching
-- Updated Load Puzzle modal filtering to use metadata fields (`id`, `name`, `level`, `author`, `description`, `path`) and render metadata-first selection rows
-- Added explicit unique IDs (`051`, `052`, `053`) for previously colliding puzzle files so the generated index can remain globally unique
-- Added/updated unit tests for metadata index loading and metadata-based matching/filtering; Node suite now passes `147/147`
+- Added generated metadata indexing for puzzles.
+- Puzzle lookup and filtering now use metadata (id, name, level, author, description).
+- Legacy and canonical URL matching became more reliable.
+- Added IDs for previously colliding puzzle files.
 
 ## [1.16.1]
 
-- URL puzzle tokens are now sanitized before matching: URL-decoded, `puzzles/` prefix stripped, `.yaml` suffix stripped, and path traversal segments (`../`, `./`) removed
-- Exact canonical id match (e.g. `?puzzle=004`) loads the puzzle immediately and rewrites the URL to its canonical form
-- Legacy full-path tokens (e.g. `?puzzle=puzzles/easy/004.yaml` or `?puzzle=easy/004.yaml`) resolve to the correct puzzle and the URL is rewritten to the canonical id
-- Ambiguous or partial tokens (e.g. `?puzzle=04`) open the Load Puzzle modal with the token prefilled in the filter field so the user can pick the intended puzzle
-- Canceling the modal from an unresolved token falls back to the blank board with the `Can't load puzzle` error from 1.16.0
-- URL hash board restore now preserves puzzle givens (immutable cells) and applies hash values only to non-given cells
+- Hardened puzzle token parsing and sanitization for URL inputs.
+- Canonical IDs now load directly and rewrite URLs consistently.
+- Legacy puzzle links are supported and auto-normalized.
+- Ambiguous tokens open the Load Puzzle chooser instead of guessing.
+- Hash restore now preserves fixed given cells.
 
 ## [1.16.0]
 
-- Added unknown puzzle-link fallback behavior that shows `Can't load puzzle "<id>".`, renders a blank interactive board, and clears stale board hash state
+- Invalid puzzle links now fail gracefully with a clear message and a fresh blank board.
 
 ## [1.15.1]
 
-- Added 50 new puzzles across all difficulty levels: 10 easy, 12 medium, 11 hard, 10 unfair, 10 extreme
-- Updated `data/puzzles.json` to index all 53 puzzles (original 3 + 50 new)
-- Fixed URL query parameter parsing for difficulty-level puzzle paths (e.g., `?puzzle=unfair%2F031`)
-- URL-encoded difficulty paths now correctly resolve to `puzzles/[difficulty]/[number].yaml`
+- Added 50 new puzzles across all difficulty levels.
+- Updated indexing so all puzzles are discoverable.
+- Fixed URL parsing for difficulty-based puzzle paths.
 
 ## [1.15.0]
 
-- Reorganized puzzles into subdirectories based on difficulty levels: `easy/`, `medium/`, `hard/`, `unfair/`, `extreme/`
-- Updated puzzle loader to handle subdirectory-based puzzle organization
-- Updated `data/puzzles.json` to reference puzzles in their difficulty-level directories
+- Reorganized puzzles by difficulty folders.
+- Updated loading and indexing to use the new folder structure.
 
 ## [1.14.2]
 
-- Terminology shift from "box" to "block" for highlight logic APIs and config features
-- Options modal now uses per-feature highlight checkboxes instead of a single mode dropdown
-- Styler now accepts either a preset key or explicit feature array and applies block feature keys correctly
+- Updated highlight terminology from box to block.
+- Improved options UI with per-feature highlight toggles.
+- Refined highlight styling logic for better consistency.
 
 ## [1.14.1]
 
-- Added `related-line-subtle` CSS class to all 8 theme files for consistent styling of subtle highlights
-- Themes updated: dark, ocean, forest, sepia, sunset, cyberpunk, terminal, high-contrast
-- Refactored STYLE_CONFIGS to use string-based feature lists for better maintainability
-- Fixed: buildStyles() now uses fixed-order includes() checks for correct precedence
-- Given cells styling moved to render-layer CSS class (not in style array)
+- Improved subtle highlight styling across all themes.
+- Refined theme style configuration and precedence behavior.
+- Moved given-cell styling to the render layer.
 
 ## [1.14.0]
 
-- Added extended related cell highlighting with 5 modes:
-  - `none`: Only the selected cell is highlighted
-  - `same`: Cells containing the same number as the selected cell are highlighted
-  - `minimal`: Row and column of the selected cell (cross pattern)
-  - `related-box`: Row, column, and box of selected cell + all cells with the same number
-  - `related-all`: Row, column, and box of selected cell + row, column, and box of ALL cells with the same number
-- Users can toggle highlight modes from the Options modal (default: `related-box`)
-- Updated `js/state.js`: added `highlightMode` field defaulting to 'related-box' and `setHighlightMode()` pure function
-- Updated `js/render.js`: refactored `getCellHighlight()` to support 5 modes, added `getCellsWithSameNumber()` helper
-- Extended Options modal (`js/components/optionsmodal.js`) with highlight mode selector dropdown
-- Updated `js/options.js` default options to use `related-box` mode
-- Related cell highlighting respects current board state for accurate "same number" matching
+- Added 5 related-cell highlight modes with richer visual feedback.
+- Added highlight mode controls in Options.
+- Highlighting now reflects current board state more accurately.
 
 ## [1.13.5]
 
-- Fixed `aria-hidden` accessibility warning: `modal.js` now records the focused element on open and restores focus on close via a `WeakMap`, so focus is never trapped inside a hidden modal
+- Improved modal accessibility by restoring focus correctly on close.
 
 ## [1.13.4]
 
-- Updated `readme.md`: corrected project structure, How to Play, and Features to reflect current UI and module layout
-- Updated `docs/design.md`: added `utils.js`, `theme.js`, `dom.js`, and `js/components/` module documentation; removed stale handler references from `app.js` section
+- Updated docs to match the current architecture and UI.
 
 ## [1.13.3]
 
-- Replaced prompt-based `Load Game` flow with a full-screen modal selector showing all available puzzles
-- Modal includes a live filter by puzzle ID or filename, row selection, and `Cancel`/`Select` actions
-- Extracted modal logic into a `js/components/` folder: `modal.js` (generic open/close), `table.js` (filterable row rendering), `loadmodal.js` (load puzzle modal using both)
-- Replaced native `confirm()` dialogs for New Game and Solve with a styled Yes/No modal (`js/components/confirmmodal.js`)
-- Confirm modal uses the same CSS variables and visual chrome as the load modal; Escape → No, Enter → Yes
-- Moved theme selection into an Options modal (`js/components/optionsmodal.js`); replaced the inline theme row with an Options button
+- Replaced prompt-based loading with a full puzzle selection modal.
+- Added live filtering, row selection, and styled confirm dialogs.
+- Moved theme controls into an Options modal.
 
 ## [1.13.2]
 
-- Added seven new selectable themes: Terminal, Sepia/Vintage, Forest, Ocean/Water, Sunset, High Contrast, and Cyberpunk/Neon
-- Registered all new themes in the theme selector and theme allowlist
+- Added 7 new selectable themes.
 
 ## [1.13.1]
 
-- Increased win celebration confetti so win effects fill the full screen with a denser burst
+- Increased win celebration confetti density and coverage.
 
 ## [1.13.0]
 
-- Swapped mobile control groups so `Check`/`Hint` appear above the keypad and `Solve`/`New Game`/`Load Game` appear below it
-- Kept desktop control ordering unchanged
+- Reordered mobile controls for faster gameplay.
+- Desktop control order remains unchanged.
 
 ## [1.12.27]
 
-- Added a confirmation prompt on `New Game` to clearly warn that current progress will be lost
+- Added confirmation before starting a new game.
 
 ## [1.12.26]
 
-- Repositioned `Solve` back into the top control group and removed the separate lower `solve-row` layout
-- Updated mobile top controls to `Solve`, `New`, `Load` with `Solve` full-width on row 1 and `New`/`Load` half-width on row 2
-- Added a confirmation prompt before applying `Solve` to prevent accidental one-tap full-board solves
+- Moved Solve back to the top control group.
+- Improved mobile control layout for Solve/New/Load.
+- Added confirmation before solving.
 
 ## [1.12.25]
 
-- Moved `Solve` out of the top control cluster into its own lower `solve-row` to reduce accidental clicks near the number pad
+- Moved Solve to a separate row to reduce accidental taps.
 
 ## [1.12.24]
 
-- Added missing `try/catch` around `loadNewGame` random puzzle startup path so failures update user-visible status instead of only bubbling to init-level console logging
+- Startup random-load failures now show clear status feedback.
 
 ## [1.12.23]
 
-- Updated root `readme.md` with preferred Node test command: `node tests/run-node-tests.js --report-only-failures --report-status`
-- Updated `AGENTS.md` to require runner-flag-based concise test reporting and prohibit `tail`/`grep` truncation patterns
+- Updated docs with the preferred concise Node test command.
 
 ## [1.12.22]
 
-- Added Node test runner flags in `tests/run-node-tests.js`: `--report-only-failures`, `--report-status`, and `--help`
-- Added runner flag usage examples to `tests/README.md`
+- Added Node test runner flags for concise and status-only reporting.
 
 ## [1.12.21]
 
-- Added `constants.test.js` as an intentional-blank test stub and registered it in shared test configuration
+- Added a constants test stub to the shared test registry.
 
 ## [1.12.20]
 
-- Simplified puzzle-loading orchestration in app.js by replacing `loadFetchedRandomPuzzle` with a shared `loadFetchedPuzzle` path used by both `loadPuzzleByFilename` and `loadRandomPuzzle`
-- Removed nested random-puzzle error handling complexity while preserving puzzle-specific error names
+- Simplified puzzle-loading flow by consolidating shared load logic.
 
 ## [1.12.19]
 
-- Extracted random-puzzle post-fetch work into `loadFetchedRandomPuzzle(puzzle)` for clearer orchestration and named inner error handling
+- Refactored random-puzzle loading for clearer orchestration.
 
 ## [1.12.18]
 
-- Refactored `loadRandomPuzzle` to use nested `try/catch`: outer catch handles `getRandomPuzzle` failures, inner catch handles `createStateFromPuzzle`/`updateQuery`/`loadGame` failures with puzzle-specific name extraction
+- Improved random-puzzle error handling with clearer failure paths.
 
 ## [1.12.17]
 
-- Fixed `applyBoardStateFromHash` to route through `updateState` instead of directly mutating `currentState` and manually re-rendering
+- Fixed hash restore to use the normal state update path.
 
 ## [1.12.16]
 
-- Fixed `loadRandomPuzzle` error path to use `formatString` + `STATUS_MESSAGES` consistently with all other error paths
+- Standardized random-load error messaging.
 
 ## [1.12.15]
 
-- Extracted duplicated number-placement logic from dom.js into `applyNumber(state, num)` in state.js
-- Both `onCellKeydown` and `onNumberButtonClick` now delegate to `applyNumber`
-- Added tests for `applyNumber` in state.test.js
+- Consolidated number-entry logic into one shared state function.
+- Added tests for the new number-entry path.
 
 ## [1.12.14]
 
-- Removed `updateCellValue` alias from state.js; callers in dom.js now call `placeNumber` directly
-- Removed redundant `updateCellValue` test; `clearCellValue` test updated to use `placeNumber` for setup
+- Removed redundant update alias and simplified related tests.
 
 ## [1.12.13]
 
-- Removed pure helper functions (handleNumberKey, handleDeleteKey, handleArrowKey) from dom.js; logic inlined directly into DOM event handlers where it belongs
-- dom.test.js, render.test.js, and theme.test.js are intentional-blank stubs — these modules are entirely browser-coupled and untestable outside a real browser
-- Registered render.test.js and theme.test.js in testConfig.js
+- Inlined keyboard helper logic into DOM handlers.
+- Registered intentional browser-coupled test stubs in shared config.
 
 ## [1.12.12]
 
-- Removed browser-interaction tests from dom.test.js (event handlers, prompt(), window.location are not testable outside the browser)
-- dom.test.js now covers only the three pure helpers: handleNumberKey, handleDeleteKey, handleArrowKey
+- Scoped DOM tests to pure helper logic only.
 
 ## [1.12.11]
 
-- Unified load status formatting path in app orchestration to use shared `formatPuzzleStatus` helper
-- Removed direct loaded-status template interpolation from `loadGame` for cleaner single-path status formatting
+- Unified status message formatting through a single helper path.
 
 ## [1.12.10]
 
-- Replaced closure-based DOM handler factories with top-level DOM handlers configured via `configureDomEventHandlers`
-- Moved remaining app cell event handlers into `js/dom.js` (`onCellFocus`, `onCellKeydown`, `onCellInput`)
-- Updated app init to register named DOM handlers with no inline listener lambdas
-- Added `js/dom.test.js` and wired it into browser/node runners for custom DOM handler logic coverage
+- Moved DOM handlers to top-level configured functions.
+- Simplified app event wiring and added DOM handler test coverage.
 
 ## [1.12.9]
 
-- Moved init-registered UI/window event handlers to `js/dom.js` as named top-level handler factories
-- Replaced inline listener lambdas in `js/app.js` `init()` with registered handler functions created from dom helpers
-- Added state-curried registration wiring in app orchestration for check/hint/solve/theme/new/load/number/popstate/hashchange handlers
+- Refactored init event wiring into named DOM handler factories.
 
 ## [1.12.8]
 
-- New Game now avoids selecting the currently loaded puzzle when alternatives exist
-- Added puzzle-layer tests for excluded random selection and single-puzzle fallback behavior
+- New Game now avoids immediately repeating the current puzzle when possible.
+- Added tests for exclusion and fallback behavior.
 
 ## [1.12.7]
 
-- Extracted pure string and puzzle-id helpers into `js/utils.js` (`formatString`, `extractPuzzleId`, `normalizePuzzleId`, `formatPuzzleStatus`)
-- Added comprehensive utils unit tests in `js/utils.test.js`
-- Updated app orchestration to use shared utils helpers instead of duplicating pure logic
-- Fixed browser test runner to use shared `tests/testConfig.js` list instead of a hardcoded test array
-- Loaded `js/utils.js` in runtime `index.html` to support app usage
+- Added shared utility helpers and tests.
+- Updated app logic to reuse shared utilities.
+- Unified browser test loading with shared test config.
 
 ## [1.12.6]
 
-- Simplified app.js method names: finalizeGameLoad → loadGame, formatStatusWithPuzzleName → formatPuzzleStatus
-- Removed redundant renderStatus wrapper for cleaner call stack
-- Improved code readability with no functional changes
+- Renamed and simplified app helpers for readability.
 
 ## [1.12.5]
 
-- Consolidated puzzle-loading logic into shared finalizeGameLoad helper
-- Removed duplicate rendering/status code from loadPuzzleByFilename, loadNewGame, loadRandomPuzzle
-- Improved code maintainability with no user-visible changes
+- Consolidated duplicated puzzle-loading code paths.
 
 ## [1.12.4]
 
-- Fixed Load Game not fully resetting board state: now clears hash on load instead of restoring stale board from previous puzzle
-- URL-based state persistence (query + hash) still works correctly on initial page load
-- Added state test to verify all fields reset when loading a new puzzle
+- Fixed Load Game reset behavior so stale board state is not carried forward.
+- Kept URL-based state restore intact and added regression test coverage.
 
 ## [1.12.3]
 
-- Removed debug logging from state-layer solve logic to keep business logic side-effect free
-- Added pure-logic test coverage for solver edge cases (unsolveable and already-complete boards)
-- Added pure-logic test coverage for state conflict detection and wrong-cell edge cases
-- Expanded Node test runner exports for state helpers used by the logic test suite
+- Removed debug logging from pure state logic.
+- Expanded tests for solver and conflict edge cases.
 
 ## [1.12.2]
 
-- Start 1.12.2 development line after tagging 1.12.1
+- Maintenance release kickoff.
 
 ## [1.12.1]
 
-- Removed duplicate STATUS_MESSAGES from app.js; now uses constants directly
-- Extracted URL/query/hash persistence functions from app orchestration into js/dom.js
-- Added explicit state mutation helpers in js/state.js and moved keyboard handler orchestration to js/dom.js
-- Added state tests for updateCellValue(), clearCellValue(), and moveSelection()
-- Normalized repository line endings to LF and enforced LF via .gitattributes
+- Centralized status messages and URL/hash helpers.
+- Improved state/DOM separation and added state tests.
+- Normalized repository line endings to LF.
 
 ## [1.12.0]
 
-- Start of 1.12 feature branch line (`feat/v1.12`) from stable 1.11.10 baseline
+- Start of the 1.12 feature line.
 
 ## [1.11.10]
 
-- Fixed win celebration trigger so confetti only appears for true solved-puzzle state
-- Prevented confetti from triggering on Hint/Check "all values currently correct" messages
+- Confetti now appears only on true puzzle completion.
 
 ## [1.11.9]
 
-- Added non-blocking confetti burst when a puzzle enters a win state
-- Celebration triggers only on transition into win to avoid repeated bursts during normal updates
-- Kept solved board fully visible and interactive while celebrating
+- Added non-blocking confetti celebration on win.
+- Prevented repeat celebration triggers.
 
 ## [1.11.8]
 
-- Reordered mobile controls to prioritize gameplay: Check/Hint first, number pad second, New/Load/Solve third
-- Kept desktop control order unchanged to preserve current wide-screen workflow
-- Implemented via CSS ordering for minimal structural complexity
+- Reordered mobile controls for gameplay priority.
+- Desktop layout stayed the same.
 
 ## [1.11.7]
 
-- Removed unused status lookup structures from app orchestration after dictionary migration
-- Consolidated status template usage to the single STATUS_MESSAGES dictionary
-- Cleaned up dead constants related to legacy status mapping
+- Removed legacy status mapping code and dead constants.
 
 ## [1.11.6]
 
-- Refactored status formatting in app orchestration to use a message-to-template map
-- Removed repetitive conditionals in puzzle-name status rendering without changing behavior
-- Improved maintainability of status rendering logic
+- Simplified status formatting logic with no behavior change.
 
 ## [1.11.5]
 
-- Moved puzzle status message templates into shared constants for centralized management
-- Updated app status rendering to use template constants instead of inline hardcoded strings
-- Preserved existing user-visible status behavior while making templates easier to maintain
+- Moved status templates into shared constants.
 
 ## [1.11.4]
 
-- Status bar now shows the loaded puzzle name when using New Game or Load Game
-- Gameplay status messages now include the active puzzle name for Check, Hint, and Solve outcomes
-- Example success format: All values for "<puzzleName>" are correct!
+- Status messages now include the active puzzle name.
 
 ## [1.11.3]
 
-- Removed excessive padding and margins to maximize game focus
-- Reduced vertical gaps throughout layout (app gap, game-shell gap, control-panel gap)
-- Reduced top/bottom body padding from 2rem to 0.4rem
-- Increased cell sizes from 48px to 50px to fill recovered space
-- Made version display subtle with reduced opacity
-- Status message area preserved for gameplay feedback
+- Tightened spacing to keep the game board front and center.
+- Increased board cell size slightly and toned down version display.
 
 ## [1.11.2]
 
-- Simplified action buttons layout by converting from flex to 2-column grid (Check, Hint)
-- Added responsive desktop media queries for 980px+ screens: board on left, controls fixed-width on right
-- Optimized button sizing for desktop: 3-column keypad, full-width action buttons, Erase spans full width
-- Improved spacing and alignment for both mobile and desktop layouts
+- Improved responsive layout and control alignment on mobile and desktop.
 
 ## [1.11.1]
 
-- Optimized mobile layout by restructuring number keypad grid from flex to 5-column layout (buttons 1-5 top row, 6-9+Erase bottom row)
-- Eliminates scrollbars on tall mobile screens by reducing vertical space consumption
+- Optimized mobile keypad layout to reduce scrolling.
 
 ## [1.11.0]
 
-- Restructured layout to support responsive desktop view: board on left, controls on right (desktop width 980px+)
-- Added Load Game button to allow users to load puzzles by ID (accepts formats: 001, puzzles/001, puzzles/001.yaml)
-- Reorganized controls structure with separate #game-shell wrapper and #control-panel for better layout management
-- Renamed "New Puzzle" button to "New Game" for consistency
+- Added responsive desktop game layout.
+- Added Load Game by puzzle ID.
+- Renamed New Puzzle to New Game.
 
 ## [1.10.4]
 
-- Improved dark theme accessibility for colorblind users by increasing contrast and using more distinguishable colors for selected, related-line, related, same-num, and wrong cell states
+- Improved dark theme contrast for better colorblind accessibility.
 
 ## [1.10.3]
 
-- Fixed theme picker not updating visual styles - now properly removes and replaces stylesheet link to force browser reload
+- Fixed theme switching so visual styles refresh immediately.
 
 ## [1.10.2]
 
-- Added theme system with theme picker UI
-- Users can now switch between Default and Dark themes
-- Theme preference is saved to localStorage and persists across sessions
-- Created comprehensive theming documentation in `docs/theming.md` for future theme additions
-- Added `js/theme.js` module for theme management (switching, persistence)
-- Architecture supports easy addition of new themes without duplicating layout CSS
+- Added theme system with a picker and saved user preference.
+- Added theme management module and documentation for future themes.
 
 ## [1.10.1]
 
-- Fixed broken cell highlighting after stylesheet split in 1.9.0: restored all Okabe-Ito colors, added missing `related-line` class for row/column highlights, restored `#hint-btn` and `#version` styling in both default and dark themes, removed conflicting `pointer-events: none` from given cells
+- Fixed highlight and button styling regressions after stylesheet split.
 
 ## [1.10.0]
 
-- Added favicons and app icons (favicon.ico, apple-touch-icon, android-chrome, mstile) with references in index.html
+- Added favicon and app icon support across platforms.
 
 ## [1.9.0]
 
-- Split stylesheet into layout (geometry/spacing) and theme (colors) for better maintainability and future theme support
-- Created skills/commit-changes/SKILL.md for automated versioning workflow
+- Split styling into layout and theme layers for maintainability.
 
 ## [1.8.1]
 
-- Fixed Check button incorrectly highlighting wrong cells in red; Check now only shows a status message
-- Hint button now exclusively triggers red cell highlighting
-- Placing a number clears hint highlighting
+- Check now reports status only; Hint owns wrong-cell highlighting.
+- Entering a number clears hint highlights.
 
 ## [1.8.0]
 
-- Added version display in the UI footer (`renderVersion()` in `render.js`, called from `init()` in `app.js`)
-- `VERSION` constant added to `js/constants.js`
-- Versioning rules and changelog requirement recorded in `AGENTS.md`
+- Added in-app version display in the footer.
+- Added centralized version constant and workflow documentation.
 
 ## [1.7.0]
 
-- Suppress soft keyboard on mobile/coarse-pointer devices when tapping cells
-- Cells on touch devices are set to `readOnly` to prevent keyboard activation while still allowing selection and highlighting
+- Reduced accidental mobile keyboard pop-ups while keeping cell selection.
 
 ## [1.6.0]
 
-- Added Hint button that highlights incorrect cells in red based on solution comparison
+- Added Hint button to highlight incorrect entries.
 
 ## [1.5.1]
 
-- Fixed Check button to show "All values are correct" for valid partial boards instead of always flagging incomplete boards as wrong
-- Check now compares current entries against the puzzle solution rather than checking for empty cells
+- Fixed Check for partial-but-correct boards.
+- Check now validates entered values against the solution.
 
 ## [1.5.0]
 
-- Improved color palette to colorblind-safe Okabe-Ito-based scheme
-- Added distinct row/column highlight (`related-line`) separate from box-only highlight (`related`)
+- Improved colorblind-safe palette and clearer related-cell highlights.
 
 ## [1.4.0]
 
-- Made related cells more visually distinct when a cell is selected
+- Increased visual distinction for related selected cells.
 
 ## [1.3.2]
 
-- Fixed solve button marking all cells as given after solving (solved cells are now editable)
+- Fixed Solve so auto-filled cells remain editable.
 
 ## [1.3.1]
 
-- Replaced puzzle 005 which was unsolveable with a freshly generated valid puzzle (24 clues, unique solution)
+- Replaced unsolveable puzzle 005 with a valid one.
 
 ## [1.3.0]
 
-- Allow clicking on given (pre-filled) cells to select and highlight them
-- Given cells are now read-only but no longer block pointer events
+- You can now select and highlight given cells.
 
 ## [1.2.0]
 
-- Fixed URL rerender bug where every hash change caused a full re-render and lost focus
-- Added BigInt-based board compression — board hash is now 45 characters instead of 81
+- Fixed hash-change rerender/focus issues.
+- Compressed board hash URLs significantly.
 
 ## [1.1.2]
 
-- Fixed hash not clearing when loading a new board
+- Fixed stale hash values when loading a new board.
 
 ## [1.1.1]
 
-- Tests passing; UI works; puzzles 1–4 can be solved via the Solve button
-- Fixed solve() mutating state; now returns new board or null (immutable)
-- Fixed hashchange re-render loop (switched to `replaceState`)
-- Fixed infinite focus recursion between `focusCell` and `onCellFocus`
+- Fixed multiple early stability issues (immutability, hash loop, focus recursion).
+- Confirmed baseline puzzle solve behavior.
 
 ## [1.1.0]
 
-- Added test suite (`testharness.js`, `run-node-tests.js`, `testConfig.js`, per-module test files)
+- Added automated test suite and shared test infrastructure.
 
 ## [1.0.1]
 
-- Added link to hosted version in readme
+- Added hosted app link to README.
 
 ## [1.0.0]
 
-- Initial commit: basic Sudoku game with puzzle loading, board rendering, number input, solve, and check
+- Initial release: core Sudoku play, loading, solving, and checking.

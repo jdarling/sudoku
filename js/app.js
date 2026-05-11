@@ -326,6 +326,17 @@ const loadRandomPuzzle = async () => {
 };
 
 /**
+ * Clears the current board, resetting all user entries to givens only.
+ * Deselects any cell and updates status.
+ */
+const clearBoard = () => {
+  if (!currentState) {
+    return;
+  }
+  updateState(resetBoardToGivens(currentState));
+};
+
+/**
  * Gets the current highlight feature list.
  * @returns {string[]} Current highlight features
  */
@@ -391,6 +402,11 @@ const init = async () => {
 
   configureBoardEntryModal({
     loadPuzzleFromBoard,
+  });
+
+  setNewGameDecisionModalDeps({
+    clearBoard,
+    loadRandomPuzzle,
   });
 
   configureOptionsModal({
@@ -476,19 +492,12 @@ const init = async () => {
     btn.addEventListener("click", onNumberButtonClick);
   });
 
-  document
-    .getElementById("confirm-yes-btn")
-    .addEventListener("click", onConfirmYesClick);
-  document
-    .getElementById("confirm-no-btn")
-    .addEventListener("click", onConfirmNoClick);
-
   window.addEventListener("popstate", onPopState);
   window.addEventListener("hashchange", onHashChange);
   window.addEventListener("keydown", onUrlLoadModalKeydown);
   window.addEventListener("keydown", onBoardEntryModalKeydown);
   window.addEventListener("keydown", onLoadModalKeydown);
-  window.addEventListener("keydown", onConfirmModalKeydown);
+  window.addEventListener("keydown", onDecisionModalKeydown);
   window.addEventListener("keydown", onOptionsModalKeydown);
 
   await loadNewGame();

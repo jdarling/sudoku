@@ -267,14 +267,7 @@ const onNumberButtonClick = (event) => {
  * Handles New Game button click.
  */
 const onNewGameClick = () => {
-  if (!domHandlerDeps) {
-    return;
-  }
-
-  openConfirmModal(
-    "Start a new game? Your current progress will be lost.",
-    () => domHandlerDeps.loadRandomPuzzle(),
-  );
+  openNewGameDecisionModal();
 };
 
 /**
