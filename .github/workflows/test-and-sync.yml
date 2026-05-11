@@ -28,6 +28,12 @@ jobs:
       - name: Run tests
         run: node tests/run-node-tests.js --report-only-failures --report-status
 
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update puzzle index [skip ci]"
+          file_pattern: "puzzles/index.json" # Adjust to your actual index file path
+
       - name: Report test failure
         if: failure()
         run: |
