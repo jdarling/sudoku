@@ -1,0 +1,38 @@
+name: Test and Sync Puzzles
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6 # Updated to v6 to support Node 24 runtime
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6 # Updated to v6 for Node 24 support
+        with:
+          node-version: "26"
+
+      - name: Generate puzzle index
+        run: node tools/generate-puzzle-index.js
+
+      - name: Run tests
+        run: node tests/run-node-tests.js --report-only-failures --report-status
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v7 # Updated to v7
+        with:
+          commit_message: "chore: update puzzle index [skip ci]"
+          file_pattern: "data/puzzles/puzzles.json"
+
+      - name: Report test failure
+        if: failure()
+        run: |
+          echo "::error::Tests failed. Merge blocked."
+          exit 1

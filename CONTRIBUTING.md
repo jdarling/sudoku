@@ -27,7 +27,7 @@ The easiest way to contribute is to add a new puzzle.
        - "000009005"
        - "000040079"
    ```
-4. Add your filename to `data/puzzles.json` (one line, in order)
+4. Run `node tools/generate-puzzle-index.js` to regenerate `data/puzzles.json`
 5. Test locally: run `./up.sh` and open `http://localhost:8080?puzzle=006` to test your puzzle
 6. Submit a pull request
 

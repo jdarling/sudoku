@@ -8,37 +8,82 @@
  * @returns {boolean} True when using a coarse pointer device
  */
 const isCoarsePointerDevice = () => {
-  if (typeof window === 'undefined' || !window.matchMedia) {
+  if (typeof window === "undefined" || !window.matchMedia) {
     return false;
   }
-  return window.matchMedia('(pointer: coarse)').matches;
+  return window.matchMedia("(pointer: coarse)").matches;
 };
 
 /**
- * Extracts puzzle filename from URL query parameter.
- * Examples: ?puzzle=001, ?puzzle=username/001, ?puzzle=puzzles/001.yaml, ?puzzle=easy/001
- * @returns {string|null} Puzzle filename or null if puzzle param is empty
+ * Extracts puzzle token from URL query parameter.
+ * Returns the raw token without path inference or file extension handling.
+ * Token sanitization and file resolution happens at the resolver layer.
+ * @returns {string|null} Raw puzzle token or null if puzzle param is empty
  */
 const getPuzzleFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
-  const puzzle = params.get('puzzle');
-  if (!puzzle) {
-    return null;
+  return params.get("puzzle") || null;
+};
+
+/**
+ * Extracts the puzzleUrl query parameter from the current URL.
+ * @returns {string|null} Raw URL string or null if not present
+ */
+const getUrlPuzzleFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("puzzleUrl") || null;
+};
+
+/**
+ * Extracts the board query parameter from the current URL.
+ * Used for manually-entered boards shared via ?board= links.
+ * @returns {string|null} 81-char board string or null if not present
+ */
+const getBoardFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("board") || null;
+};
+
+/**
+ * Builds a query string for the app URL from a puzzle identity.
+ * Exactly one of puzzleId, puzzleUrl, or board should be provided.
+ * Returns an empty string when none is provided.
+ * @param {Object} opts
+ * @param {string|null} [opts.puzzleId] - Canonical puzzle id (e.g. '004')
+ * @param {string|null} [opts.puzzleUrl] - Absolute URL to a remote puzzle file
+ * @param {string|null} [opts.board] - 81-char digit string for a manually-entered board
+ * @returns {string} Query string including leading '?', or ''
+ */
+const buildPuzzleQueryString = ({
+  puzzleId = null,
+  puzzleUrl = null,
+  board = null,
+} = {}) => {
+  if (puzzleId) {
+    return `?puzzle=${encodeURIComponent(puzzleId)}`;
   }
-  const DIFFICULTY_LEVELS = ['easy', 'medium', 'hard', 'unfair', 'extreme'];
-  const startsWithDifficulty = DIFFICULTY_LEVELS.some((level) =>
-    puzzle.startsWith(`${level}/`),
+  if (puzzleUrl) {
+    const params = new URLSearchParams();
+    params.set("puzzleUrl", puzzleUrl);
+    return `?${params.toString()}`;
+  }
+  if (board) {
+    return `?board=${encodeURIComponent(board)}`;
+  }
+  return "";
+};
+
+/**
+ * Replaces the browser URL query while preserving the current hash.
+ * Single point of truth for all URL query updates.
+ * @param {string} queryString - Value returned by buildPuzzleQueryString
+ */
+const setAppQuery = (queryString) => {
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${queryString}${window.location.hash}`,
   );
-  if (startsWithDifficulty && !puzzle.includes('puzzles/')) {
-    return `puzzles/${puzzle}${puzzle.includes('.yaml') ? '' : '.yaml'}`;
-  }
-  if (!puzzle.includes('/')) {
-    return `puzzles/${puzzle}.yaml`;
-  }
-  if (!puzzle.includes('.yaml')) {
-    return `${puzzle}.yaml`;
-  }
-  return puzzle;
 };
 
 /**
@@ -47,26 +92,19 @@ const getPuzzleFromQuery = () => {
  */
 const getBoardFromHash = () => {
   const hash = window.location.hash;
-  if (!hash.includes('board=')) {
+  if (!hash.includes("board=")) {
     return null;
   }
-  const encoded = hash.split('board=')[1];
+  const encoded = hash.split("board=")[1];
   return encoded || null;
 };
 
 /**
- * Updates URL query parameter with current puzzle filename.
- * @param {string} filename - Puzzle filename (e.g., "puzzles/001.yaml" or "username/001.yaml")
+ * Updates URL query parameter with the canonical puzzle id.
+ * @param {string} canonicalId - Canonical puzzle id (e.g., "004")
  */
-const updateQuery = (filename) => {
-  const params = new URLSearchParams(window.location.search);
-  const shortName = filename.replace(/\.yaml$/, '').replace(/^puzzles\//, '');
-  params.set('puzzle', shortName);
-  window.history.replaceState(
-    null,
-    '',
-    `?${params.toString()}${window.location.hash}`,
-  );
+const updateQuery = (canonicalId) => {
+  setAppQuery(buildPuzzleQueryString({ puzzleId: canonicalId }));
 };
 
 /**
@@ -78,8 +116,19 @@ const updateHash = (board) => {
   const encoded = encodeBoard(board);
   window.history.replaceState(
     null,
-    '',
+    "",
     `${window.location.pathname}${window.location.search}#board=${encoded}`,
+  );
+};
+
+/**
+ * Clears the board hash from the URL.
+ */
+const clearBoardHash = () => {
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}`,
   );
 };
 
@@ -138,16 +187,16 @@ const onCellKeydown = (event) => {
     return;
   }
 
-  if (event.key >= '1' && event.key <= '9') {
+  if (event.key >= "1" && event.key <= "9") {
     event.preventDefault();
     domHandlerDeps.applyState(applyNumber(state, parseInt(event.key, 10)));
     return;
   }
 
   if (
-    event.key === 'Backspace' ||
-    event.key === 'Delete' ||
-    event.key === '0'
+    event.key === "Backspace" ||
+    event.key === "Delete" ||
+    event.key === "0"
   ) {
     event.preventDefault();
     domHandlerDeps.applyState(clearCellValue(state, state.selected));
@@ -187,7 +236,7 @@ const onCellInput = (event) => {
   }
 
   const numValue =
-    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ''), 10) || 0;
+    parseInt(event.currentTarget.value.replace(/[^1-9]/g, ""), 10) || 0;
   domHandlerDeps.applyState(placeNumber(state, cellIndex, numValue));
 };
 
@@ -218,14 +267,7 @@ const onNumberButtonClick = (event) => {
  * Handles New Game button click.
  */
 const onNewGameClick = () => {
-  if (!domHandlerDeps) {
-    return;
-  }
-
-  openConfirmModal(
-    'Start a new game? Your current progress will be lost.',
-    () => domHandlerDeps.loadRandomPuzzle(),
-  );
+  openNewGameDecisionModal();
 };
 
 /**
@@ -280,7 +322,7 @@ const onSolveButtonClick = () => {
   }
 
   openConfirmModal(
-    'Reveal the full solution? This will fill the entire board.',
+    "Reveal the full solution? This will fill the entire board.",
     () => domHandlerDeps.applyState(solveBoard(state)),
   );
 };
@@ -304,7 +346,7 @@ const onHashChange = () => {
   }
 
   const state = domHandlerDeps.getState();
-  if (!state || state.statusType === 'win') {
+  if (!state || state.statusType === "win") {
     return;
   }
 

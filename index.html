@@ -80,14 +80,17 @@
           <input
             id="load-filter-input"
             type="text"
-            placeholder="Filter by ID or filename"
+            placeholder="Filter by id, name, level, author, description, or path"
           />
           <div id="load-modal-table-wrap">
             <table id="load-modal-table">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Filename</th>
+                  <th>Name</th>
+                  <th>Level</th>
+                  <th>Author</th>
+                  <th>Path</th>
                 </tr>
               </thead>
               <tbody id="load-puzzle-table-body"></tbody>
@@ -98,6 +101,12 @@
             <button class="action-btn" id="load-cancel-btn" type="button">
               Cancel
             </button>
+            <button class="action-btn" id="load-url-btn" type="button">
+              Load URL
+            </button>
+            <button class="action-btn" id="load-board-btn" type="button">
+              Enter Board
+            </button>
             <button
               class="action-btn"
               id="load-select-btn"
@@ -105,6 +114,74 @@
               disabled
             >
               Select
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="url-load-modal" aria-hidden="true">
+        <div
+          id="url-load-modal-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="url-load-modal-title"
+        >
+          <h2 id="url-load-modal-title">Load Puzzle from URL</h2>
+          <label for="url-load-input">Puzzle URL</label>
+          <input
+            id="url-load-input"
+            type="url"
+            placeholder="https://example.com/puzzle.yaml"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div id="url-load-error" aria-live="polite"></div>
+          <div id="url-load-modal-actions">
+            <button class="action-btn" id="url-load-cancel-btn" type="button">
+              Cancel
+            </button>
+            <button
+              class="action-btn"
+              id="url-load-confirm-btn"
+              type="button"
+              disabled
+            >
+              Load
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="board-entry-modal" aria-hidden="true">
+        <div
+          id="board-entry-modal-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="board-entry-modal-title"
+        >
+          <h2 id="board-entry-modal-title">Enter Board</h2>
+          <label for="board-entry-input">Paste or type a Sudoku board</label>
+          <textarea
+            id="board-entry-input"
+            rows="9"
+            placeholder="Any format: 53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79"
+            autocomplete="off"
+            spellcheck="false"
+          ></textarea>
+          <div id="board-entry-error" aria-live="polite"></div>
+          <div id="board-entry-modal-actions">
+            <button
+              class="action-btn"
+              id="board-entry-cancel-btn"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              class="action-btn"
+              id="board-entry-confirm-btn"
+              type="button"
+              disabled
+            >
+              Load
             </button>
           </div>
         </div>
@@ -240,22 +317,15 @@
           </div>
         </div>
       </div>
-      <div id="confirm-modal" aria-hidden="true">
+      <div id="decision-modal" aria-hidden="true">
         <div
-          id="confirm-modal-panel"
+          id="decision-modal-panel"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="confirm-modal-message"
+          aria-labelledby="decision-modal-message"
         >
-          <p id="confirm-modal-message"></p>
-          <div id="confirm-modal-actions">
-            <button class="action-btn" id="confirm-no-btn" type="button">
-              No
-            </button>
-            <button class="action-btn" id="confirm-yes-btn" type="button">
-              Yes
-            </button>
-          </div>
+          <p id="decision-modal-message"></p>
+          <div id="decision-modal-actions"></div>
         </div>
       </div>
       <div id="version"></div>
@@ -274,7 +344,11 @@
     <script src="js/components/modal.js"></script>
     <script src="js/components/table.js"></script>
     <script src="js/components/loadmodal.js"></script>
+    <script src="js/components/urlloadmodal.js"></script>
+    <script src="js/components/boardentrymodal.js"></script>
+    <script src="js/components/decisionmodal.js"></script>
     <script src="js/components/confirmmodal.js"></script>
+    <script src="js/components/newgamedecisionmodal.js"></script>
     <script src="js/components/optionsmodal.js"></script>
     <script src="js/app.js"></script>
   </body>

@@ -123,7 +123,7 @@ sudoku/
 1. Copy `data/samples.yaml` as a guide
 2. Create a new file in `data/puzzles/` with a unique name (e.g., `006.yaml`)
 3. Write your puzzle in either `rows` or `blocks` format (see samples for examples)
-4. Add your filename to `data/puzzles.json`
+4. Run `node tools/generate-puzzle-index.js` to regenerate `data/puzzles.json`
 5. Submit a pull request
 
 Example:

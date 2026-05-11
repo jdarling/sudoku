@@ -172,7 +172,7 @@ Don't create a new module unless it truly solves a distinct problem that doesn't
 ### Adding a Puzzle
 
 1. Create `data/puzzles/NNN.yaml` (copy `data/samples.yaml` as template)
-2. Add one line to `data/puzzles.json`
+2. Run `node tools/generate-puzzle-index.js` to regenerate `data/puzzles.json`
 3. Test by running `./up.sh` and selecting "New Puzzle"
 
 ### Adding Game Logic

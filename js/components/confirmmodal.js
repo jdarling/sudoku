@@ -1,95 +1,64 @@
 /**
  * Confirm (Yes/No) modal component.
- * Displays a message and two buttons; invokes a callback on confirmation.
- * Uses modal.js for open/close.
+ * Specialization of decisionModal that displays Yes/No buttons.
+ * Invokes a callback on Yes; No closes without acting.
+ * Delegates to decisionModal.js for implementation.
  * No game logic — that is passed in via the onConfirm callback.
  */
 
 /**
- * Callback to invoke when the user clicks Yes.
- * @type {Function|null}
- */
-let confirmCallback = null;
-
-/**
- * Returns the confirm modal DOM element.
- * @returns {HTMLElement|null}
- */
-const getConfirmModalEl = () => document.getElementById("confirm-modal");
-
-/**
- * Gets all interactive confirm modal DOM elements.
- * @returns {Object|null} Element map or null when unavailable
- */
-const getConfirmModalElements = () => {
-  const modal = getConfirmModalEl();
-  const message = document.getElementById("confirm-modal-message");
-  const yesBtn = document.getElementById("confirm-yes-btn");
-  const noBtn = document.getElementById("confirm-no-btn");
-  if (!modal || !message || !yesBtn || !noBtn) {
-    return null;
-  }
-  return { modal, message, yesBtn, noBtn };
-};
-
-/**
- * Opens the confirm modal with a message and stores the confirm callback.
+ * Opens the confirm modal with a message and callback.
+ * Internally uses decision modal with No={label, callback:null} and Yes={label, callback:onConfirm}.
  * @param {string} message - Message to display to the user
  * @param {Function} onConfirm - Invoked when the user clicks Yes
  */
 const openConfirmModal = (message, onConfirm) => {
-  const elements = getConfirmModalElements();
-  if (!elements) {
-    return;
-  }
-  confirmCallback = onConfirm;
-  elements.message.textContent = message;
-  openModal(elements.modal);
-  elements.yesBtn.focus();
+  const buttons = [
+    { label: "No", callback: null },
+    { label: "Yes", callback: onConfirm },
+  ];
+  openDecisionModal(message, buttons);
 };
 
 /**
- * Closes the confirm modal and clears the pending callback.
+ * Closes the confirm modal.
+ * Delegates to decisionModal.
  */
 const closeConfirmModal = () => {
-  const modal = getConfirmModalEl();
-  closeModal(modal);
-  confirmCallback = null;
+  closeDecisionModal();
 };
 
 /**
- * Handles Yes button click — invokes the confirm callback then closes.
+ * Handles Yes button click.
+ * Delegates to decisionModal — button at index 1.
  */
 const onConfirmYesClick = () => {
-  const callback = confirmCallback;
-  closeConfirmModal();
-  if (!callback) {
-    return;
-  }
-  callback();
+  onDecisionButtonClick(1);
 };
 
 /**
- * Handles No button click — closes the modal without acting.
+ * Handles No button click.
+ * Delegates to decisionModal — button at index 0.
  */
 const onConfirmNoClick = () => {
-  closeConfirmModal();
+  onDecisionButtonClick(0);
 };
 
 /**
  * Handles keyboard controls while the confirm modal is open.
- * Escape → No; Enter → Yes.
+ * Escape → No (button 0); Enter → Yes (button 1).
+ * Delegates to decisionModal keyboard handler.
  * @param {Event} event - Keydown event
  */
 const onConfirmModalKeydown = (event) => {
-  const modal = getConfirmModalEl();
+  const modal = getDecisionModalEl();
   if (!isModalOpen(modal)) {
     return;
   }
 
   if (event.key === "Escape") {
     event.preventDefault();
-    closeConfirmModal();
+    onDecisionButtonClick(0);
     return;
   }
 
@@ -98,5 +67,5 @@ const onConfirmModalKeydown = (event) => {
   }
 
   event.preventDefault();
-  onConfirmYesClick();
+  onDecisionButtonClick(1);
 };

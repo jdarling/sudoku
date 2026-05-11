@@ -26,9 +26,17 @@ const runPuzzleTests = () => {
   };
 
   let parsePuzzleDoc = resolveSymbol("parsePuzzleDoc");
+  let getPuzzleIndex = resolveSymbol("getPuzzleIndex");
   let getPuzzles = resolveSymbol("getPuzzles");
   let getPuzzle = resolveSymbol("getPuzzle");
   let getRandomPuzzle = resolveSymbol("getRandomPuzzle");
+  let sanitizePuzzleToken = resolveSymbol("sanitizePuzzleToken");
+  let findPuzzleMatches = resolveSymbol("findPuzzleMatches");
+  let buildPuzzleSearchText = resolveSymbol("buildPuzzleSearchText");
+  let validatePuzzleUrl = resolveSymbol("validatePuzzleUrl");
+  let validatePuzzleDoc = resolveSymbol("validatePuzzleDoc");
+  let parseBoardInput = resolveSymbol("parseBoardInput");
+  let validateBoardInput = resolveSymbol("validateBoardInput");
 
   setTestFile("puzzles.js");
 
@@ -67,13 +75,40 @@ const runPuzzleTests = () => {
     return expect(parsePuzzleDoc(doc).length).toBe(81);
   });
 
+  test("getPuzzleIndex returns metadata entries", async () => {
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => [
+        {
+          id: "001",
+          path: "puzzles/easy/001.yaml",
+          name: "Puzzle 001",
+          level: "easy",
+          author: "Unknown",
+          description: "",
+        },
+      ],
+    });
+    const list = await getPuzzleIndex();
+    return expect(list[0].path).toBe("puzzles/easy/001.yaml");
+  });
+
   test("getPuzzles returns parsed index list", async () => {
     globalThis.fetch = async () => ({
       ok: true,
-      json: async () => ["puzzles/001.yaml"],
+      json: async () => [
+        {
+          id: "001",
+          path: "puzzles/easy/001.yaml",
+          name: "Puzzle 001",
+          level: "easy",
+          author: "Unknown",
+          description: "",
+        },
+      ],
     });
     const list = await getPuzzles();
-    return expect(list).toEqual(["puzzles/001.yaml"]);
+    return expect(list).toEqual(["puzzles/easy/001.yaml"]);
   });
 
   test("getPuzzles throws on failed response", async () => {
@@ -147,7 +182,19 @@ const runPuzzleTests = () => {
 
     globalThis.fetch = async (url) => {
       if (url === "data/puzzles.json") {
-        return { ok: true, json: async () => ["puzzles/001.yaml"] };
+        return {
+          ok: true,
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
+        };
       }
       return { ok: true, text: async () => payload };
     };
@@ -184,7 +231,24 @@ const runPuzzleTests = () => {
       if (url === "data/puzzles.json") {
         return {
           ok: true,
-          json: async () => ["puzzles/001.yaml", "puzzles/002.yaml"],
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+            {
+              id: "002",
+              path: "puzzles/002.yaml",
+              name: "Puzzle 002",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
         };
       }
       return { ok: true, text: async () => payload };
@@ -217,13 +281,438 @@ const runPuzzleTests = () => {
 
     globalThis.fetch = async (url) => {
       if (url === "data/puzzles.json") {
-        return { ok: true, json: async () => ["puzzles/001.yaml"] };
+        return {
+          ok: true,
+          json: async () => [
+            {
+              id: "001",
+              path: "puzzles/001.yaml",
+              name: "Puzzle 001",
+              level: "easy",
+              author: "Unknown",
+              description: "",
+            },
+          ],
+        };
       }
       return { ok: true, text: async () => payload };
     };
 
     const puzzle = await getRandomPuzzle("puzzles/001.yaml");
     return expect(puzzle.filename).toBe("puzzles/001.yaml");
+  });
+
+  test("sanitizePuzzleToken returns empty string for falsy input", () => {
+    return expect(sanitizePuzzleToken("")).toBe("");
+  });
+
+  test("sanitizePuzzleToken strips .yaml suffix", () => {
+    return expect(sanitizePuzzleToken("004.yaml")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken strips puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("puzzles/004.yaml")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken strips difficulty subdir and puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("puzzles/easy/004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("sanitizePuzzleToken strips easy/ prefix without puzzles/ prefix", () => {
+    return expect(sanitizePuzzleToken("easy/004.yaml")).toBe("easy/004");
+  });
+
+  test("sanitizePuzzleToken removes path traversal segments", () => {
+    return expect(sanitizePuzzleToken("../004")).toBe("004");
+  });
+
+  test("sanitizePuzzleToken removes internal path traversal", () => {
+    return expect(sanitizePuzzleToken("puzzles/../easy/004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("sanitizePuzzleToken URL-decodes encoded input", () => {
+    return expect(sanitizePuzzleToken("puzzles%2Feasy%2F004.yaml")).toBe(
+      "easy/004",
+    );
+  });
+
+  test("findPuzzleMatches returns no match for empty index", () => {
+    const result = findPuzzleMatches("004", []);
+    return expect(
+      result.exactMatch === null && result.filtered.length === 0,
+    ).toBeTruthy();
+  });
+
+  test("findPuzzleMatches exact match by canonical id", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("004", entries);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches exact match by legacy path token", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("easy/004", entries);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches exact match for full legacy path", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("puzzles/easy/004.yaml", entries);
+    return expect(result.exactMatch).toBe("puzzles/easy/004.yaml");
+  });
+
+  test("findPuzzleMatches returns no exact match for unknown token", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("999", entries);
+    return expect(result.exactMatch === null).toBeTruthy();
+  });
+
+  test("findPuzzleMatches returns filtered entries for partial token", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Starter",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "011",
+        path: "puzzles/medium/011.yaml",
+        name: "Puzzle 011",
+        level: "medium",
+        author: "Unknown",
+        description: "",
+      },
+      {
+        id: "021",
+        path: "puzzles/hard/021.yaml",
+        name: "Puzzle 021",
+        level: "hard",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("starter", entries);
+    return expect(
+      result.filtered.length === 1 &&
+        result.filtered[0].path === "puzzles/easy/004.yaml",
+    ).toBeTruthy();
+  });
+
+  test("findPuzzleMatches returns empty filtered for completely unknown token", () => {
+    const entries = [
+      {
+        id: "004",
+        path: "puzzles/easy/004.yaml",
+        name: "Puzzle 004",
+        level: "easy",
+        author: "Unknown",
+        description: "",
+      },
+    ];
+    const result = findPuzzleMatches("xyzzy", entries);
+    return expect(result.filtered.length === 0).toBeTruthy();
+  });
+
+  test("buildPuzzleSearchText includes all searchable fields", () => {
+    const entry = {
+      id: "004",
+      path: "puzzles/easy/004.yaml",
+      name: "Hidden Gem",
+      level: "easy",
+      author: "Jane",
+      description: "Practice board",
+    };
+    const text = buildPuzzleSearchText(entry);
+    return expect(
+      text.includes("hidden gem") &&
+        text.includes("jane") &&
+        text.includes("practice board") &&
+        text.includes("puzzles/easy/004.yaml"),
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl returns null for valid https .yaml URL", () => {
+    return expect(validatePuzzleUrl("https://example.com/puzzle.yaml")).toBe(
+      null,
+    );
+  });
+
+  test("validatePuzzleUrl returns null for valid http .yaml URL", () => {
+    return expect(validatePuzzleUrl("http://example.com/puzzle.yaml")).toBe(
+      null,
+    );
+  });
+
+  test("validatePuzzleUrl rejects javascript: scheme", () => {
+    return expect(
+      validatePuzzleUrl("javascript:alert(1)") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects non-.yaml path", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.json") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects URL with hash fragment", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.yaml#section") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects URL with query parameters", () => {
+    return expect(
+      validatePuzzleUrl("https://example.com/puzzle.yaml?v=1") !== null,
+    ).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects empty string", () => {
+    return expect(validatePuzzleUrl("") !== null).toBeTruthy();
+  });
+
+  test("validatePuzzleUrl rejects non-URL string", () => {
+    return expect(validatePuzzleUrl("not a url") !== null).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns true for valid rows doc", () => {
+    const doc = {
+      name: "Test Puzzle",
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns true when level field is used instead of difficulty", () => {
+    const doc = {
+      name: "Test Puzzle",
+      level: "medium",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeTruthy();
+  });
+
+  test("validatePuzzleDoc returns false when name is missing", () => {
+    const doc = {
+      difficulty: "easy",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false when level and difficulty are both missing", () => {
+    const doc = {
+      name: "Test",
+      puzzle: {
+        rows: [
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+          "123456789",
+        ],
+      },
+    };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false when puzzle is missing", () => {
+    const doc = { name: "Test", difficulty: "easy" };
+    return expect(validatePuzzleDoc(doc)).toBeFalsy();
+  });
+
+  test("validatePuzzleDoc returns false for null input", () => {
+    return expect(validatePuzzleDoc(null)).toBeFalsy();
+  });
+
+  const VALID_BOARD =
+    "530070000600195000098000060800060003400803001700020006060000280000419005000080079";
+
+  test("parseBoardInput returns 81-char string for digit-only input", () => {
+    return expect(parseBoardInput(VALID_BOARD)).toBe(VALID_BOARD);
+  });
+
+  test("parseBoardInput treats non-digit chars as 0", () => {
+    const dotBoard =
+      "53..7....6..195....98....6.8...6...34..8.3..17...2...6.6....28....419..5....8..79";
+    const result = parseBoardInput(dotBoard);
+    return expect(
+      result !== null && result.length === 81 && /^[0-9]+$/.test(result),
+    ).toBeTruthy();
+  });
+
+  test("parseBoardInput returns null for input with wrong cell count", () => {
+    return expect(parseBoardInput("12345")).toBe(null);
+  });
+
+  test("parseBoardInput returns null for empty string", () => {
+    return expect(parseBoardInput("")).toBe(null);
+  });
+
+  test("parseBoardInput returns null for null input", () => {
+    return expect(parseBoardInput(null)).toBe(null);
+  });
+
+  test("parseBoardInput strips whitespace/newlines to normalize multi-line input", () => {
+    const multiLine =
+      "530070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079";
+    const result = parseBoardInput(multiLine);
+    return expect(result !== null && result.length === 81).toBeTruthy();
+  });
+
+  test("validateBoardInput returns null for valid board", () => {
+    return expect(validateBoardInput(VALID_BOARD)).toBe(null);
+  });
+
+  test("validateBoardInput accepts manual board entry case 1", () => {
+    const board =
+      "058060000410300700003700005680001000900000008000400013300006200002009076000040150";
+    return expect(validateBoardInput(board)).toBe(null);
+  });
+
+  test("validateBoardInput accepts manual board entry case 2", () => {
+    const board =
+      "040000000002103094000002003706000050000538000050000401100200000520709100000000060";
+    return expect(validateBoardInput(board)).toBe(null);
+  });
+
+  test("validateBoardInput returns error for all-zero board", () => {
+    return expect(validateBoardInput("0".repeat(81)) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for wrong length", () => {
+    return expect(validateBoardInput("53007") !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same row", () => {
+    const conflicting = "55" + "0".repeat(79);
+    return expect(validateBoardInput(conflicting) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same column", () => {
+    const cells = new Array(81).fill("0");
+    cells[0] = "7";
+    cells[9] = "7";
+    return expect(validateBoardInput(cells.join("")) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for conflicting givens in same box", () => {
+    const cells = new Array(81).fill("0");
+    cells[0] = "9";
+    cells[10] = "9";
+    return expect(validateBoardInput(cells.join("")) !== null).toBeTruthy();
+  });
+
+  test("validateBoardInput returns error for null input", () => {
+    return expect(validateBoardInput(null) !== null).toBeTruthy();
   });
 };
 
