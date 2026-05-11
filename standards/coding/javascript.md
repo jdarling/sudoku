@@ -30,7 +30,23 @@ It is JavaScript-specific and extends `./general.md`.
 - Keep each function focused; split when responsibility expands.
 - Do not mutate a variable into a different type.
 
-## 4) ES6+ Guidance (Required)
+## 4) Idempotent and Pure Functions (Required)
+
+Functions must be pure and idempotent.
+
+- Pure: no side effects (no DOM writes, no storage writes, no network calls, no global mutation).
+- Idempotent for same input: calling the same function repeatedly with the same arguments returns an equivalent result.
+- Never mutate input objects/arrays; always return new values.
+- Keep orchestration side effects in boundary modules (for this project: `app.js`, DOM handlers, integration boundaries).
+- Prefer deterministic inputs over hidden reads (`Date.now()`, `Math.random()`, module globals). If needed, pass them in as parameters.
+
+Required pattern for state updates:
+
+- Input: previous value + explicit arguments
+- Output: new value
+- No hidden dependencies
+
+## 5) ES6+ Guidance (Required)
 
 Use ES6 helpers and enhancements where they improve clarity.
 
@@ -46,7 +62,7 @@ Use ES6 helpers and enhancements where they improve clarity.
 - Prefer `Map`/`Set` when semantics match lookup/uniqueness.
 - Use `async/await` over promise chains for flow control readability.
 
-## 5) Collections and Iteration
+## 6) Collections and Iteration
 
 - Use array helpers (`map`, `filter`, `reduce`, `find`, `some`, `every`) for transformations.
 - Use `for` loops when performance-critical or index-dependent.
@@ -54,7 +70,7 @@ Use ES6 helpers and enhancements where they improve clarity.
 - `i++` and `++i` are both acceptable; prefer consistency within the file.
 - Avoid side effects inside transformations unless explicitly intended.
 
-## 6) Imports/Modules
+## 7) Imports/Modules
 
 - Keep imports at top of file.
 - Group imports in this order:
@@ -64,7 +80,7 @@ Use ES6 helpers and enhancements where they improve clarity.
 - Prefer explicit named exports when practical.
 - Avoid circular dependencies.
 
-## 7) Comments
+## 8) Comments
 
 - Prefer self-documenting code first.
 - Use comments for intent, invariants, and non-obvious behavior.
@@ -72,7 +88,7 @@ Use ES6 helpers and enhancements where they improve clarity.
 - Use JSDoc for public functions, shared utilities, and complex interfaces.
 - Keep tone formal and concise.
 
-## 8) Error Handling and Logging
+## 9) Error Handling and Logging
 
 - Throw `Error` objects with actionable messages.
 - Catch errors at boundaries and add context.
@@ -80,32 +96,32 @@ Use ES6 helpers and enhancements where they improve clarity.
 - Log structured data where possible.
 - Do not log secrets, tokens, or sensitive PII.
 
-## 9) Node and API Conventions
+## 10) Node and API Conventions
 
 - Callback-first style (if used) must keep `(err, result)` shape.
 - Prefer promises/`async` functions for new code.
 - Validate input at API boundaries.
 - Keep response shape consistent within an endpoint family.
 
-## 10) Formatting and Tooling
+## 11) Formatting and Tooling
 
 - Formatting baseline from `.prettierrc` at repo root.
 - Lint rules should enforce this document where feasible.
 - If a rule conflicts with readability, prefer readability and document the exception.
 
-## 11) Practical Exceptions
+## 12) Practical Exceptions
 
 - Legacy files can be incrementally modernized during touch-up changes.
 - Generated files follow generator output unless explicitly reformatted.
 - Performance-sensitive paths may use lower-level patterns with comments.
 
-## 12) Quick Examples
+## 13) Quick Examples
 
 ### Preferred
 
 ```js
-const formatEntryTitle = ({ date, authorName = 'Unknown' }) => {
-  const day = date?.slice?.(0, 10) ?? 'unknown-day';
+const formatEntryTitle = ({ date, authorName = "Unknown" }) => {
+  const day = date?.slice?.(0, 10) ?? "unknown-day";
   return `${day} - ${authorName}`;
 };
 ```
@@ -121,9 +137,16 @@ const toFeelingsMap = (feelings = []) => {
 ### Avoid
 
 ```js
-var x = '';
+var x = "";
 if (thing) x = 1;
-else x = 'none';
+else x = "none";
+```
+
+```js
+const addMove = (scorecard) => {
+  scorecard.moves += 1; // Mutates input (not allowed)
+  return scorecard;
+};
 ```
 
 See also: `./general.md`

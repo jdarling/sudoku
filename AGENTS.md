@@ -295,3 +295,30 @@ git tag -a v1.x.x -m "Version 1.x.x: description"
 **Never tag mid-feature.** Tags mark finished, stable versions only.
 
 **Always update `changelog.md`** alongside `VERSION` at the start of each new version.
+
+## Maintenance: Cleaning Up TODO.md (IMPORTANT)
+
+When a feature is **merged to main** (appears in `changelog.md` with a git tag), remove it from TODO.md.
+
+**How to identify completed items:**
+
+1. Run `git log --oneline` to see recent releases and tags
+2. Read `changelog.md` to understand which features shipped in each version
+3. Find matching sections in TODO.md by feature name
+4. Remove the **entire section** (title through closing `---` separator)
+5. Update the "Summary: Implementation Guide" list to remove the item
+
+**Examples of completed features (already removed):**
+
+- Extended Related Highlighting (v1.14.0)
+- Settings Panel & all themes (v1.13.2–v1.14.2)
+- Dynamic puzzle loading, theme selection, modal refactors, etc.
+
+**What "complete" means:**
+
+- Code is merged to `main` branch
+- Feature has a git tag (v1.x.x)
+- Feature is documented in `changelog.md`
+- Feature is not on an active development branch
+
+**When in doubt:** Check git history rather than relying on description alone. Ask the user if you're unsure whether something shipped.

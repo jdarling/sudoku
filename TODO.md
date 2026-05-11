@@ -39,10 +39,10 @@ Perfect for contributors learning the codebase. These features involve simple ad
   ```javascript
   const fetchLatestPuzzles = async () => {
     try {
-      const response = await fetch('data/puzzles.json', {
-        cache: 'no-store', // Always bypass cache
+      const response = await fetch("data/puzzles.json", {
+        cache: "no-store", // Always bypass cache
       });
-      if (!response.ok) throw new Error('Fetch failed');
+      if (!response.ok) throw new Error("Fetch failed");
       return await response.json();
     } catch (error) {
       // Fall back to previously cached list
@@ -66,149 +66,6 @@ Perfect for contributors learning the codebase. These features involve simple ad
 # Complexity: Medium
 
 Moderate difficulty. These features involve extending state management or rendering logic while maintaining the current architecture.
-
-## Extended Related Highlighting
-
-**Complexity:** Medium  
-**Description:** Allow users to toggle highlight modes for related cells (row/column cross). When a cell is selected, highlight all cells in the same row/column with varying intensity based on the selected mode.
-
-**Modes:**
-
-- `off` — Disable related highlighting entirely
-- `cross-only` — Highlight same row/column with normal intensity
-- `minimal` — Highlight same row/column with subtle (lighter) intensity
-- `all` — Highlight same row/column + entire 3x3 box with varying intensity
-
-**Implementation Notes:**
-
-- Extend `getCellHighlight()` in `js/render.js` to support mode parameter
-- Store highlight mode in state (add to object returned by `createStateFromPuzzle()`)
-- Add pure function `setHighlightMode(state, mode)` in `js/state.js`
-- Update `renderGrid()` to pass current highlight mode to `getCellHighlight()`
-- Add CSS classes in `style/themes/` for minimal/light highlight variants
-- Integrate with Settings Panel
-
-**Testing:**
-
-- Verify all modes apply correct CSS classes to cells
-- Test mode persistence during gameplay
-- Ensure same-number highlighting still works alongside related highlighting
-
-**Related:** Settings Panel
-
----
-
-## Settings Panel
-
-**Complexity:** Medium  
-**Description:** Persistent user preferences accessible from main game page. Stores selections in localStorage and applies across sessions. Includes theme selection with individual theme implementations.
-
-**Core Settings:**
-
-- Related highlight mode
-- Auto-check valid cells (on/off) — if enabled, `Check` button highlights errors automatically
-- Keyboard navigation mode (optional)
-
-**Theme Selection:**
-Each theme below is a separate sub-feature to implement independently.
-
-### Default Theme (Light)
-
-Already implemented. Use as baseline for other themes.
-
-### Dark Theme
-
-Already implemented. Okabe-Ito colorblind-safe dark palette.
-
-### Terminal Theme
-
-**Description:** Classic hacker aesthetic with green or amber text on black background.
-
-- Colors: Black background, bright green/amber foreground, high contrast
-- Maintain colorblind-safe accent colors for highlights
-- Monospace font option for cells (optional)
-
-### Sepia/Vintage Theme
-
-**Description:** Warm, aged paper look with brown/tan tones reminiscent of old puzzle books.
-
-- Colors: Cream/off-white background, warm browns for text and borders
-- Muted highlights with sepia-toned variants
-- Slightly textured background (CSS pattern or subtle image)
-
-### Forest Theme
-
-**Description:** Earthy greens and natural wood tones.
-
-- Colors: Warm green background, natural wood browns, forest greens for highlights
-- Accent colors maintain colorblind-safe standards
-
-### Ocean/Water Theme
-
-**Description:** Cool blues, teals, and aqua colors.
-
-- Colors: Light blue background, deeper blues for contrast, teal highlights
-- Subtle water-inspired visual effects (gradients, maybe subtle wave pattern)
-
-### Sunset Theme
-
-**Description:** Warm oranges, pinks, purples transitioning across the palette.
-
-- Colors: Gradient-inspired palette from orange through pink to purple
-- Warm highlights and accents
-- Maintain contrast for playability
-
-### High Contrast Theme
-
-**Description:** Maximum accessibility with stark black/white and bold primary colors.
-
-- Colors: Pure black and white with vibrant primary colors (red, blue, yellow)
-- Thickest borders for clarity
-- No subtle highlights; all highlights bold and distinct
-
-### Cyberpunk/Neon Theme
-
-**Description:** Bright saturated colors with high-contrast edges and futuristic feel.
-
-- Colors: Dark background with bright neon accents (cyan, magenta, electric blue)
-- Glow effects on highlights and selections
-- Bold, sharp contrast
-
-**Implementation Notes (Core Options Panel):**
-
-- Create `js/options.js` module with pure functions:
-  - `createDefaultOptions()` → options object
-  - `loadOptions()` → load from localStorage
-  - `saveOptions(options)` → persist to localStorage
-  - `updateOption(options, key, value)` → immutable update
-- Add `#options-modal` to `index.html` (initially hidden, shown on Options button click)
-- Add `onOptionsChange()` handler in `js/app.js` to update game state + re-render
-- Store options separately from game state (not in currentState object)
-- Add Options button to `#top-controls` or `#theme-row`
-
-**Theme Implementation Pattern:**
-
-- For each theme: Create `style/themes/<theme-name>.css`
-- Load stylesheet dynamically based on `localStorage` selection
-- Follow same color variable structure as existing `default.css` and `dark.css`
-- Maintain Okabe-Ito colorblind-safe principles where possible
-
-**localStorage Keys:**
-
-- `sudoku-settings` — JSON object with all user preferences
-- `sudoku-theme` — Currently used by app.js (will be moved into `sudoku-settings` object)
-
-**Testing:**
-
-- Verify all settings persist across page reloads
-- Test that changing a setting applies immediately to game
-- Confirm defaults are used if localStorage is empty
-- Test that invalid values are rejected (graceful fallback to defaults)
-- For each theme: Verify all CSS classes apply correctly, test contrast/readability
-
-**Related:** Extended Related Highlighting
-
----
 
 ## Share Functionality
 
@@ -259,6 +116,50 @@ Already implemented. Okabe-Ito colorblind-safe dark palette.
 - Confirm email/SMS links open appropriate apps
 - Test on mobile and desktop
 
+**Detailed Plan:**
+
+- See `plans/share/plan.md`
+
+---
+
+## Scorecard Functionality
+
+**Complexity:** Medium  
+**Description:** Add a per-game scorecard that tracks assistance usage and solve behavior, then computes a transparent final score.
+
+**Track Separately:**
+
+- Check button uses
+- Hint button uses
+- Immediate-error displays
+- Error-cell displays
+- Total moves
+- Support-check count (current)
+- Maximum support-check count after first successful placed number
+
+**Implementation Notes:**
+
+- Add scorecard state object in `js/state.js` with pure update functions
+- Increment counters from action handlers in `js/dom.js`
+- Update scorecard support-check counters when options checkboxes change
+- Reset scorecard on new/load puzzle flows in `js/app.js`
+- Freeze scorecard on terminal outcomes (solve/complete)
+- Render scorecard metrics and final score via `js/render.js`
+- Keep formulas deterministic and clamp final score to [0, 100]
+
+**Detailed Plan:**
+
+- See `plans/scorecard/plan.md`
+
+**Testing:**
+
+- First-move gating works correctly
+- Max support-checks ignores changes before first move
+- Each action increments intended counter exactly once
+- Resets happen on all load/new flows
+- Frozen scorecard remains unchanged
+- Score formula clamps correctly
+
 **Related:** May integrate with PWA for native share API
 
 ---
@@ -279,6 +180,10 @@ Advanced work requiring significant architectural additions or new systems. Thes
 - Create new module `js/editor.js` for editor-specific logic
 - Styling: Reuse `style/themes/` for consistency
 - Puzzle output format: YAML (same as `data/puzzles.yaml`)
+
+**Detailed Plan:**
+
+- See `plans/puzzle-editor/plan.md`
 
 ### Editor UI & Board Input
 
@@ -329,7 +234,7 @@ Advanced work requiring significant architectural additions or new systems. Thes
 - Generate YAML output matching `data/samples.yaml` format:
   ```yaml
   difficulty: Medium
-  name: 'My Puzzle'
+  name: "My Puzzle"
   clues: |
     ..3.2...8.....
     ...
@@ -371,6 +276,10 @@ Advanced work requiring significant architectural additions or new systems. Thes
 
 1. **Players** — Photograph a puzzle from a newspaper/magazine/book and play it in the app
 2. **Editors** — Scan hand-written or printed puzzles to digitize them for distribution
+
+**Detailed Plan:**
+
+- See `plans/scanner/plan.md`
 
 **Core Features:**
 
@@ -495,8 +404,8 @@ Advanced work requiring significant architectural additions or new systems. Thes
 
 - Register service worker in `js/app.js` on `init()`:
   ```javascript
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('js/sw.js');
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("js/sw.js");
   }
   ```
 - Cache bust on version upgrade (include VERSION in cache key)
@@ -515,8 +424,6 @@ Advanced work requiring significant architectural additions or new systems. Thes
 
 Full list of features to tackle:
 
-- Extended Related Highlighting
-- Settings Panel
 - Share Functionality
 - PWA Offline Support
 - Dynamic Puzzle Fetching
